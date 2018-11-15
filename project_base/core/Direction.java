@@ -6,7 +6,7 @@ import pacman_ultimater.project_base.custom_utils.IntPair;
  * Class providing data structure for directions via enumerable nType.
  * It also provides two useful functions for conversions.
  */
-public class Direction {
+class Direction {
 
     /**
      * Enumarable representing possible directions.
@@ -22,7 +22,7 @@ public class Direction {
      * @param direction direction representation in form of nType
      * @return IntPair
      */
-    public IntPair DirectionToIntPair(nType direction)
+    IntPair directionToIntPair(nType direction)
     {
         switch (direction)
         {
@@ -45,7 +45,7 @@ public class Direction {
      * @param intPair Input delta tuple of two integers.
      * @return nType
      */
-    public nType TupleToDirection(IntPair intPair)
+    nType intPairToDirection(IntPair intPair)
     {
         if(intPair.Item1 == 0)
         {
