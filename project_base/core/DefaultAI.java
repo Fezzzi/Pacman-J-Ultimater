@@ -18,7 +18,7 @@ public class DefaultAI {
                 2.3) Eaten - entity has been eaten
     *///        2.4) CanBeEaten - entity can be eaten by pacman
 
-    public nType State;
+    private nType State;
     private int fieldSizeInColumns, fieldSizeInRows;
 
     /**
