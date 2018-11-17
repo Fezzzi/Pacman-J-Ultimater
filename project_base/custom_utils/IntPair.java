@@ -1,11 +1,11 @@
 package pacman_ultimater.project_base.custom_utils;
 
 public class IntPair {
-    public int Item1, Item2;
+    public int item1, item2;
 
-    public IntPair(int Item1, int Item2) {
-        this.Item1 = Item1;
-        this.Item2 = Item2;
+    public IntPair(int item1, int item2) {
+        this.item1 = item1;
+        this.item2 = item2;
     }
 
     public boolean equals(Object o) {
@@ -13,6 +13,6 @@ public class IntPair {
             return false;
         }
 
-        return (((IntPair) o).Item1 == this.Item1 && ((IntPair) o).Item2 == Item2);
+        return (((IntPair) o).item1 == item1 && ((IntPair) o).item2 == item2);
     }
 }

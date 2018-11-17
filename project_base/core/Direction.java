@@ -47,19 +47,19 @@ class Direction {
      */
     nType intPairToDirection(IntPair intPair)
     {
-        if(intPair.Item1 == 0)
+        if(intPair.item1 == 0)
         {
-            if (intPair.Item2 == 1)
+            if (intPair.item2 == 1)
                 return nType.RIGHT;
-            else if (intPair.Item2 == -1)
+            else if (intPair.item2 == -1)
                 return nType.LEFT;
             else return nType.DIRECTION;
         }
         else
         {
-            if (intPair.Item1 == 1)
+            if (intPair.item1 == 1)
                 return nType.DOWN;
-            else if (intPair.Item1 == -1)
+            else if (intPair.item1 == -1)
                 return nType.UP;
             else return nType.DIRECTION;
         }

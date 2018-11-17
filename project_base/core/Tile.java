@@ -8,7 +8,7 @@ import java.awt.*;
   */
 public class Tile
 {
-    public nType tile;
+    nType tile;
 
     /**
      * Enumerable for possible tile states.
@@ -24,7 +24,7 @@ public class Tile
      * Returns coresponding tile state.
      * @param tile string representation of tile state.
      */
-    public Tile(String tile)
+    Tile(String tile)
     {
         switch (tile)
         {

@@ -132,26 +132,26 @@ public class DefaultAI {
         ArrayList<IntPair> possibilities = new ArrayList<>();
         Direction dir = new Direction();
         IntPair back = dir.directionToIntPair(direction);
-        back = new IntPair(back.Item1 * -1, back.Item2 * -1);
+        back = new IntPair(back.item1 * -1, back.item2 * -1);
 
         for (int j = 0; j < 2; j++) {
             for (int i = -1; i < 2; i += 2) {
                 int deltaX = (j == 0 ? i : 0);
                 int deltaY = (j == 1 ? i : 0);
-                if (position.Item1 + deltaY < 0) {
+                if (position.item1 + deltaY < 0) {
                     if (direction == Direction.nType.LEFT)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.Item1 + deltaY >= fieldSizeInColumns) {
+                } else if (position.item1 + deltaY >= fieldSizeInColumns) {
                     if (direction == Direction.nType.RIGHT)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.Item2 + deltaX < 0) {
+                } else if (position.item2 + deltaX < 0) {
                     if (direction == Direction.nType.UP)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.Item2 + deltaX >= fieldSizeInRows) {
+                } else if (position.item2 + deltaX >= fieldSizeInRows) {
                     if (direction == Direction.nType.DOWN)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (CanAdd(map[position.Item2 + deltaX][position.Item1 + deltaY])
-                        && (deltaX != back.Item1 || deltaY != back.Item2))
+                } else if (CanAdd(map[position.item2 + deltaX][position.item1 + deltaY])
+                        && (deltaX != back.item1 || deltaY != back.item2))
                     possibilities.add(new IntPair(deltaX, deltaY));
             }
         }
