@@ -13,12 +13,8 @@ import java.util.Stack;
  */
 class LoadMap
 {
-    private final int TileTypes = 5;
-    private final int GhostHouseSize = 38;
     private final int MapWidthInTiles = 28;
     private final int MapHeightInTiles = 31;
-    private final int PacManInitialY = 23;
-    private final int PacManInitialX = 13;
 
     private Tile[][] tileMap;
     private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
@@ -84,7 +80,7 @@ class LoadMap
         this.tileMap = new Tile[MapHeightInTiles][];
         ArrayList<Point> pPArr = new ArrayList<>();
         int lineNum = 1,column = 0;
-        BufferedReader br = new BufferedReader(new FileReader(path));
+        CustomReader cr = new CustomReader(path);
         map[0] = new char[MapWidthInTiles + 2];
         map[1] = new char[MapWidthInTiles + 2];
         tileMap[0] = new Tile[MapWidthInTiles];
@@ -92,10 +88,11 @@ class LoadMap
         Stack<Point> horizontalTilesStack = new Stack<>();
 
         // Reads first line and performs parsing on it to get game map color specified on the first line.
-        Color color = new Color(255,255,255,0);
-        int firstChar = br.Peek();
+        Color color = new Color(255,255,255,0); //TRANSPARENT
+        int firstChar = cr.peek();
+
         if((char)firstChar == '#')
-            color = ParseColor(br.readLine());
+            color = ParseColor(cr.readLine());
 
         int symbol = 0;
 
@@ -106,9 +103,9 @@ class LoadMap
             // Tests whether text file does not contain more that 31 lines.
             if (lineNum > MapHeightInTiles)
                 return null;
-            symbol = br.read();
+            symbol = cr.read();
             while (symbol == 13 || symbol == 10)
-                symbol = br.read();
+                symbol = cr.read();
 
             // Counts number of pellets on the map.
             if (symbol == symbols[1] || symbol == symbols[2])
@@ -124,7 +121,7 @@ class LoadMap
                                 map[lineNum - 1][column], map[lineNum - 1][column - 1],
                                 map[lineNum - 1][column + 1], map[lineNum - 2][column],
                                 (char)symbol, map[lineNum][column - 1], map[lineNum - 2][column - 1],
-                                map[lineNum - 2][column + 1], (char)br.Peek(),
+                                map[lineNum - 2][column + 1], (char)cr.peek(),
                                 lineNum > 2 ? tileMap[lineNum - 3][column - 1] : null,
                                 column > 1 ? tileMap[lineNum - 2][column - 2] : null, symbols
                         );
@@ -263,6 +260,10 @@ class LoadMap
      */
     private Pair<Boolean, IntPair> IsPlayable(char[][] map, char[] symbols, int numOfDots)
     {
+        final int GhostHouseSize = 38;
+        final int PacManInitialY = 23;
+        final int PacManInitialX = 13;
+
         int ghostHouse = 0, dotsFound = 0;
         IntPair ghostPosition = null;
         IntPair position = new IntPair(PacManInitialY + 1, PacManInitialX + 1);
