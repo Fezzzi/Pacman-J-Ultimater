@@ -2,8 +2,6 @@ package pacman_ultimater.project_base.core;
 
 import pacman_ultimater.project_base.custom_utils.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -11,13 +9,13 @@ import java.util.Stack;
 /**
  * Class that handles manipulation with text files containing map.
  */
-class LoadMap
+public class LoadMap
 {
     private final int MapWidthInTiles = 28;
     private final int MapHeightInTiles = 31;
 
     private Tile[][] tileMap;
-    private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
+    public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
 
     /**
      * Calls loading function with default symbols.
@@ -25,7 +23,7 @@ class LoadMap
      */
     public LoadMap(String path)
     {
-        Map = LdMap(path, new char[] {' ','.','o','x','X'});
+        Map = LdMap(path, new Character[] {' ','.','o','x','X'});
     }
 
     /**
@@ -33,7 +31,7 @@ class LoadMap
      * @param path Path to the map file that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      */
-    public LoadMap(String path, char[] symbols)
+    public LoadMap(String path, Character[] symbols)
     {
         Map = LdMap(path, symbols);
     }
@@ -44,7 +42,7 @@ class LoadMap
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Return array of loaded tiles, translated to game's language (null in case of failure).
      */
-    private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> LdMap(String path, char[] symbols)
+    private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> LdMap(String path, Character[] symbols)
     {
         try
         {
@@ -70,7 +68,7 @@ class LoadMap
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Returns Tile map if possible, null otherwise.
      */
-    private Quartet<char[][], Integer, Color, ArrayList<Point>> LoadIt(String path, char[] symbols)
+    private Quartet<char[][], Integer, Color, ArrayList<Point>> LoadIt(String path, Character[] symbols)
             throws IOException
     {
         // Map is created bigger so it is possible to automaticaly call transform to tiles with indexes
@@ -258,7 +256,7 @@ class LoadMap
      * @param numOfDots Number of pellets found on the loaded map.
      * @return Tuple indicating playability of the map and position of the ghost house on the map.
      */
-    private Pair<Boolean, IntPair> IsPlayable(char[][] map, char[] symbols, int numOfDots)
+    private Pair<Boolean, IntPair> IsPlayable(char[][] map, Character[] symbols, int numOfDots)
     {
         final int GhostHouseSize = 38;
         final int PacManInitialY = 23;
@@ -376,7 +374,7 @@ class LoadMap
             char tileUp, char tileDown, char BLCorner,
             char TLCorner,char TRCorner, char BRCorner,
             Tile upperTile, Tile leftTile,
-            char[] symbols)
+            Character[] symbols)
     {
         if (tile == symbols[0])
             return new Tile(" ");

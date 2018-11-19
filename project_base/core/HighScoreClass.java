@@ -6,16 +6,16 @@ import java.util.Random;
 /**
  * Contains two simple functions one for loading and other for saving highscore.
  */
-final class HighScoreClass
+public class HighScoreClass
 {
-    private final int ImportantLine = 10;
-    private final int LinesInFile = 15;
+    private static int ImportantLine = 10;
+    private static int LinesInFile = 15;
 
     /**
      * Function for HighScore loading.
      * @return int
      */
-    public final int LoadHighScore() throws IOException
+    public static int loadHighScore() throws IOException
     {
         // The actual highscore is saved at the 10th line of the config file.
         // It is necesary to just convert it from binary to decimaly number.
@@ -40,7 +40,7 @@ final class HighScoreClass
      * Function for HighScore Saving.
      * @param newHighScore New HighScore to be saved to config file.
      */
-    public final void SaveHighScore(int newHighScore) throws IOException
+    public static void saveHighScore(int newHighScore) throws IOException
     {
         // Function generates 9 lines of random binary numbers of aproximately same length as highscore.
         // After that the actual highscore is converted to binary number and saved at 10th line.
