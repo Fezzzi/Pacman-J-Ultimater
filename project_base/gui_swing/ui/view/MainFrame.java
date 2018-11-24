@@ -5,7 +5,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame{
 
     //<editor-fold desc="- Frame Components -">
 
@@ -69,10 +69,15 @@ public class MainFrame extends JFrame {
     private void initComponents(){
         instantiateComponents();
         //
+        // Main Frame
+        //
+        this.setFocusable(false);
+        //
         // Main Panel
         //
         mainPanel.setLayout(null);
         mainPanel.setBackground(SystemColor.desktop);
+        mainPanel.setFocusable(true);
         //
         // Open File Dialog
         //
@@ -88,6 +93,7 @@ public class MainFrame extends JFrame {
                 return "";
             }
         });
+        openFileDialog1.setFocusable(false);
         //
         // Pacman
         //
@@ -97,6 +103,7 @@ public class MainFrame extends JFrame {
         pacmanLbl.setName("pacman");
         pacmanLbl.setText("PAC-MAN");
         pacmanLbl.setVisible(false);
+        pacmanLbl.setFocusable(false);
         //
         // J-Ultimater
         //
@@ -106,6 +113,7 @@ public class MainFrame extends JFrame {
         ultimateLbl.setName("jultimater");
         ultimateLbl.setText("- J-ULTIMATER -");
         ultimateLbl.setVisible(false);
+        ultimateLbl.setFocusable(false);
         //
         // copyright
         //
@@ -114,6 +122,7 @@ public class MainFrame extends JFrame {
         copyrightLbl.setName("copyright");
         copyrightLbl.setText("© Copyright Filip Horký 2018");
         copyrightLbl.setVisible(false);
+        copyrightLbl.setFocusable(false);
         //
         // PressEnter
         //
@@ -123,7 +132,67 @@ public class MainFrame extends JFrame {
         pressEnterLbl.setName("pressEnter");
         pressEnterLbl.setText("<html>&nbsp;&nbsp;INSERT COIN<br/><br/>- press any key -</html>");
         pressEnterLbl.setVisible(false);
-
+        pressEnterLbl.setFocusable(false);
+        //
+        // OrgGame
+        //
+        orgGameLbl.setFont( new Font("Microsoft Sans Serif", Font.PLAIN, 34));
+        orgGameLbl.setForeground(Color.white);
+        orgGameLbl.setBounds(117,51,241,41);
+        orgGameLbl.setName("OrgGame");
+        orgGameLbl.setText("Original Game");;
+        orgGameLbl.setVisible(false);
+        orgGameLbl.setFocusable(false);
+        //
+        // selectMap
+        //
+        selectMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
+        selectMapLbl.setForeground(Color.white);
+        selectMapLbl.setBounds(145,118,190,39);
+        selectMapLbl.setName("selectMap");
+        selectMapLbl.setText("Select Map");
+        selectMapLbl.setVisible(false);
+        selectMapLbl.setFocusable(false);
+        //
+        // Settings
+        //
+        settingsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
+        settingsLbl.setForeground(Color.white);
+        settingsLbl.setBounds(168,186,143,39);
+        settingsLbl.setName("Settings");
+        settingsLbl.setText("Settings");
+        settingsLbl.setVisible(false);
+        settingsLbl.setFocusable(false);
+        //
+        // VS
+        //
+        vsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
+        vsLbl.setForeground(Color.white);
+        vsLbl.setBounds(211,275,63,39);
+        vsLbl.setName("VS");
+        vsLbl.setText("VS");
+        vsLbl.setVisible(false);
+        vsLbl.setFocusable(false);
+        //
+        // HighScr
+        //
+        highScrLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
+        highScrLbl.setForeground(Color.white);
+        highScrLbl.setBounds(130,328,235,38);
+        highScrLbl.setName("HihScr");
+        highScrLbl.setText("Highest Score");
+        highScrLbl.setVisible(false);
+        highScrLbl.setFocusable(false);
+        //
+        // EscLabel
+        //
+        escLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 20));
+        escLabelLbl.setBounds(152, 427, 185, 22);
+        escLabelLbl.setForeground(Color.yellow);
+        escLabelLbl.setName("EscLabel");
+        escLabelLbl.setText("Press ESC to return");
+        escLabelLbl.setVisible(false);
+        escLabelLbl.setFocusable(false);
     }
 
     private void instantiateComponents(){
@@ -192,6 +261,8 @@ public class MainFrame extends JFrame {
         mainPanel.add(openFileDialog1);
     }
 
+    //<editor-fold desc="- Getters -"
+
     public JPanel getMainPanel() {
         return mainPanel;
     }
@@ -228,4 +299,6 @@ public class MainFrame extends JFrame {
     public JFileChooser getOpenFileDialog1() { return openFileDialog1; }
 
     public String getResourcesPath() { return resourcesPath; }
+
+    //</editor-fold>
 }

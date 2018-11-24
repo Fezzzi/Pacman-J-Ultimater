@@ -13,22 +13,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-class MenuController {
+public class MenuController {
     private int score, score2, lives = 0;
 
     //<editor-fold desc="- VARIABLES Block -">
 
     private int highScore = -1;
-    private boolean gameOn = false, player2 = false;
+    private boolean gameOn = false;
+    private boolean player2 = false;
     private boolean sound = true, music = true;
     private ArrayList<JLabel> activeElements = new ArrayList<>();
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private JLabel scoreBox = new JLabel(), highScoreBox = new JLabel(), score2Box = new JLabel();
-    private ArrayList<Character> symbols = new ArrayList<>();
+    private ArrayList<String> symbols = new ArrayList<>();
 
     private String resourcesPath;
     private MainFrame mainFrame;
+    private JPanel mainPanel;
     private JFileChooser openFileDialog1;
 
     private JLabel pacmanLbl;
@@ -65,8 +67,10 @@ class MenuController {
     MenuController(){
         initComponents();
         initListeners();
+        addKeyBindings();
 
         mainFrame.setVisible(true);
+        mainPanel.grabFocus();
     }
 
     /**
@@ -74,6 +78,7 @@ class MenuController {
      */
     private void initComponents(){
         mainFrame = new MainFrame();
+        mainPanel = mainFrame.getMainPanel();
         resourcesPath = mainFrame.getResourcesPath();
         openFileDialog1 = mainFrame.getOpenFileDialog1();
 
@@ -110,7 +115,6 @@ class MenuController {
      */
     private void initListeners(){
         mainFrame.addWindowListener(new windowListener());
-        mainFrame.addKeyListener(new keyListener());
 
         JLabel[] labels = {vsLbl, orgGameLbl, selectMapLbl, settingsLbl, highScrLbl};
         for(JLabel label : labels)
@@ -297,7 +301,7 @@ class MenuController {
         if (openFileDialog1.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;
-            menu(this.getClass().getMethod("menu_SelectMap"));
+            menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
             String path = openFileDialog1.getName();
             LoadMap loadMap;
             if (symbols.size() == 0)
@@ -366,13 +370,13 @@ class MenuController {
     private void settings_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
-        menu(this.getClass().getMethod("menu_Settings"));
+        menu(this.getClass().getDeclaredMethod("menu_Settings"));
     }
 
     private void highScr_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
-        menu(this.getClass().getMethod("menu_HighScore"));
+        menu(this.getClass().getDeclaredMethod("menu_HighScore"));
     }
 
     /**
@@ -380,7 +384,7 @@ class MenuController {
      * @param source Input characters.
      * @return String of characters separated with " ; ".
      */
-    private String charListToString(ArrayList<Character> source)
+    private String charListToString(ArrayList<String> source)
     {
         StringBuilder output = new StringBuilder();
         if (source.size() > 0)
@@ -438,57 +442,58 @@ class MenuController {
 
     /**
      * Function handling key pressing in menu.
-     * @param e Identifies pressed key.
+     * @param keyCode int code of pressed key.
+     * @param keyChar string representing pressed key.
      */
-    private void menuKeyDownHandler(KeyEvent e)
+    private void menuKeyDownHandler(int keyCode, String keyChar)
     {
         try {
             if (menuLayer == mn.start) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                if (keyCode == KeyEvent.VK_ESCAPE)
                     mainFrame.dispose();
                 else {
-                    menu(this.getClass().getMethod("menu_MainMenu"));
+                    menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                     highlightSelected(menuSelected.item2, orgGameLbl);
                     menuSelected = new Pair<>(mn.game, orgGameLbl);
                     menuLayer = mn.game;
                 }
             } else {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                if (keyCode == KeyEvent.VK_ESCAPE) {
                     // Escape returns you to menu form everywhere except from menu itself.
                     if (menuLayer == mn.submenu) {
-                        menu(this.getClass().getMethod("menu_MainMenu"));
+                        menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                         highlightSelected(menuSelected.item2, orgGameLbl);
                         menuSelected = new Pair<>(mn.game, orgGameLbl);
                         menuLayer = mn.game;
                     } else {
                         menuLayer = mn.start;
-                        menu(this.getClass().getMethod("menu_Start"));
+                        menu(this.getClass().getDeclaredMethod("menu_Start"));
                     }
                 } else if (typedSymbolsLbl.isVisible()) {
                     // Branch accessible during typing of symbols used on Map to load.
-                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && symbols.size() > 0) {
+                    if (keyCode == KeyEvent.VK_BACK_SPACE && symbols.size() > 0) {
                         symbols.remove(symbols.size() - 1);
                         typedSymbolsLbl.setText(charListToString(symbols));
                     }
-                    if (!symbols.contains(e.getKeyChar()) && e.getKeyCode() != KeyEvent.VK_BACK_SPACE) {
-                        symbols.add(e.getKeyChar());
+                    if (!symbols.contains(keyChar) && keyCode != KeyEvent.VK_BACK_SPACE) {
+                        symbols.add(keyChar);
                         typedSymbolsLbl.setText(charListToString(symbols));
                     }
                     mainFrame.revalidate();
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
-                } else if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
+                } else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
                     if (menuLayer == mn.submenu && menuSelected.item1 == mn.settings)
                         moveInSettings();
                     else
                         moveInMenu(-1);
-                } else if (e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                } else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
                     if (menuLayer == mn.submenu && menuSelected.item1 == mn.settings)
                         moveInSettings();
                     else
                         moveInMenu(+1);
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER)
+                } else if (keyCode == KeyEvent.VK_ENTER)
                     if (menuLayer == mn.game) {
                         Method action = enumToAction(menuSelected.item1);
                         if (action != null)
@@ -501,7 +506,9 @@ class MenuController {
                     }
             }
         }
-        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore){}
+        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore){
+            String exp = "exp";
+        }
     }
 
     /**
@@ -521,15 +528,90 @@ class MenuController {
         }
     }
 
-    private void initializeComponent()
-    {
-//        this.SuspendLayout();
-//        //
-//        // PacManUltimate
-//        //
-//        this.ClientSize = new System.Drawing.Size(282, 253);
-//        this.Name = "PacManUltimate";
-//        this.ResumeLayout(false);
+    //</editor-fold>
+
+    //<editor-fold desc="- KEY BINDINGS Block -">
+
+    private void addKeyBindings(){
+        InputMap iMap = mainPanel.getInputMap();
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "down_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0), "w_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), "d_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), "s_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), "a_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "esc_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "back_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter_key");
+
+        ActionMap aMap = mainPanel.getActionMap();
+        aMap.put("up_key", key_pressed_UP);
+        aMap.put("right_key", key_pressed_RIGHT);
+        aMap.put("down_key", key_pressed_DOWN);
+        aMap.put("left_key", key_pressed_LEFT);
+        aMap.put("w_key", key_pressed_W);
+        aMap.put("d_key", key_pressed_D);
+        aMap.put("s_key", key_pressed_S);
+        aMap.put("a_key", key_pressed_A);
+        aMap.put("esc_key", key_pressed_ESC);
+        aMap.put("back_key", key_pressed_BACK);
+        aMap.put("enter_key", key_pressed_ENTER);
+    }
+
+    private Action key_pressed_UP = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_UP, "up"); }
+    };
+    private Action key_pressed_RIGHT = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_RIGHT, "right"); }
+    };
+    private Action key_pressed_DOWN = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_DOWN, "down"); }
+    };
+    private Action key_pressed_LEFT = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_LEFT, "left"); }
+    };
+    private Action key_pressed_W = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_W, "W"); }
+    };
+    private Action key_pressed_D = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_D, "D"); }
+    };
+    private Action key_pressed_S = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_S, "S"); }
+    };
+    private Action key_pressed_A = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_A, "A"); }
+    };
+    private Action key_pressed_ENTER = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ENTER, "enter"); }
+    };
+    private Action key_pressed_BACK = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_BACK_SPACE, "back"); }
+    };
+    private Action key_pressed_ESC = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ESCAPE, "esc"); }
+    };
+
+    private void keyDownHandler(int key, String str){
+        if(!gameOn)
+            menuKeyDownHandler(key, str);
+        else
+            ;//gameKeyDownHandler(key, str);
+
+        mainFrame.revalidate();
     }
 
     //</editor-fold>
@@ -627,30 +709,60 @@ class MenuController {
         @Override
         public void windowOpened(WindowEvent e){
             menuLayer = mn.start;
-            menuSelected = new Pair<mn, JLabel>(mn.game, orgGameLbl);
+            menuSelected = new Pair<>(mn.game, orgGameLbl);
             try {
-                menu(this.getClass().getDeclaredMethod("Menu_Start"));
+                menu(MenuController.class.getDeclaredMethod("menu_Start"));
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ex){
                 windowClosing(e);
             }
         }
 
+        /**
+         * Method handling score saving and form disposing in case of application termination from outside the code.
+         * @param e WindowEvent
+         */
         @Override
-        public void windowClosing(WindowEvent e){ }
+        public void windowClosing(WindowEvent e){
+            try{
+                if(!player2 && score > 0)
+                    HighScoreClass.saveHighScore(score);
+            }
+            catch(IOException ignore){}
 
-        @Override
-        public void windowClosed(WindowEvent e){ }
-
-        @Override
-        public void windowIconified(WindowEvent e) { }
+            mainFrame.dispose();
+        }
 
         /**
-         * Redraws game graphics after window minimisation.
+         * Method handling score saving in case of from code exit (pressing esc/exception)
+         * @param e WindowEvent
+         */
+        @Override
+        public void windowClosed(WindowEvent e){
+            try{
+                if(!player2 && score > 0)
+                    HighScoreClass.saveHighScore(score);
+            }
+            catch(IOException ignore){}
+        }
+
+        /**
+         * Method handling timers and music pausing on window minimisation.
+         * @param e WindowEvent
+         */
+        @Override
+        public void windowIconified(WindowEvent e) {
+            String pauseGame = "to do";
+        }
+
+        /**
+         * Resumes timers and music and redraws game graphics after window minimisation.
          * @param e WindowEvent
          */
         @Override
         public void windowDeiconified(WindowEvent e) {
+            String resumeGame = "to do";
+
             if(gameOn)
                 ;//bg.Render(g);
         }
@@ -692,28 +804,6 @@ class MenuController {
         public void mouseExited(MouseEvent e) {
             highlightSelected(menuSelected.item2, null);
             menuSelected = new Pair<>(mn.none, null);
-        }
-    }
-
-    private class keyListener implements KeyListener{
-
-        @Override
-        public void keyTyped(KeyEvent e) { }
-
-        @Override
-        public void keyReleased(KeyEvent e) { }
-
-        /**
-         * Is called when the key is pressed.
-         * Decides between two methods to be called, for keys pressed in menu and for ones pressed during the gameplay.
-         * @param e KeyEvent
-         */
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (!gameOn)
-                menuKeyDownHandler(e);
-            else
-                ;//gameKeyDownHandler(e);
         }
     }
 
