@@ -13,16 +13,17 @@ public class HighScoreClass
 
     /**
      * Function for HighScore loading.
+     * @param resourcesPath Path to the resources files.
      * @return int
      */
-    public static int loadHighScore() throws IOException
+    public static int loadHighScore(String resourcesPath) throws IOException
     {
         // The actual highscore is saved at the 10th line of the config file.
         // It is necesary to just convert it from binary to decimaly number.
 
         int highScore = 0;
         String scoreLine = "";
-        BufferedReader br = new BufferedReader(new FileReader("../config.bin"));
+        BufferedReader br = new BufferedReader(new FileReader(resourcesPath + "\\config.bin"));
         for (int i = 0; i <= ImportantLine; i++)
         {
             scoreLine = br.readLine();
@@ -39,14 +40,15 @@ public class HighScoreClass
     /**
      * Function for HighScore Saving.
      * @param newHighScore New HighScore to be saved to config file.
+     * @param resourcesPath Path to the resources files.
      */
-    public static void saveHighScore(int newHighScore) throws IOException
+    public static void saveHighScore(int newHighScore, String resourcesPath) throws IOException
     {
         // Function generates 9 lines of random binary numbers of aproximately same length as highscore.
         // After that the actual highscore is converted to binary number and saved at 10th line.
         // Another 4 lines of random binary data are generated and saved at the end of the file.
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter("../config.bin"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(resourcesPath + "\\config.bin"));
         Random rndm = new Random();
         String binaryScore = Integer.toBinaryString(newHighScore);
         for (int i = 0; i < LinesInFile; i++)

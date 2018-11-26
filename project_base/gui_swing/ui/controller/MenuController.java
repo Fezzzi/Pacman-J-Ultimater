@@ -92,22 +92,22 @@ public class MenuController {
         escLabelLbl = mainFrame.getEscLabelLbl();
         highScrLbl = mainFrame.getHighScrLbl();
         vsLbl = mainFrame.getVsLbl();
-//        highScoreLabelLbl = mainFrame.getHighScoreLabelLbl();
-//        scoreLabelLbl = mainFrame.getScoreLabelLbl();
-//        highScoreNumLbl = mainFrame.getHighScoreNumLbl();
-//        scoreNumLbl = mainFrame.getScoreNumLbl();
-//        musicButtonLbl = mainFrame.getMusicButtonLbl();
-//        soundsButtonLbl = mainFrame.getSoundsButtonLbl();
-//        musicBtnSelectorLbl = mainFrame.getMusicBtnSelectorLbl();
-//        soundsBtnSelectorLbl = mainFrame.getSoundsBtnSelectorLbl();
-//        gameOverLabelLbl = mainFrame.getGameOverLabelLbl();
-//        errorLdMapLbl = mainFrame.getErrorLdMapLbl();
-//        errorInfoLbl = mainFrame.getErrorInfoLbl();
-//        tryAgainButLbl = mainFrame.getTryAgainButLbl();
-//        advancedLdButLbl = mainFrame.getAdvancedLdButLbl();
-//        typeSymbolsLbl = mainFrame.getTypeSymbolsLbl();
-//        typedSymbolsLbl = mainFrame.getTypedSymbolsLbl();
-//        typeHintLbl = mainFrame.getTypeHintLbl();
+        highScoreLabelLbl = mainFrame.getHighScoreLabelLbl();
+        scoreLabelLbl = mainFrame.getScoreLabelLbl();
+        highScoreNumLbl = mainFrame.getHighScoreNumLbl();
+        scoreNumLbl = mainFrame.getScoreNumLbl();
+        musicButtonLbl = mainFrame.getMusicButtonLbl();
+        soundsButtonLbl = mainFrame.getSoundsButtonLbl();
+        musicBtnSelectorLbl = mainFrame.getMusicBtnSelectorLbl();
+        soundsBtnSelectorLbl = mainFrame.getSoundsBtnSelectorLbl();
+        gameOverLabelLbl = mainFrame.getGameOverLabelLbl();
+        errorLdMapLbl = mainFrame.getErrorLdMapLbl();
+        errorInfoLbl = mainFrame.getErrorInfoLbl();
+        tryAgainButLbl = mainFrame.getTryAgainButLbl();
+        advancedLdButLbl = mainFrame.getAdvancedLdButLbl();
+        typeSymbolsLbl = mainFrame.getTypeSymbolsLbl();
+        typedSymbolsLbl = mainFrame.getTypedSymbolsLbl();
+        typeHintLbl = mainFrame.getTypeHintLbl();
     }
 
     /**
@@ -118,7 +118,14 @@ public class MenuController {
 
         JLabel[] labels = {vsLbl, orgGameLbl, selectMapLbl, settingsLbl, highScrLbl};
         for(JLabel label : labels)
-            label.addMouseListener(new labelListener(label));
+            label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu));
+        escLabelLbl.addMouseListener(new labelListener(escLabelLbl, mouseAdapterType.clickToEscape));
+        pressEnterLbl.addMouseListener(new labelListener(pressEnterLbl, mouseAdapterType.clickToEnter));
+
+        musicButtonLbl.addMouseListener(new labelListener(musicButtonLbl, mouseAdapterType.highlight_settings));
+        soundsButtonLbl.addMouseListener(new labelListener(soundsButtonLbl, mouseAdapterType.highlight_settings));
+        tryAgainButLbl.addMouseListener(new labelListener(tryAgainButLbl, mouseAdapterType.tryAgainBtn));
+        advancedLdButLbl.addMouseListener(new labelListener(advancedLdButLbl, mouseAdapterType.advancedLdBtn));
     }
 
     //</editor-fold>
@@ -189,7 +196,7 @@ public class MenuController {
         if (highScore == -1)
         {
             //In case the HighScore is not loaded yet (value is -1) do so
-            highScore = HighScoreClass.loadHighScore();
+            highScore = HighScoreClass.loadHighScore(resourcesPath);
         }
         highScoreLabelLbl.setText("Highest Score");
         highScoreLabelLbl.setForeground(Color.yellow);
@@ -250,21 +257,20 @@ public class MenuController {
     {
         activeElements.add(musicButtonLbl);
         activeElements.add(soundsButtonLbl);
-        activeElements.add(soundsBtnSelectorLbl);
-        activeElements.add(musicBtnSelectorLbl);
         activeElements.add(escLabelLbl);
+        musicBtnSelectorLbl.setVisible(true);
 
         // Buttons load with color depending on associated booleans.
         // Music button is by default selected by arrows.
         if (music)
-            musicButtonLbl.setBackground(Color.black);
+            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
         else
-            musicButtonLbl.setBackground(Color.gray);
+            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
 
         if (sound)
-            soundsButtonLbl.setBackground(Color.black);
+            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
         else
-            soundsButtonLbl.setBackground(Color.gray);
+            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
     }
 
     /**
@@ -325,12 +331,12 @@ public class MenuController {
         music = !music;
         if (music)
         {
-            musicButtonLbl.setBackground(Color.black);
+            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
             musicButtonLbl.setForeground(Color.white);
         }
         else
         {
-            musicButtonLbl.setBackground(Color.gray);
+            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
             musicButtonLbl.setForeground(Color.black);
         }
     }
@@ -343,12 +349,12 @@ public class MenuController {
         sound = !sound;
         if (sound)
         {
-            soundsButtonLbl.setBackground(Color.black);
+            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
             soundsButtonLbl.setForeground(Color.white);
         }
         else
         {
-            soundsButtonLbl.setBackground(Color.gray);
+            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
             soundsButtonLbl.setForeground(Color.black);
         }
     }
@@ -361,8 +367,8 @@ public class MenuController {
      */
     private void vs_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
-        player2 = true;
         selectMap_Click();
+        player2 = true;
         if (!gameOn)
             player2 = false;
     }
@@ -416,7 +422,7 @@ public class MenuController {
      */
     private void moveInSettings()
     {
-        if (soundsBtnSelectorLbl.getBackground() == Color.yellow)
+        if (soundsBtnSelectorLbl.isVisible())
             musicButton_MouseEnter();
         else
             soundsButton_MouseEnter();
@@ -427,8 +433,8 @@ public class MenuController {
      */
     private void soundsButton_MouseEnter()
     {
-        soundsBtnSelectorLbl.setBackground(Color.yellow);
-        musicBtnSelectorLbl.setBackground(Color.black);
+        soundsBtnSelectorLbl.setVisible(true);
+        musicBtnSelectorLbl.setVisible(false);
     }
 
     /**
@@ -436,8 +442,8 @@ public class MenuController {
      */
     private void musicButton_MouseEnter()
     {
-        soundsBtnSelectorLbl.setBackground(Color.black);
-        musicBtnSelectorLbl.setBackground(Color.yellow);
+        soundsBtnSelectorLbl.setVisible(false);
+        musicBtnSelectorLbl.setVisible(true);
     }
 
     /**
@@ -461,9 +467,11 @@ public class MenuController {
                 if (keyCode == KeyEvent.VK_ESCAPE) {
                     // Escape returns you to menu form everywhere except from menu itself.
                     if (menuLayer == mn.submenu) {
+                        if(menuSelected.item1 == mn.settings){
+                            musicBtnSelectorLbl.setVisible(false);
+                            soundsBtnSelectorLbl.setVisible(false);
+                        }
                         menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
-                        highlightSelected(menuSelected.item2, orgGameLbl);
-                        menuSelected = new Pair<>(mn.game, orgGameLbl);
                         menuLayer = mn.game;
                     } else {
                         menuLayer = mn.start;
@@ -486,12 +494,12 @@ public class MenuController {
                 } else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
                     if (menuLayer == mn.submenu && menuSelected.item1 == mn.settings)
                         moveInSettings();
-                    else
+                    else if (menuLayer == mn.game)
                         moveInMenu(-1);
                 } else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
                     if (menuLayer == mn.submenu && menuSelected.item1 == mn.settings)
                         moveInSettings();
-                    else
+                    else if (menuLayer == mn.game)
                         moveInMenu(+1);
                 } else if (keyCode == KeyEvent.VK_ENTER)
                     if (menuLayer == mn.game) {
@@ -499,16 +507,14 @@ public class MenuController {
                         if (action != null)
                             action.invoke(this);
                     } else if (menuSelected.item1 == mn.settings) {
-                        if (musicBtnSelectorLbl.getBackground() == Color.yellow)
+                        if (musicBtnSelectorLbl.isVisible())
                             musicButton_Click();
                         else
                             soundsButton_Click();
                     }
             }
         }
-        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore){
-            String exp = "exp";
-        }
+        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore){  }
     }
 
     /**
@@ -520,12 +526,16 @@ public class MenuController {
     {
         if(prevLabel != null) {
             prevLabel.setForeground(Color.white);
-            prevLabel.setFont(new Font(prevLabel.getFont().getFontName(), Font.BOLD, 21));
+            prevLabel.setFont(new Font(prevLabel.getFont().getFontName(), Font.BOLD, 34));
         }
         if(newLabel != null) {
             newLabel.setForeground(Color.yellow);
-            newLabel.setFont(new Font(newLabel.getFont().getFontName(), Font.BOLD, 23));
+            newLabel.setFont(new Font(newLabel.getFont().getFontName(), Font.BOLD, 36));
         }
+    }
+
+    private void handleExceptions(){
+
     }
 
     //</editor-fold>
@@ -631,15 +641,15 @@ public class MenuController {
     private mn labelToEnum(JLabel label)
     {
         switch(label.getName()) {
-            case "orgGame":
+            case "OrgGame":
                 return mn.game;
-            case "selectMap":
+            case "SelectMap":
                 return mn.selectmap;
-            case "vs":
+            case "Vs":
                 return mn.vs;
-            case "highScr":
+            case "HighScr":
                 return mn.highscore;
-            case "settings":
+            case "Settings":
                 return mn.settings;
             default:
                 return mn.start;
@@ -726,9 +736,11 @@ public class MenuController {
         public void windowClosing(WindowEvent e){
             try{
                 if(!player2 && score > 0)
-                    HighScoreClass.saveHighScore(score);
+                    HighScoreClass.saveHighScore(score, resourcesPath);
             }
-            catch(IOException ignore){}
+            catch(IOException ignore){
+                handleExceptions();
+            }
 
             mainFrame.dispose();
         }
@@ -741,9 +753,11 @@ public class MenuController {
         public void windowClosed(WindowEvent e){
             try{
                 if(!player2 && score > 0)
-                    HighScoreClass.saveHighScore(score);
+                    HighScoreClass.saveHighScore(score, resourcesPath);
             }
-            catch(IOException ignore){}
+            catch(IOException ignore){
+                handleExceptions();
+            }
         }
 
         /**
@@ -774,16 +788,42 @@ public class MenuController {
         public void windowDeactivated(WindowEvent e) { }
     }
 
+    private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
+
     private class labelListener extends MouseAdapter {
         private JLabel label;
+        private mouseAdapterType mat;
 
-        public labelListener(JLabel label){
+        labelListener(JLabel label, mouseAdapterType mat){
             this.label = label;
+            this.mat = mat;
         }
 
+        /**
+         * Function simulating enter/escape key push on label clicked.
+         * @param e MouseEvent
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
-            ;
+            switch(mat){
+                case clickToEscape:
+                    menuKeyDownHandler(KeyEvent.VK_ESCAPE,"esc");
+                    break;
+                case tryAgainBtn:
+                    try {
+                        selectMap_Click();
+                    }
+                    catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ignore){
+                        handleExceptions();
+                    }
+                    break;
+                case advancedLdBtn:
+                    advancedLdBut_Click();
+                    break;
+                default:
+                    menuKeyDownHandler(KeyEvent.VK_ENTER,"enter");
+                    break;
+            }
         }
 
         /**
@@ -792,18 +832,49 @@ public class MenuController {
          */
         @Override
         public void mouseEntered(MouseEvent e) {
-            highlightSelected(menuSelected.item2, label);
-            menuSelected = new Pair<>(labelToEnum(label), label);
+            switch(mat){
+                case highlight_settings:
+                    if(label.getName().equals("MusicButton"))
+                        musicButton_MouseEnter();
+                    else
+                        soundsButton_MouseEnter();
+                    break;
+                case clickToEscape:
+                    label.setForeground(Color.white);
+                    break;
+                case clickToEnter:
+                    label.setForeground(Color.yellow);
+                    break;
+                case highlight_menu:
+                    highlightSelected(menuSelected.item2, label);
+                    menuSelected = new Pair<>(labelToEnum(label), label);
+                    break;
+                case tryAgainBtn:
+                    tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    break;
+                case advancedLdBtn:
+                    advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    break;
+            }
         }
 
-        /**
-         * Function that provides color change of labels in menu on cursor exit of label's domain.
-         * @param e MouseEvent
-         */
         @Override
         public void mouseExited(MouseEvent e) {
-            highlightSelected(menuSelected.item2, null);
-            menuSelected = new Pair<>(mn.none, null);
+            switch (mat){
+                case clickToEscape:
+                    label.setForeground(Color.yellow);
+                    break;
+                case clickToEnter:
+                    label.setForeground(Color.white);
+                    break;
+                case tryAgainBtn:
+                    tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    break;
+                case advancedLdBtn:
+                    advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    break;
+            }
+
         }
     }
 
