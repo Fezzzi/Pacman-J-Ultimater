@@ -1,6 +1,7 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
 import pacman_ultimater.project_base.core.HighScoreClass;
+import pacman_ultimater.project_base.core.KeyBindings;
 import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
@@ -126,6 +127,8 @@ public class MenuController {
         soundsButtonLbl.addMouseListener(new labelListener(soundsButtonLbl, mouseAdapterType.highlight_settings));
         tryAgainButLbl.addMouseListener(new labelListener(tryAgainButLbl, mouseAdapterType.tryAgainBtn));
         advancedLdButLbl.addMouseListener(new labelListener(advancedLdButLbl, mouseAdapterType.advancedLdBtn));
+
+        typedSymbolsLbl.addKeyListener(new keyTypedListener(typedSymbolsLbl));
     }
 
     //</editor-fold>
@@ -292,6 +295,7 @@ public class MenuController {
         activeElements.add(typeSymbolsLbl);
         activeElements.add(typedSymbolsLbl);
         typedSymbolsLbl.setText("");
+        typedSymbolsLbl.grabFocus();
         activeElements.add(typeHintLbl);
         for (JLabel label : activeElements)
             label.setVisible(true);
@@ -308,7 +312,7 @@ public class MenuController {
         {
             menuLayer = mn.submenu;
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
-            String path = openFileDialog1.getName();
+            String path = openFileDialog1.getSelectedFile().getAbsolutePath();
             LoadMap loadMap;
             if (symbols.size() == 0)
                 loadMap = new LoadMap(path);
@@ -543,79 +547,13 @@ public class MenuController {
     //<editor-fold desc="- KEY BINDINGS Block -">
 
     private void addKeyBindings(){
-        InputMap iMap = mainPanel.getInputMap();
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "down_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0), "w_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), "d_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), "s_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), "a_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "esc_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "back_key");
-        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter_key");
+        KeyBindings kb = new KeyBindings(mainPanel, this);
 
-        ActionMap aMap = mainPanel.getActionMap();
-        aMap.put("up_key", key_pressed_UP);
-        aMap.put("right_key", key_pressed_RIGHT);
-        aMap.put("down_key", key_pressed_DOWN);
-        aMap.put("left_key", key_pressed_LEFT);
-        aMap.put("w_key", key_pressed_W);
-        aMap.put("d_key", key_pressed_D);
-        aMap.put("s_key", key_pressed_S);
-        aMap.put("a_key", key_pressed_A);
-        aMap.put("esc_key", key_pressed_ESC);
-        aMap.put("back_key", key_pressed_BACK);
-        aMap.put("enter_key", key_pressed_ENTER);
+        InputMap iMap = kb.getIMap();
+        ActionMap aMap = kb.getAMap();
     }
 
-    private Action key_pressed_UP = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_UP, "up"); }
-    };
-    private Action key_pressed_RIGHT = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_RIGHT, "right"); }
-    };
-    private Action key_pressed_DOWN = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_DOWN, "down"); }
-    };
-    private Action key_pressed_LEFT = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_LEFT, "left"); }
-    };
-    private Action key_pressed_W = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_W, "W"); }
-    };
-    private Action key_pressed_D = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_D, "D"); }
-    };
-    private Action key_pressed_S = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_S, "S"); }
-    };
-    private Action key_pressed_A = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_A, "A"); }
-    };
-    private Action key_pressed_ENTER = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ENTER, "enter"); }
-    };
-    private Action key_pressed_BACK = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_BACK_SPACE, "back"); }
-    };
-    private Action key_pressed_ESC = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ESCAPE, "esc"); }
-    };
-
-    private void keyDownHandler(int key, String str){
+    public void keyDownHandler(int key, String str){
         if(!gameOn)
             menuKeyDownHandler(key, str);
         else
@@ -789,6 +727,25 @@ public class MenuController {
     }
 
     private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
+
+    private class keyTypedListener implements KeyListener{
+        private JLabel label;
+
+        keyTypedListener(JLabel label){
+            this.label = label;
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            System.out.print(e.getID());
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {}
+
+        @Override
+        public void keyReleased(KeyEvent e) {}
+    }
 
     private class labelListener extends MouseAdapter {
         private JLabel label;

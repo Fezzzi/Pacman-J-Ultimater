@@ -98,9 +98,6 @@ public class LoadMap
         while (firstChar != -1 && symbol != -1)
         {
             column++;
-            // Tests whether text file does not contain more that 31 lines.
-            if (lineNum > MapHeightInTiles)
-                return null;
             symbol = cr.read();
             while (symbol == 13 || symbol == 10)
                 symbol = cr.read();
@@ -141,13 +138,17 @@ public class LoadMap
             if (column == 28)
             {
                 // Moves to another line and initialize new array for this line.
-                // Returns null in case the file has already reached 31 lines.
-                column = 0;
+                // Stops cycle in case the file has already reached 31 lines.
                 lineNum++;
                 map[lineNum] = new char[MapWidthInTiles + 2];
-                if (lineNum < MapHeightInTiles + 1)
+                if (lineNum < MapHeightInTiles + 1) {
+                    column = 0;
                     tileMap[lineNum - 1] = new Tile[MapWidthInTiles];
-                else return null;
+                }
+                else {
+                    --lineNum;
+                    symbol = -1;
+                }
             }
         }
         if(lineNum == MapHeightInTiles && column == MapWidthInTiles)
@@ -289,22 +290,26 @@ public class LoadMap
                         connectedTiles[position.item1 - 1] = new Boolean[MapWidthInTiles + 2];
                     if (connectedTiles[position.item1 + 1] == null)
                         connectedTiles[position.item1 + 1] = new Boolean[MapWidthInTiles + 2];
-                    if (!connectedTiles[position.item1][position.item2 - 1])
+                    if (connectedTiles[position.item1][position.item2 - 1] == null
+                            || !connectedTiles[position.item1][position.item2 - 1])
                     {
                         stack.push(new IntPair(position.item1, position.item2 - 1));
                         connectedTiles[position.item1][position.item2 - 1] = true;
                     }
-                    if (!connectedTiles[position.item1][position.item2 + 1])
+                    if (connectedTiles[position.item1][position.item2 + 1] == null
+                            || !connectedTiles[position.item1][position.item2 + 1])
                     {
                         stack.push(new IntPair(position.item1, position.item2 + 1));
                         connectedTiles[position.item1][position.item2 + 1] = true;
                     }
-                    if (!connectedTiles[position.item1 - 1][position.item2])
+                    if (connectedTiles[position.item1 - 1][position.item2] == null
+                            || !connectedTiles[position.item1 - 1][position.item2])
                     {
                         stack.push(new IntPair(position.item1 - 1, position.item2));
                         connectedTiles[position.item1 - 1][position.item2] = true;
                     }
-                    if (!connectedTiles[position.item1 + 1][position.item2])
+                    if (connectedTiles[position.item1 + 1][position.item2] == null
+                            || !connectedTiles[position.item1 + 1][position.item2])
                     {
                         stack.push(new IntPair(position.item1 + 1, position.item2));
                         connectedTiles[position.item1 + 1][position.item2] = true;
