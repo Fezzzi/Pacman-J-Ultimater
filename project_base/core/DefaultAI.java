@@ -36,7 +36,7 @@ public class DefaultAI {
     /**
      * Enumerable that characterizes all the possible entity's states.
      */
-    private enum nType {
+    public enum nType {
         PLAYER1, PLAYER2, HOSTILEATTACK, HOSTILERETREAT, CANBEEATEN, EATEN
     }
 

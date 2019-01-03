@@ -8,7 +8,7 @@ import java.awt.*;
   */
 public class Tile
 {
-    nType tile;
+    public nType tile;
 
     /**
      * Enumerable for possible tile states.

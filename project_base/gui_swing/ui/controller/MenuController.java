@@ -4,7 +4,6 @@ import pacman_ultimater.project_base.core.HighScoreClass;
 import pacman_ultimater.project_base.core.KeyBindings;
 import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.custom_utils.Pair;
-import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,121 +13,66 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-public class MenuController {
-    private int score, score2, lives = 0;
+public class MenuController{
 
     //<editor-fold desc="- VARIABLES Block -">
 
-    private int highScore = -1;
-    private boolean gameOn = false;
-    private boolean player2 = false;
-    private boolean sound = true, music = true;
     private ArrayList<JLabel> activeElements = new ArrayList<>();
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
-    private JLabel scoreBox = new JLabel(), highScoreBox = new JLabel(), score2Box = new JLabel();
     private ArrayList<String> symbols = new ArrayList<>();
-
-    private String resourcesPath;
-    private MainFrame mainFrame;
-    private JPanel mainPanel;
-    private JFileChooser openFileDialog1;
-
-    private JLabel pacmanLbl;
-    private JLabel ultimateLbl;
-    private JLabel copyrightLbl;
-    private JLabel pressEnterLbl;
-    private JLabel selectMapLbl;
-    private JLabel orgGameLbl;
-    private JLabel settingsLbl;
-    private JLabel escLabelLbl;
-    private JLabel highScrLbl;
-    private JLabel vsLbl;
-    private JLabel highScoreLabelLbl;
-    private JLabel scoreLabelLbl;
-    private JLabel highScoreNumLbl;
-    private JLabel scoreNumLbl;
-    private JLabel musicButtonLbl;
-    private JLabel soundsButtonLbl;
-    private JLabel musicBtnSelectorLbl;
-    private JLabel soundsBtnSelectorLbl;
-    private JLabel gameOverLabelLbl;
-    private JLabel errorLdMapLbl;
-    private JLabel errorInfoLbl;
-    private JLabel tryAgainButLbl;
-    private JLabel advancedLdButLbl;
-    private JLabel typeSymbolsLbl;
-    private JLabel typedSymbolsLbl;
-    private JLabel typeHintLbl;
+    private MainFrameController mfc;
 
     //</editor-fold>
 
     //<editor-fold desc="- GENERAL Block -">
 
-    MenuController(){
-        initComponents();
+    MenuController(MainFrameController controller){
+        mfc = controller;
+
         initListeners();
         addKeyBindings();
-
-        mainFrame.setVisible(true);
-        mainPanel.grabFocus();
-    }
-
-    /**
-     * Initializes components from form for further usage.
-     */
-    private void initComponents(){
-        mainFrame = new MainFrame();
-        mainPanel = mainFrame.getMainPanel();
-        resourcesPath = mainFrame.getResourcesPath();
-        openFileDialog1 = mainFrame.getOpenFileDialog1();
-
-        pacmanLbl = mainFrame.getPacmanLbl();
-        ultimateLbl = mainFrame.getUltimateLbl();
-        copyrightLbl = mainFrame.getCopyrightLbl();
-        pressEnterLbl = mainFrame.getPressEnterLbl();
-        selectMapLbl = mainFrame.getSelectMapLbl();
-        orgGameLbl = mainFrame.getOrgGameLbl();
-        settingsLbl = mainFrame.getSettingsLbl();
-        escLabelLbl = mainFrame.getEscLabelLbl();
-        highScrLbl = mainFrame.getHighScrLbl();
-        vsLbl = mainFrame.getVsLbl();
-        highScoreLabelLbl = mainFrame.getHighScoreLabelLbl();
-        scoreLabelLbl = mainFrame.getScoreLabelLbl();
-        highScoreNumLbl = mainFrame.getHighScoreNumLbl();
-        scoreNumLbl = mainFrame.getScoreNumLbl();
-        musicButtonLbl = mainFrame.getMusicButtonLbl();
-        soundsButtonLbl = mainFrame.getSoundsButtonLbl();
-        musicBtnSelectorLbl = mainFrame.getMusicBtnSelectorLbl();
-        soundsBtnSelectorLbl = mainFrame.getSoundsBtnSelectorLbl();
-        gameOverLabelLbl = mainFrame.getGameOverLabelLbl();
-        errorLdMapLbl = mainFrame.getErrorLdMapLbl();
-        errorInfoLbl = mainFrame.getErrorInfoLbl();
-        tryAgainButLbl = mainFrame.getTryAgainButLbl();
-        advancedLdButLbl = mainFrame.getAdvancedLdButLbl();
-        typeSymbolsLbl = mainFrame.getTypeSymbolsLbl();
-        typedSymbolsLbl = mainFrame.getTypedSymbolsLbl();
-        typeHintLbl = mainFrame.getTypeHintLbl();
     }
 
     /**
      * Put listeners on selected labels and mainFrame.
      */
     private void initListeners(){
-        mainFrame.addWindowListener(new windowListener());
+        mfc.mainFrame.addWindowListener(new MenuController.windowListener());
 
-        JLabel[] labels = {vsLbl, orgGameLbl, selectMapLbl, settingsLbl, highScrLbl};
+        JLabel[] labels = {mfc.vsLbl, mfc.orgGameLbl, mfc.selectMapLbl, mfc.settingsLbl, mfc.highScrLbl};
         for(JLabel label : labels)
             label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu));
-        escLabelLbl.addMouseListener(new labelListener(escLabelLbl, mouseAdapterType.clickToEscape));
-        pressEnterLbl.addMouseListener(new labelListener(pressEnterLbl, mouseAdapterType.clickToEnter));
 
-        musicButtonLbl.addMouseListener(new labelListener(musicButtonLbl, mouseAdapterType.highlight_settings));
-        soundsButtonLbl.addMouseListener(new labelListener(soundsButtonLbl, mouseAdapterType.highlight_settings));
-        tryAgainButLbl.addMouseListener(new labelListener(tryAgainButLbl, mouseAdapterType.tryAgainBtn));
-        advancedLdButLbl.addMouseListener(new labelListener(advancedLdButLbl, mouseAdapterType.advancedLdBtn));
+        mfc.errorInfoLbl.addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) { }
 
-        typedSymbolsLbl.addKeyListener(new keyTypedListener(typedSymbolsLbl));
+            @Override
+            public void componentMoved(ComponentEvent e) { }
+
+            /**
+             * Kills the program 2,5s after the error label has appeared.
+             * @param e ComponentEvent
+             */
+            @Override
+            public void componentShown(ComponentEvent e) {
+                try{
+                    Thread.sleep(2500);
+                }
+                catch(InterruptedException ignore){ }
+                mfc.mainFrame.dispose();
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) { }
+        });
+        mfc.escLabelLbl.addMouseListener(new labelListener(mfc.escLabelLbl, mouseAdapterType.clickToEscape));
+        mfc.pressEnterLbl.addMouseListener(new labelListener(mfc.pressEnterLbl, mouseAdapterType.clickToEnter));
+        mfc.musicButtonLbl.addMouseListener(new labelListener(mfc.musicButtonLbl, mouseAdapterType.highlight_settings));
+        mfc.soundsButtonLbl.addMouseListener(new labelListener(mfc.soundsButtonLbl, mouseAdapterType.highlight_settings));
+        mfc.tryAgainButLbl.addMouseListener(new labelListener(mfc.tryAgainButLbl, mouseAdapterType.tryAgainBtn));
+        mfc.advancedLdButLbl.addMouseListener(new labelListener(mfc.advancedLdButLbl, mouseAdapterType.advancedLdBtn));
     }
 
     //</editor-fold>
@@ -137,17 +81,18 @@ public class MenuController {
 
     /**
      * Function that makes Menu work by simple enabling and disabling visibility of selected controls.
-     * @param Menu_Func Function to be called (Built-in delegate for void function that takes no parameters).
+     * @param menu_Func Function to be called (Built-in delegate for void function that takes no parameters).
      * @throws IllegalAccessException should be handled once in parent method.
      * @throws InvocationTargetException should be handled once in parent method.
      */
-    private void menu(Method Menu_Func) throws IllegalAccessException, InvocationTargetException
+    void menu(Method menu_Func) throws IllegalAccessException, InvocationTargetException
     {
         for (JLabel label : activeElements)
             label.setVisible(false);
 
         activeElements = new ArrayList<>();
-        Menu_Func.invoke(this);
+        if(menu_Func != null)
+            menu_Func.invoke(this);
 
         for (JLabel label : activeElements)
             label.setVisible(true);
@@ -155,125 +100,125 @@ public class MenuController {
 
     private void menu_Start()
     {
-        activeElements.add(pressEnterLbl);
-        activeElements.add(pacmanLbl);
-        activeElements.add(ultimateLbl);
-        activeElements.add(copyrightLbl);
+        activeElements.add(mfc.pressEnterLbl);
+        activeElements.add(mfc.pacmanLbl);
+        activeElements.add(mfc.ultimateLbl);
+        activeElements.add(mfc.copyrightLbl);
     }
 
     private void menu_MainMenu()
     {
-        activeElements.add(selectMapLbl);
-        activeElements.add(orgGameLbl);
-        activeElements.add(settingsLbl);
-        activeElements.add(escLabelLbl);
-        activeElements.add(highScrLbl);
-        activeElements.add(vsLbl);
+        activeElements.add(mfc.selectMapLbl);
+        activeElements.add(mfc.orgGameLbl);
+        activeElements.add(mfc.settingsLbl);
+        activeElements.add(mfc.escLabelLbl);
+        activeElements.add(mfc.highScrLbl);
+        activeElements.add(mfc.vsLbl);
     }
 
     private void menu_SelectMap()
     {
-        activeElements.add(errorLdMapLbl);
-        activeElements.add(errorInfoLbl);
-        activeElements.add(advancedLdButLbl);
-        activeElements.add(tryAgainButLbl);
-        activeElements.add(escLabelLbl);
+        activeElements.add(mfc.errorLdMapLbl);
+        activeElements.add(mfc.errorInfoLbl);
+        activeElements.add(mfc.advancedLdButLbl);
+        activeElements.add(mfc.tryAgainButLbl);
+        activeElements.add(mfc.escLabelLbl);
     }
 
     private void menu_HighScore1P() throws IOException
     {
-        if (score != 0)
+        if (mfc.score != 0)
         {
-            gameOverLabelLbl.setText("GAME OVER");
-            gameOverLabelLbl.setForeground(Color.red);
-            gameOverLabelLbl.setLocation(52, 33);
-            scoreLabelLbl.setText("Your Score");
-            scoreNumLbl.setText(Integer.toString(score));
+            mfc.gameOverLabelLbl.setText("GAME OVER");
+            mfc.gameOverLabelLbl.setForeground(Color.red);
+            mfc.gameOverLabelLbl.setLocation(52, 33);
+            mfc.scoreLabelLbl.setText("Your Score");
+            mfc.scoreNumLbl.setText(Integer.toString(mfc.score));
         }
         else
         {
-            scoreLabelLbl.setText("");
-            scoreNumLbl.setText("");
-            gameOverLabelLbl.setText("");
+            mfc.scoreLabelLbl.setText("");
+            mfc.scoreNumLbl.setText("");
+            mfc.gameOverLabelLbl.setText("");
         }
-        if (highScore == -1)
+        if (mfc.highScore == -1)
         {
             //In case the HighScore is not loaded yet (value is -1) do so
-            highScore = HighScoreClass.loadHighScore(resourcesPath);
+            mfc.highScore = HighScoreClass.loadHighScore(mfc.resourcesPath);
         }
-        highScoreLabelLbl.setText("Highest Score");
-        highScoreLabelLbl.setForeground(Color.yellow);
-        highScoreNumLbl.setForeground(Color.yellow);
-        highScoreNumLbl.setText(Integer.toString(highScore));
+        mfc.highScoreLabelLbl.setText("Highest Score");
+        mfc.highScoreLabelLbl.setForeground(Color.yellow);
+        mfc.highScoreNumLbl.setForeground(Color.yellow);
+        mfc.highScoreNumLbl.setText(Integer.toString(mfc.highScore));
     }
 
     private void menu_HighScore2P()
     {
         //Game selects the winner as the pleyer with highest score
         //In case of tie chooses the winner by remaining pacman lives
-        if (score < score2 || (score == score2 && lives <= 0))
+        if (mfc.score < mfc.score2 || (mfc.score == mfc.score2 && mfc.lives <= 0))
         {
-            gameOverLabelLbl.setText("GHOSTS WIN");
-            gameOverLabelLbl.setForeground(Color.red);
-            gameOverLabelLbl.setLocation(36, 33);
-            highScoreLabelLbl.setText("2UP");
-            highScoreLabelLbl.setForeground(Color.red);
-            highScoreNumLbl.setText(Integer.toString(score2));
-            highScoreNumLbl.setForeground(Color.red);
-            scoreLabelLbl.setText("1UP");
-            scoreNumLbl.setText(Integer.toString(score));
+            mfc.gameOverLabelLbl.setText("GHOSTS WIN");
+            mfc.gameOverLabelLbl.setForeground(Color.red);
+            mfc.gameOverLabelLbl.setLocation(36, 33);
+            mfc.highScoreLabelLbl.setText("2UP");
+            mfc.highScoreLabelLbl.setForeground(Color.red);
+            mfc.highScoreNumLbl.setText(Integer.toString(mfc.score2));
+            mfc.highScoreNumLbl.setForeground(Color.red);
+            mfc.scoreLabelLbl.setText("1UP");
+            mfc.scoreNumLbl.setText(Integer.toString(mfc.score));
         }
         else
         {
-            gameOverLabelLbl.setText("PACMAN WINS");
-            gameOverLabelLbl.setForeground(Color.yellow);
-            gameOverLabelLbl.setLocation(34, 33);
-            highScoreLabelLbl.setText("1UP");
-            highScoreNumLbl.setText(Integer.toString(score));
-            scoreLabelLbl.setText("2UP");
-            scoreNumLbl.setText(Integer.toString(score2));
+            mfc.gameOverLabelLbl.setText("PACMAN WINS");
+            mfc.gameOverLabelLbl.setForeground(Color.yellow);
+            mfc.gameOverLabelLbl.setLocation(34, 33);
+            mfc.highScoreLabelLbl.setText("1UP");
+            mfc.highScoreNumLbl.setText(Integer.toString(mfc.score));
+            mfc.scoreLabelLbl.setText("2UP");
+            mfc.scoreNumLbl.setText(Integer.toString(mfc.score2));
         }
     }
 
     private void menu_HighScore() throws IOException
     {
-        activeElements.add(gameOverLabelLbl);
-        activeElements.add(scoreLabelLbl);
-        activeElements.add(scoreNumLbl);
-        activeElements.add(highScoreLabelLbl);
-        activeElements.add(highScoreNumLbl);
-        activeElements.add(escLabelLbl);
+        activeElements.add(mfc.gameOverLabelLbl);
+        activeElements.add(mfc.scoreLabelLbl);
+        activeElements.add(mfc.scoreNumLbl);
+        activeElements.add(mfc.highScoreLabelLbl);
+        activeElements.add(mfc.highScoreNumLbl);
+        activeElements.add(mfc.escLabelLbl);
 
         //Two branches depending on the mode player has chosen - normal x VS
-        if (!player2)
+        if (!mfc.player2)
             menu_HighScore1P();
         else
             menu_HighScore2P();
 
         //It is necessary to set scre and player boolean in order to be able to access default Highscore
         //page later on from menu
-        score = 0;
-        player2 = false;
+        mfc.score = 0;
+        mfc.player2 = false;
     }
 
     private void menu_Settings()
     {
-        activeElements.add(musicButtonLbl);
-        activeElements.add(soundsButtonLbl);
-        activeElements.add(escLabelLbl);
-        musicBtnSelectorLbl.setVisible(true);
+        activeElements.add(mfc.musicButtonLbl);
+        activeElements.add(mfc.soundsButtonLbl);
+        activeElements.add(mfc.escLabelLbl);
+        mfc.musicBtnSelectorLbl.setVisible(true);
 
         // Buttons load with color depending on associated booleans.
         // Music button is by default selected by arrows.
-        if (music)
-            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+        if (mfc.music)
+            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
         else
-            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
+            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
 
-        if (sound)
-            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+        if (mfc.sound)
+            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
         else
-            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
+            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
     }
 
     /**
@@ -281,9 +226,9 @@ public class MenuController {
      */
     private void orgGame_Click()
     {
-        LoadMap loadMap = new LoadMap(resourcesPath + "\\OriginalMap.txt");
-        if (loadMap.Map != null)
-            ;//makeItHappen(loadMap);
+        mfc.loadedMap = new LoadMap(mfc.resourcesPath + "\\OriginalMap.txt");
+        if (mfc.loadedMap.Map != null)
+            mfc.makeItHappen();
     }
 
     /**
@@ -292,11 +237,11 @@ public class MenuController {
     private void advancedLdBut_Click()
     {
         menuLayer = mn.submenu;
-        activeElements.add(typeSymbolsLbl);
-        activeElements.add(typedSymbolsLbl);
-        typedSymbolsLbl.setText("");
-        typedSymbolsLbl.grabFocus();
-        activeElements.add(typeHintLbl);
+        activeElements.add(mfc.typeSymbolsLbl);
+        activeElements.add(mfc.typedSymbolsLbl);
+        mfc.typedSymbolsLbl.setText("");
+        mfc.typedSymbolsLbl.grabFocus();
+        activeElements.add(mfc.typeHintLbl);
         for (JLabel label : activeElements)
             label.setVisible(true);
     }
@@ -308,11 +253,11 @@ public class MenuController {
      */
     private void selectMap_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
-        if (openFileDialog1.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
+        if (mfc.openFileDialog1.showOpenDialog(mfc.mainFrame) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
-            String path = openFileDialog1.getSelectedFile().getAbsolutePath();
+            String path = mfc.openFileDialog1.getSelectedFile().getAbsolutePath();
             LoadMap loadMap;
             if (symbols.size() == 0)
                 loadMap = new LoadMap(path);
@@ -332,16 +277,16 @@ public class MenuController {
      */
     private void musicButton_Click()
     {
-        music = !music;
-        if (music)
+        mfc.music = !mfc.music;
+        if (mfc.music)
         {
-            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
-            musicButtonLbl.setForeground(Color.white);
+            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+            mfc.musicButtonLbl.setForeground(Color.white);
         }
         else
         {
-            musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
-            musicButtonLbl.setForeground(Color.black);
+            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
+            mfc.musicButtonLbl.setForeground(Color.black);
         }
     }
 
@@ -350,16 +295,16 @@ public class MenuController {
      */
     private void soundsButton_Click()
     {
-        sound = !sound;
-        if (sound)
+        mfc.sound = !mfc.sound;
+        if (mfc.sound)
         {
-            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
-            soundsButtonLbl.setForeground(Color.white);
+            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+            mfc.soundsButtonLbl.setForeground(Color.white);
         }
         else
         {
-            soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
-            soundsButtonLbl.setForeground(Color.black);
+            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
+            mfc.soundsButtonLbl.setForeground(Color.black);
         }
     }
 
@@ -372,9 +317,9 @@ public class MenuController {
     private void vs_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         selectMap_Click();
-        player2 = true;
-        if (!gameOn)
-            player2 = false;
+        mfc.player2 = true;
+        if (!mfc.gameOn)
+            mfc.player2 = false;
     }
 
     private void settings_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
@@ -426,7 +371,7 @@ public class MenuController {
      */
     private void moveInSettings()
     {
-        if (soundsBtnSelectorLbl.isVisible())
+        if (mfc.soundsBtnSelectorLbl.isVisible())
             musicButton_MouseEnter();
         else
             soundsButton_MouseEnter();
@@ -437,8 +382,8 @@ public class MenuController {
      */
     private void soundsButton_MouseEnter()
     {
-        soundsBtnSelectorLbl.setVisible(true);
-        musicBtnSelectorLbl.setVisible(false);
+        mfc.soundsBtnSelectorLbl.setVisible(true);
+        mfc.musicBtnSelectorLbl.setVisible(false);
     }
 
     /**
@@ -446,8 +391,8 @@ public class MenuController {
      */
     private void musicButton_MouseEnter()
     {
-        soundsBtnSelectorLbl.setVisible(false);
-        musicBtnSelectorLbl.setVisible(true);
+        mfc.soundsBtnSelectorLbl.setVisible(false);
+        mfc.musicBtnSelectorLbl.setVisible(true);
     }
 
     /**
@@ -455,25 +400,24 @@ public class MenuController {
      * @param keyCode int code of pressed key.
      * @param keyChar string representing pressed key.
      */
-    private void menuKeyDownHandler(int keyCode, String keyChar)
-    {
+    private void menuKeyDownHandler(int keyCode, String keyChar) {
         try {
             if (menuLayer == mn.start) {
                 if (keyCode == KeyEvent.VK_ESCAPE)
-                    mainFrame.dispose();
+                    mfc.mainFrame.dispose();
                 else {
                     menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
-                    highlightSelected(menuSelected.item2, orgGameLbl);
-                    menuSelected = new Pair<>(mn.game, orgGameLbl);
+                    highlightSelected(menuSelected.item2, mfc.orgGameLbl);
+                    menuSelected = new Pair<>(mn.game, mfc.orgGameLbl);
                     menuLayer = mn.game;
                 }
             } else {
                 if (keyCode == KeyEvent.VK_ESCAPE) {
                     // Escape returns you to menu form everywhere except from menu itself.
                     if (menuLayer == mn.submenu) {
-                        if(menuSelected.item1 == mn.settings){
-                            musicBtnSelectorLbl.setVisible(false);
-                            soundsBtnSelectorLbl.setVisible(false);
+                        if (menuSelected.item1 == mn.settings) {
+                            mfc.musicBtnSelectorLbl.setVisible(false);
+                            mfc.soundsBtnSelectorLbl.setVisible(false);
                         }
                         menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                         menuLayer = mn.game;
@@ -481,17 +425,17 @@ public class MenuController {
                         menuLayer = mn.start;
                         menu(this.getClass().getDeclaredMethod("menu_Start"));
                     }
-                } else if (typedSymbolsLbl.isVisible()) {
+                } else if (mfc.typedSymbolsLbl.isVisible()) {
                     // Branch accessible during typing of symbols used on Map to load.
                     if (keyCode == KeyEvent.VK_BACK_SPACE && symbols.size() > 0) {
                         symbols.remove(symbols.size() - 1);
-                        typedSymbolsLbl.setText(charListToString(symbols));
+                        mfc.typedSymbolsLbl.setText(charListToString(symbols));
                     }
                     if (!symbols.contains(keyChar) && keyCode != KeyEvent.VK_BACK_SPACE) {
                         symbols.add(keyChar);
-                        typedSymbolsLbl.setText(charListToString(symbols));
+                        mfc.typedSymbolsLbl.setText(charListToString(symbols));
                     }
-                    mainFrame.revalidate();
+                    mfc.mainFrame.revalidate();
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
@@ -511,14 +455,17 @@ public class MenuController {
                         if (action != null)
                             action.invoke(this);
                     } else if (menuSelected.item1 == mn.settings) {
-                        if (musicBtnSelectorLbl.isVisible())
+                        if (mfc.musicBtnSelectorLbl.isVisible())
                             musicButton_Click();
                         else
                             soundsButton_Click();
                     }
             }
         }
-        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore){  }
+        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
+            tryToSaveScore();
+            mfc.handleExceptions(exception.toString());
+        }
     }
 
     /**
@@ -538,28 +485,25 @@ public class MenuController {
         }
     }
 
-    private void handleExceptions(){
-
-    }
-
     //</editor-fold>
 
     //<editor-fold desc="- KEY BINDINGS Block -">
 
     private void addKeyBindings(){
-        KeyBindings kb = new KeyBindings(mainPanel, this);
+        KeyBindings kb = new KeyBindings(mfc.mainPanel, this);
 
         InputMap iMap = kb.getIMap();
         ActionMap aMap = kb.getAMap();
     }
 
-    public void keyDownHandler(int key, String str){
-        if(!gameOn)
+    public void keyDownHandler(int key, String str)
+    {
+        if(!mfc.gameOn)
             menuKeyDownHandler(key, str);
         else
             ;//gameKeyDownHandler(key, str);
 
-        mainFrame.revalidate();
+        mfc.mainFrame.revalidate();
     }
 
     //</editor-fold>
@@ -603,17 +547,17 @@ public class MenuController {
     {
         switch(selected) {
             case game:
-                return this.orgGameLbl;
+                return this.mfc.orgGameLbl;
             case selectmap:
-                return this.selectMapLbl;
+                return this.mfc.selectMapLbl;
             case vs:
-                return this.vsLbl;
+                return this.mfc.vsLbl;
             case highscore:
-                return this.highScrLbl;
+                return this.mfc.highScrLbl;
             case settings:
-                return this.settingsLbl;
+                return this.mfc.settingsLbl;
             default:
-                return this.orgGameLbl;
+                return this.mfc.orgGameLbl;
         }
     }
 
@@ -641,6 +585,19 @@ public class MenuController {
         }
     }
 
+    /**
+     * Attempts to save player's score to file.
+     */
+    private void tryToSaveScore(){
+        try{
+            if(!mfc.player2 && mfc.score > 0)
+                HighScoreClass.saveHighScore(mfc.score, mfc.resourcesPath);
+        }
+        catch(IOException exception){
+            mfc.handleExceptions(exception.getMessage());
+        }
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="- LISTENERS Block -">
@@ -655,14 +612,15 @@ public class MenuController {
          * @param e WindowEvent
          */
         @Override
-        public void windowOpened(WindowEvent e){
+        public void windowOpened(WindowEvent e) {
             menuLayer = mn.start;
-            menuSelected = new Pair<>(mn.game, orgGameLbl);
+            menuSelected = new Pair<>(mn.game, mfc.orgGameLbl);
             try {
                 menu(MenuController.class.getDeclaredMethod("menu_Start"));
             }
-            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException ex){
-                windowClosing(e);
+            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
+                tryToSaveScore();
+                mfc.handleExceptions(exception.getMessage());
             }
         }
 
@@ -672,15 +630,8 @@ public class MenuController {
          */
         @Override
         public void windowClosing(WindowEvent e){
-            try{
-                if(!player2 && score > 0)
-                    HighScoreClass.saveHighScore(score, resourcesPath);
-            }
-            catch(IOException ignore){
-                handleExceptions();
-            }
-
-            mainFrame.dispose();
+            tryToSaveScore();
+            mfc.mainFrame.dispose();
         }
 
         /**
@@ -689,13 +640,7 @@ public class MenuController {
          */
         @Override
         public void windowClosed(WindowEvent e){
-            try{
-                if(!player2 && score > 0)
-                    HighScoreClass.saveHighScore(score, resourcesPath);
-            }
-            catch(IOException ignore){
-                handleExceptions();
-            }
+            tryToSaveScore();
         }
 
         /**
@@ -704,7 +649,10 @@ public class MenuController {
          */
         @Override
         public void windowIconified(WindowEvent e) {
-            String pauseGame = "to do";
+            mfc.pacUpdater.stop();
+            mfc.pacSmoothTimer.stop();
+            mfc.ghostUpdater.stop();
+            mfc.ghostSmoothTimer.stop();
         }
 
         /**
@@ -713,10 +661,12 @@ public class MenuController {
          */
         @Override
         public void windowDeiconified(WindowEvent e) {
-            String resumeGame = "to do";
-
-            if(gameOn)
-                ;//bg.Render(g);
+            if(mfc.gameOn){
+                mfc.pacUpdater.start();
+                mfc.pacSmoothTimer.start();
+                mfc.ghostUpdater.start();
+                mfc.ghostSmoothTimer.start();
+            }
         }
 
         @Override
@@ -727,25 +677,6 @@ public class MenuController {
     }
 
     private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
-
-    private class keyTypedListener implements KeyListener{
-        private JLabel label;
-
-        keyTypedListener(JLabel label){
-            this.label = label;
-        }
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-            System.out.print(e.getID());
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {}
-
-        @Override
-        public void keyReleased(KeyEvent e) {}
-    }
 
     private class labelListener extends MouseAdapter {
         private JLabel label;
@@ -761,25 +692,26 @@ public class MenuController {
          * @param e MouseEvent
          */
         @Override
-        public void mouseClicked(MouseEvent e) {
-            switch(mat){
-                case clickToEscape:
-                    menuKeyDownHandler(KeyEvent.VK_ESCAPE,"esc");
-                    break;
-                case tryAgainBtn:
-                    try {
+        public void mouseClicked(MouseEvent e){
+            try {
+                switch (mat) {
+                    case clickToEscape:
+                        menuKeyDownHandler(KeyEvent.VK_ESCAPE, "esc");
+                        break;
+                    case tryAgainBtn:
                         selectMap_Click();
-                    }
-                    catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ignore){
-                        handleExceptions();
-                    }
-                    break;
-                case advancedLdBtn:
-                    advancedLdBut_Click();
-                    break;
-                default:
-                    menuKeyDownHandler(KeyEvent.VK_ENTER,"enter");
-                    break;
+                        break;
+                    case advancedLdBtn:
+                        advancedLdBut_Click();
+                        break;
+                    default:
+                        menuKeyDownHandler(KeyEvent.VK_ENTER, "enter");
+                        break;
+                }
+            }
+            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
+                tryToSaveScore();
+                mfc.handleExceptions(exception.getMessage());
             }
         }
 
@@ -807,10 +739,10 @@ public class MenuController {
                     menuSelected = new Pair<>(labelToEnum(label), label);
                     break;
                 case tryAgainBtn:
-                    tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    mfc.tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
                     break;
                 case advancedLdBtn:
-                    advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    mfc.advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
                     break;
             }
         }
@@ -825,10 +757,10 @@ public class MenuController {
                     label.setForeground(Color.white);
                     break;
                 case tryAgainBtn:
-                    tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    mfc.tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
                     break;
                 case advancedLdBtn:
-                    advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    mfc.advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
                     break;
             }
 

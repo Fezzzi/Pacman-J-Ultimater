@@ -6,7 +6,7 @@ import pacman_ultimater.project_base.custom_utils.IntPair;
  * Class providing data structure for directions via enumerable nType.
  * It also provides two useful functions for conversions.
  */
-class Direction {
+public class Direction {
 
     /**
      * Enumarable representing possible directions.

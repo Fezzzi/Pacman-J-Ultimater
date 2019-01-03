@@ -1,7 +1,6 @@
 package pacman_ultimater.project_base.gui_swing.ui.view;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
@@ -138,7 +137,7 @@ public class MainFrame extends JFrame{
         //
         // OrgGame
         //
-        orgGameLbl.setFont( new Font("Microsoft Sans Serif", Font.PLAIN, 34));
+        orgGameLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         orgGameLbl.setForeground(Color.white);
         orgGameLbl.setBounds(107,51,241,45);
         orgGameLbl.setName("OrgGame");
@@ -298,11 +297,11 @@ public class MainFrame extends JFrame{
         //
         // ErrorInfo
         //
-        errorInfoLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 28));
+        errorInfoLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         errorInfoLbl.setForeground(Color.white);
-        errorInfoLbl.setBounds(56,69,349,300);
+        errorInfoLbl.setBounds(0,50, 480, 350);
         errorInfoLbl.setName("ErrorInfo");
-        errorInfoLbl.setText(""); //resources.GetString("ErrorInfo.Text")
+        errorInfoLbl.setText("");
         errorInfoLbl.setVisible(false);
         errorInfoLbl.setFocusable(false);
         //
@@ -373,10 +372,6 @@ public class MainFrame extends JFrame{
         selectMapLbl = new JLabel();
         orgGameLbl = new JLabel();
         settingsLbl = new JLabel();
-//        pacUpdater = new Timer(1000,);
-//        ghostUpdater = new Timer(1000,);
-//        pacSmoothTimer = new Timer(1000,);
-//        ghostSmoothTimer = new Timer(1000,);
         escLabelLbl = new JLabel();
         highScrLbl = new JLabel();
         vsLbl = new JLabel();
@@ -510,6 +505,19 @@ public class MainFrame extends JFrame{
     }
     public JLabel getErrorInfoLbl() {
         return errorInfoLbl;
+    }
+
+    public Timer getPacUpdater() {
+        return pacUpdater;
+    }
+    public Timer getGhostUpdater() {
+        return ghostUpdater;
+    }
+    public Timer getPacSmoothTimer() {
+        return pacSmoothTimer;
+    }
+    public Timer getGhostSmoothTimer() {
+        return ghostSmoothTimer;
     }
 
     public JFileChooser getOpenFileDialog1() {

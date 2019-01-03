@@ -11,8 +11,12 @@ import java.util.Stack;
  */
 public class LoadMap
 {
-    private final int MapWidthInTiles = 28;
-    private final int MapHeightInTiles = 31;
+    public static final int MAPWIDTHINTILES = 28;
+    public static final int MAPHEIGHTINTILES = 31;
+    public static final int PACMANINITIALY = 23;
+    public static final int PACMANINITIALX = 13;
+    public static final int RDPSIZE = 12;
+    public static final Color TRANSPARENT = new Color(255,255,255,0);
 
     private Tile[][] tileMap;
     public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
@@ -74,19 +78,19 @@ public class LoadMap
         // Map is created bigger so it is possible to automaticaly call transform to tiles with indexes
         // out of range of map without causing IndexOutOfRange Exception.
         int numOfDots = 0;
-        char[][] map = new char[MapHeightInTiles + 2][];
-        this.tileMap = new Tile[MapHeightInTiles][];
+        char[][] map = new char[MAPHEIGHTINTILES + 2][];
+        this.tileMap = new Tile[MAPHEIGHTINTILES][];
         ArrayList<Point> pPArr = new ArrayList<>();
         int lineNum = 1,column = 0;
         CustomReader cr = new CustomReader(path);
-        map[0] = new char[MapWidthInTiles + 2];
-        map[1] = new char[MapWidthInTiles + 2];
-        tileMap[0] = new Tile[MapWidthInTiles];
+        map[0] = new char[MAPWIDTHINTILES + 2];
+        map[1] = new char[MAPWIDTHINTILES + 2];
+        tileMap[0] = new Tile[MAPWIDTHINTILES];
         Stack<Point> verticalTilesStack = new Stack<>();
         Stack<Point> horizontalTilesStack = new Stack<>();
 
         // Reads first line and performs parsing on it to get game map color specified on the first line.
-        Color color = new Color(255,255,255,0); //TRANSPARENT
+        Color color = TRANSPARENT;
         int firstChar = cr.peek();
 
         if((char)firstChar == '#')
@@ -140,10 +144,10 @@ public class LoadMap
                 // Moves to another line and initialize new array for this line.
                 // Stops cycle in case the file has already reached 31 lines.
                 lineNum++;
-                map[lineNum] = new char[MapWidthInTiles + 2];
-                if (lineNum < MapHeightInTiles + 1) {
+                map[lineNum] = new char[MAPWIDTHINTILES + 2];
+                if (lineNum < MAPHEIGHTINTILES + 1) {
                     column = 0;
-                    tileMap[lineNum - 1] = new Tile[MapWidthInTiles];
+                    tileMap[lineNum - 1] = new Tile[MAPWIDTHINTILES];
                 }
                 else {
                     --lineNum;
@@ -151,7 +155,7 @@ public class LoadMap
                 }
             }
         }
-        if(lineNum == MapHeightInTiles && column == MapWidthInTiles)
+        if(lineNum == MAPHEIGHTINTILES && column == MAPWIDTHINTILES)
         {
             // Separately transform to tile last line because reading loop has ended on 31st line.
             lineNum++;
@@ -182,7 +186,7 @@ public class LoadMap
             if(!PerformReverseEvaluation(horizontalTilesStack, verticalTilesStack))
                 return null;
 
-        return new Quartet<>(map, numOfDots,color == null ? new Color(255,255,255,0) : color, pPArr);
+        return new Quartet<>(map, numOfDots,color == null ? TRANSPARENT : color, pPArr);
     }
 
     /**
@@ -228,7 +232,7 @@ public class LoadMap
     {
         String color = line.substring(1);
         if (color.equals("RANDOM"))
-            return new Color(255,255,255,0); // TRANSPARENT
+            return TRANSPARENT;
 
         if (color.length() == 6)
         {
@@ -245,7 +249,7 @@ public class LoadMap
                                 Integer.decode(color.substring(6, 7))
             );
         }
-        return new Color(255,255,255,0); // TRANSPARENT
+        return TRANSPARENT;
     }
 
     /**
@@ -260,36 +264,34 @@ public class LoadMap
     private Pair<Boolean, IntPair> IsPlayable(char[][] map, Character[] symbols, int numOfDots)
     {
         final int GhostHouseSize = 38;
-        final int PacManInitialY = 23;
-        final int PacManInitialX = 13;
 
         int ghostHouse = 0, dotsFound = 0;
         IntPair ghostPosition = null;
-        IntPair position = new IntPair(PacManInitialY + 1, PacManInitialX + 1);
-        Boolean[][] connectedTiles = new Boolean[MapHeightInTiles + 2][];
+        IntPair position = new IntPair(PACMANINITIALY + 1, PACMANINITIALX + 1);
+        Boolean[][] connectedTiles = new Boolean[MAPHEIGHTINTILES + 2][];
         Stack<IntPair> stack = new Stack<>();
 
         if (map[position.item1][position.item2] == symbols[0] && map[position.item1][position.item2 + 1] == symbols[0])
         {
             // Performs classical BFS from pacman's initial position.
-            connectedTiles[position.item1] = new Boolean[MapWidthInTiles + 2];
+            connectedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
             connectedTiles[position.item1][position.item2] = true;
             stack.push(position);
             while ((dotsFound != numOfDots || ghostHouse != GhostHouseSize) && stack.size() > 0)
             {
                 position = stack.pop();
                 if (map[position.item1][position.item2] != symbols[3] &&
-                        map[position.item1][position.item2] != symbols[4] && position.item2 > 0 && position.item2 < MapWidthInTiles + 1)
+                        map[position.item1][position.item2] != symbols[4] && position.item2 > 0 && position.item2 < MAPWIDTHINTILES + 1)
                 {
                     // Counts number of dots accessible from starting point for further comparison.
                     if (map[position.item1][position.item2] != symbols[0])
                         dotsFound++;
                     if (connectedTiles[position.item1] == null)
-                        connectedTiles[position.item1] = new Boolean[MapWidthInTiles + 2];
+                        connectedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
                     if (connectedTiles[position.item1 - 1] == null)
-                        connectedTiles[position.item1 - 1] = new Boolean[MapWidthInTiles + 2];
+                        connectedTiles[position.item1 - 1] = new Boolean[MAPWIDTHINTILES + 2];
                     if (connectedTiles[position.item1 + 1] == null)
-                        connectedTiles[position.item1 + 1] = new Boolean[MapWidthInTiles + 2];
+                        connectedTiles[position.item1 + 1] = new Boolean[MAPWIDTHINTILES + 2];
                     if (connectedTiles[position.item1][position.item2 - 1] == null
                             || !connectedTiles[position.item1][position.item2 - 1])
                     {
