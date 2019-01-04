@@ -2,7 +2,6 @@ package pacman_ultimater.project_base.gui_swing.ui.controller;
 
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
-import pacman_ultimater.project_base.custom_utils.Quartet;
 import pacman_ultimater.project_base.custom_utils.Quintet;
 
 import javax.sound.sampled.*;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -29,6 +29,7 @@ class GameLoadController {
     private JLabel up1, up2;
     private Color mapColor;
     private MainFrameController mfc;
+    private int[] animLabelsIds = new int[5];
 
     private static final int PACTIMER = 100;
     private static final byte ENTITYCOUNT = 5;
@@ -161,18 +162,18 @@ class GameLoadController {
 
         // All those magic numbers are X and Y axis correction for entities' pictures to be correctly placed.
         placePicture(entities.get(0).item3,
-            new ImageIcon("../Textures/PacStart.png"),
+            new ImageIcon(mfc.resourcesPath + "/Textures/PacStart.png"),
             new Point(entities.get(0).item1 * TILESIZEINPXS + 3, entities.get(0).item2 * TILESIZEINPXS + 42),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
         placePicture(entities.get(1).item3,
-            new ImageIcon("../Textures/Entity2Left.png"),
+            new ImageIcon(mfc.resourcesPath + "/Textures/Entity2Left.png"),
             new Point(entities.get(1).item1 * TILESIZEINPXS + 3, entities.get(1).item2 * TILESIZEINPXS + 42),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
         for (int i = 2; i < ENTITYCOUNT; i++)
             placePicture(entities.get(i).item3,
-                new ImageIcon("../Textures/Entity" + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")),
+                new ImageIcon(mfc.resourcesPath + "/Textures/Entity" + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")),
                 new Point(entities.get(i).item1 * TILESIZEINPXS + 3, entities.get(i).item2 * TILESIZEINPXS + 42),
                 new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
     }
@@ -209,7 +210,7 @@ class GameLoadController {
         // Places all lives on their supposed place.
         for (JLabel item : pacLives)
         {
-            placePicture(item, new ImageIcon("../textures/Life.png"),
+            placePicture(item, new ImageIcon(mfc.resourcesPath + "/textures/Life.png"),
                     new Point(lives * HEARTHSIZEINPX + TILESIZEINPXS, ((LoadMap.MAPHEIGHTINTILES + 3) * TILESIZEINPXS) + 4),
                     new Dimension(HEARTHSIZEINPX, HEARTHSIZEINPX));
             lives++;
@@ -238,21 +239,24 @@ class GameLoadController {
             mfc.score = 0;
             mfc.score2 = 0;
             mfc.soundTick = 0; //used for sound players to take turns
+            mfc.soundPlayers = new Clip[MainFrameController.SOUNDPLAYERSCOUNT];
             for (int i = 0; i < MainFrameController.SOUNDPLAYERSCOUNT; i++) {
                 mfc.soundPlayers[i] = AudioSystem.getClip();
             }
 
             mfc.collectedDots = 0;
             mfc.lives = 3;
-            mfc.level++;
+            ++mfc.level;
         }
 
         mfc.mainPanel.removeAll();
-        placeLabel(loading, "Loading...", Color.yellow, new Point(90, 159), new Font("Ravie", Font.BOLD, 30));
+        loading.setSize(350,60);
+        placeLabel(loading, "Loading...", Color.yellow, new Point(85, 100), new Font("Ravie", Font.BOLD, 48));
+        levelLabel.setSize(300,60);
+        placeLabel(levelLabel, "- Level " + Integer.toString(mfc.level) + " -", Color.red, new Point(135, 180), new Font("Ravie", Font.BOLD,30));
         loading.setVisible(true);
-        placeLabel(levelLabel, "- Level " + Integer.toString(mfc.level) + " -", Color.red, new Point(120, 350), new Font("Ravie", Font.BOLD,20));
         levelLabel.setVisible(true);
-        mfc.mainPanel.repaint();
+        mfc.mainPanel.revalidate();
 
         mfc.keyPressed1 = false;
         mfc.keyPressed2 = false;
@@ -302,46 +306,6 @@ class GameLoadController {
     }
 
     /**
-     * Plays loading animation.
-     */
-    private void playAnimation() throws InterruptedException
-    {
-        JLabel[] elements = new JLabel[5];
-        Random rndm = new Random();
-        int elemCount = rndm.nextInt(5) + 1;
-        int pacCount = 0;
-        int startX = LoadMap.MAPWIDTHINTILES * TILESIZEINPXS;
-
-        for (int i = 1; i <= elemCount; i++)
-        {
-            elements[i-1] = new JLabel();
-            placePicture(elements[i - 1],
-                        new ImageIcon("../textures/Entity" + Integer.toString(i) + "Left.png"),
-                        new Point(startX + (i == 0 ? 0 : (i + 4) * (2 * TILESIZEINPXS)),(LoadMap.MAPHEIGHTINTILES / 2 + 3) * TILESIZEINPXS),
-                        new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
-        }
-        for (int j = startX; j > -200; j -= 4)
-        {
-            ++pacCount;
-            for (int i = 0; i < elemCount; i++)
-            {
-                elements[i].setLocation(new Point(j + (i == 0 ? 0 : (i + 4) * (2 * TILESIZEINPXS)), (LoadMap.MAPHEIGHTINTILES / 2 + 3) * TILESIZEINPXS));
-                if (i == 0 && pacCount % 4 == 0)
-                    if (pacCount % 8 == 0)
-                        elements[i].setIcon(new ImageIcon("../Textures/PacStart.png"));
-                    else
-                        elements[i].setIcon(new ImageIcon("../textures/Entity1Left.png"));
-            }
-
-            mfc.mainPanel.revalidate();
-            Thread.sleep(10);
-        }
-
-        for (int i = 0; i < elemCount; i++)
-            mfc.mainPanel.remove(elements[i]);
-    }
-
-    /**
      * Provides loading and general preparing of the game at the level start-up.
      * @param restart Indicates whether is method triggered by lavel's restart or finish.
      * @throws IOException Propagation from highScore loading.
@@ -357,74 +321,81 @@ class GameLoadController {
         JLabel levelLabel = new JLabel();
         loadingAndInit(loading, levelLabel);
 
-        if (!restart)
-        {
-            if (mfc.music)
-            {
-                AudioInputStream sound = AudioSystem.getAudioInputStream(new File(mfc.resourcesPath + "/sounds/pacman_intermission.wav"));
-                mfc.musicPlayer.open(sound);
-                mfc.musicPlayer.loop(1);
+        if (!restart) {
+            if (mfc.music) {
+                File soundStream = new File(mfc.resourcesPath + "/sounds/pacman_intermission.wav");
+                AudioInputStream sound = AudioSystem.getAudioInputStream(soundStream);
+                byte[] buffer1 = new byte[65536];
+                sound.read(buffer1, 0, 65536);
+
+                mfc.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
+                mfc.musicPlayer.start();
             }
             AnimationTask animTask = new AnimationTask();
             animTask.execute();
-            animTask.get();
         }
-
-        loadHud(mfc.lives - 2);
-        topGhostInTiles = new IntPair(mfc.map.item3.item1 - 1, mfc.map.item3.item2 - 1);
-        loadEntities();
-        JLabel ready = new JLabel();
-        placeLabel(ready, "READY!", Color.yellow, new Point(11 * TILESIZEINPXS - 8, 20 * TILESIZEINPXS - 6), new Font("Ravie", Font.BOLD, 14));
-
-        if (!restart)
-        {
-            mfc.collectedDots = 0;
-            mfc.mapFresh = deepCopy(mfc.map.item1);
-            if (mfc.level <= 13)
-                mfc.ghostUpdater.setDelay(mfc.ghostUpdater.getDelay() - 5);
-        }
-        renderMap(mfc.mapFresh, mfc.map.item4);
-
-        loading.setVisible(false);
-        levelLabel.setVisible(false);
-        mfc.mainPanel.revalidate();
-
-        if (mfc.music)
-        {
-            AudioInputStream sound = AudioSystem.getAudioInputStream(new File(mfc.resourcesPath + "/sounds/pacman_beginning.wav"));
-            mfc.musicPlayer.open(sound);
-            mfc.musicPlayer.loop(1);
-        }
-        mfc.mainPanel.repaint();
-
-        Thread.sleep(OPENINGTHEMELENGTH);
-
-        // It's possible that the player has pressed escape during the opening theme.
-        if (mfc.gameOn)
-        {
-            mfc.mainPanel.remove(ready);
-            mfc.mainPanel.revalidate();
-            // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
-            entities.get(0).item3.setLocation(new Point(entities.get(0).item3.getLocation().x - 9,
-                                                            entities.get(0).item3.getLocation().y));
-            entities.get(1).item3.setLocation(new Point(entities.get(1).item3.getLocation().x - 9,
-                                                            entities.get(1).item3.getLocation().y));
-            if (mfc.music)
-            {
-                AudioInputStream sound = AudioSystem.getAudioInputStream(new File(mfc.resourcesPath + "/sounds/pacman_siren.wav"));
-                mfc.musicPlayer.open(sound);
-                mfc.musicPlayer.loop(Clip.LOOP_CONTINUOUSLY);
-            }
-            // Starts updaters that provides effect of main game cycle.
-            mfc.pacUpdater.start();
-            mfc.ghostUpdater.setRepeats(true);
-            mfc.ghostUpdater.setDelay(!mfc.player2  ? (PACTIMER + 40 - (mfc.level > 13  ? 65
-                                                                                        : mfc.level * 5))
-                                                    : mfc.pacUpdater.getDelay() + 10);
-            mfc.ghostUpdater.start();
-        }
+//            animTask.get();
+//            mfc.musicPlayer.stop();
+//        }
+//
+//        loadHud(mfc.lives - 2);
+//        topGhostInTiles = new IntPair(mfc.map.item3.item1 - 1, mfc.map.item3.item2 - 1);
+//        loadEntities();
+//        JLabel ready = new JLabel();
+//        placeLabel(ready, "READY!", Color.yellow, new Point(11 * TILESIZEINPXS - 8, 20 * TILESIZEINPXS - 6), new Font("Ravie", Font.BOLD, 14));
+//
+//        if (!restart)
+//        {
+//            mfc.collectedDots = 0;
+//            mfc.mapFresh = deepCopy(mfc.map.item1);
+//            if (mfc.level <= 13)
+//                mfc.ghostUpdater.setDelay(mfc.ghostUpdater.getDelay() - 5);
+//        }
+//        renderMap(mfc.mapFresh, mfc.map.item4);
+//
+//        loading.setVisible(false);
+//        levelLabel.setVisible(false);
+//        mfc.mainPanel.revalidate();
+//
+//        if (mfc.music)
+//        {
+//            AudioInputStream sound = AudioSystem.getAudioInputStream(new File(mfc.resourcesPath + "/sounds/pacman_beginning.wav"));
+//            mfc.musicPlayer.open(sound);
+//            mfc.musicPlayer.loop(1);
+//        }
+//        mfc.mainPanel.repaint();
+//
+//        Thread.sleep(OPENINGTHEMELENGTH);
+//
+//        // It's possible that the player has pressed escape during the opening theme.
+//        if (mfc.gameOn)
+//        {
+//            mfc.mainPanel.remove(ready);
+//            mfc.mainPanel.revalidate();
+//            // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
+//            entities.get(0).item3.setLocation(new Point(entities.get(0).item3.getLocation().x - 9,
+//                                                            entities.get(0).item3.getLocation().y));
+//            entities.get(1).item3.setLocation(new Point(entities.get(1).item3.getLocation().x - 9,
+//                                                            entities.get(1).item3.getLocation().y));
+//            if (mfc.music)
+//            {
+//                AudioInputStream sound = AudioSystem.getAudioInputStream(new File(mfc.resourcesPath + "/sounds/pacman_siren.wav"));
+//                mfc.musicPlayer.open(sound);
+//                mfc.musicPlayer.loop(Clip.LOOP_CONTINUOUSLY);
+//            }
+//            // Starts updaters that provides effect of main game cycle.
+//            mfc.pacUpdater.start();
+//            mfc.ghostUpdater.setRepeats(true);
+//            mfc.ghostUpdater.setDelay(!mfc.player2  ? (PACTIMER + 40 - (mfc.level > 13  ? 65
+//                                                                                        : mfc.level * 5))
+//                                                    : mfc.pacUpdater.getDelay() + 10);
+//            mfc.ghostUpdater.start();
+//        }
     }
 
+    /**
+     * Represents single frame of loading animation
+     */
     class AnimationFrame{
         boolean initialisation;
         boolean finished;
@@ -441,28 +412,32 @@ class GameLoadController {
         }
     }
 
+    /**
+     * Background worker handling loading animation playing. Works on publish/process base.
+     */
     class AnimationTask extends SwingWorker<Void, AnimationFrame>{
         @Override
         public Void doInBackground() throws InterruptedException{
-            JLabel[] elements = new JLabel[5];
             Random rndm = new Random();
             int elemCount = rndm.nextInt(5) + 1;
             int pacCount = 0;
+            JLabel[] elements = new JLabel[elemCount];
             int startX = LoadMap.MAPWIDTHINTILES * TILESIZEINPXS;
 
+            // FIRST ANIMATION: From right to left --------------------------------------------------------------------
             for (int i = 1; i <= elemCount; i++)
             {
                 elements[i-1] = new JLabel();
-                elements[i-1].setIcon(new ImageIcon("../textures/Entity" + Integer.toString(i) + "Left.png"));
+                elements[i-1].setIcon(new ImageIcon(mfc.resourcesPath + "/textures/Entity" + Integer.toString(i) + "Left.png"));
                 elements[i-1].setLocation(new Point(startX + (i == 0 ? 0 : (i + 4) * (2 * TILESIZEINPXS)),(LoadMap.MAPHEIGHTINTILES / 2 + 3) * TILESIZEINPXS));
                 elements[i-1].setSize(new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
             }
             publish(new AnimationFrame(true, false, null, elements, null));
-            Thread.sleep(10);
+            Thread.sleep(24);
 
             Point[] locations = new Point[elemCount];
-            ImageIcon pacmanImage = new ImageIcon("../Textures/PacStart.png");
-            for (int j = startX; j > -200; j -= 4)
+            ImageIcon pacmanImage = new ImageIcon(mfc.resourcesPath + "/Textures/PacStart.png");
+            for (int j = startX; j > -300; j -= 4)
             {
                 ++pacCount;
                 for (int i = 0; i < elemCount; i++)
@@ -470,37 +445,70 @@ class GameLoadController {
                     locations[i] = new Point(j + (i == 0 ? 0 : (i + 4) * (2 * TILESIZEINPXS)), (LoadMap.MAPHEIGHTINTILES / 2 + 3) * TILESIZEINPXS);
                     if (i == 0 && pacCount % 4 == 0)
                         if (pacCount % 8 == 0)
-                            pacmanImage = new ImageIcon("../Textures/PacStart.png");
+                            pacmanImage = new ImageIcon(mfc.resourcesPath + "/Textures/PacStart.png");
                         else
-                            pacmanImage = new ImageIcon("../textures/Entity1Left.png");
+                            pacmanImage = new ImageIcon(mfc.resourcesPath + "/textures/Entity1Left.png");
                 }
 
                 publish(new AnimationFrame(false, false, pacmanImage, elements, locations));
-                Thread.sleep(10);
+                Thread.sleep(12);
+            }
+
+            // SECOND ANIMATION: From left to right -------------------------------------------------------------------
+            if(mfc.level % 5 == 0){
+                elements[0].setSize(new Dimension(ENTITIESSIZEINPXS * 2, ENTITIESSIZEINPXS * 2));
+                elements[0].setLocation(new Point(elements[0].getLocation().x, elements[0].getLocation().y - ENTITIESSIZEINPXS));
+                elements[0].setIcon(new ImageIcon(mfc.resourcesPath + "/textures/Entity1RightBig.png"));
+                locations[0] = elements[0].getLocation();
+                for (int i = 2; i <= elemCount; i++)
+                    elements[i-1].setIcon(new ImageIcon(mfc.resourcesPath + "/textures/Entity" + Integer.toString(i) + "Right.png"));
+
+                Thread.sleep(250);
+                pacCount = 0;
+                for (int j = 0; j < 260; ++j)
+                {
+                    ++pacCount;
+                    for (int i = 0; i < elemCount; i++)
+                    {
+                        locations[i] = new Point(locations[i].x + 4, locations[i].y);
+                        if (i == 0 && pacCount % 4 == 0)
+                            if (pacCount % 8 == 0)
+                                pacmanImage = new ImageIcon(mfc.resourcesPath + "/Textures/PacStartBig.png");
+                            else
+                                pacmanImage = new ImageIcon(mfc.resourcesPath + "/textures/Entity1RightBig.png");
+                    }
+
+                    publish(new AnimationFrame(false, false, pacmanImage, elements, locations));
+                    Thread.sleep(12);
+                }
             }
 
             publish(new AnimationFrame(false, true, pacmanImage, elements, locations));
             return null;
         }
 
-        protected void process(AnimationFrame frame) {
-            if (frame.initialisation) {
-                for (int i = 0; i < frame.entities.length; ++i) {
-                    mfc.mainPanel.add(frame.entities[i]);
+        @Override
+        protected void process(List<AnimationFrame> frames) {
+            for (AnimationFrame frame : frames) {
+                if (frame.initialisation) {
+                    for (int i = 0; i < frame.entities.length; ++i) {
+                        animLabelsIds[i] = mfc.mainPanel.getComponentCount();
+                        mfc.mainPanel.add(frame.entities[i]);
+                        mfc.mainPanel.getComponent(animLabelsIds[i]).setVisible(true);
+                    }
+                } else if (frame.finished) {
+                    for (int i = frame.entities.length - 1; i >= 0; --i) {
+                        mfc.mainPanel.remove(animLabelsIds[i]);
+                    }
+                } else {
+                    for (int i = 0; i < frame.entities.length; ++i) {
+                        mfc.mainPanel.getComponent(animLabelsIds[i]).setLocation(frame.locations[i].x, frame.locations[i].y);
+                    }
+                    frame.entities[0].setIcon(frame.pacmanImage);
                 }
+                mfc.mainPanel.revalidate();
+                mfc.mainPanel.repaint();
             }
-            else if (frame.finished) {
-                for (int i = 0; i < frame.entities.length; ++i) {
-                    mfc.mainPanel.remove(frame.entities[i]);
-                }
-            }
-            else {
-                for (int i = 0; i < frame.entities.length; ++i) {
-                    frame.entities[i].setLocation(frame.locations[i].x, frame.locations[i].y);
-                }
-                frame.entities[0].setIcon(frame.pacmanImage);
-            }
-            mfc.mainPanel.revalidate();
         }
     }
 

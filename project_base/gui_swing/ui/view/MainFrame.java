@@ -7,7 +7,7 @@ import java.io.File;
 
 public class MainFrame extends JFrame{
 
-    //<editor-fold desc="- Frame Components -">
+    //<editor-fold desc="- FRAME COMPONENTS Block -">
 
     private String resourcesPath;
     private JPanel mainPanel;
@@ -46,6 +46,8 @@ public class MainFrame extends JFrame{
     private JLabel typeHintLbl;
 
     //</editor-fold>
+
+    //<editor-fold desc="- INITIALIZATION Block -">
 
     public MainFrame(){
         resourcesPath = new File("src/main/resources").getAbsolutePath();
@@ -423,7 +425,9 @@ public class MainFrame extends JFrame{
         mainPanel.add(openFileDialog1);
     }
 
-    //<editor-fold desc="- Getters -"
+    //</editor-fold>>
+
+    //<editor-fold desc="- GETTERS Block -"
 
     public JPanel getMainPanel() {
         return mainPanel;

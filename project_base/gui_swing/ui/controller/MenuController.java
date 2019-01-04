@@ -25,7 +25,7 @@ public class MenuController{
 
     //</editor-fold>
 
-    //<editor-fold desc="- GENERAL Block -">
+    //<editor-fold desc="- CONSTRUCTION Block -">
 
     MenuController(MainFrameController controller){
         mfc = controller;
@@ -224,11 +224,13 @@ public class MenuController{
     /**
      * Loads predefined original map and calls makeItHappen() to procced to gameplay.
      */
-    private void orgGame_Click()
+    private void orgGame_Click() throws InvocationTargetException, IllegalAccessException
     {
         mfc.loadedMap = new LoadMap(mfc.resourcesPath + "\\OriginalMap.txt");
-        if (mfc.loadedMap.Map != null)
+        if (mfc.loadedMap.Map != null) {
+            menu(null);
             mfc.makeItHappen();
+        }
     }
 
     /**

@@ -12,7 +12,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -73,65 +72,11 @@ public class MainFrameController {
 
     //</editor-fold>
 
+    //<editor-fold desc="- INITIALIZATION Block -">
+
     public MainFrameController(){
         initComponents();
         setInitialState();
-    }
-
-    /**
-     * Creates new instance of menu - resulting in menu showing up
-     */
-    public void OpenMenu(){
-        MenuController mc = new MenuController(this);
-        mainFrame.setVisible(true);
-        mainPanel.grabFocus();
-    }
-
-    /**
-     * Function that provides bridge between menu and the game.
-     * Switches input (KeyDown) to game mode by turning gameOn.
-     * Initializes Map and calls function that makes the game start.
-     */
-    void makeItHappen()
-    {
-        try {
-            mc.menu(null);
-            level = 0;
-            gameOn = true;
-            map = loadedMap.Map;
-            loadGame();
-        }
-        catch(InvocationTargetException | IllegalAccessException | IOException | LineUnavailableException
-                | ExecutionException | UnsupportedAudioFileException | InterruptedException e)
-        {
-            handleExceptions(e.getMessage());
-            mainFrame.dispose();
-        }
-    }
-
-    private void loadGame()
-            throws LineUnavailableException, IOException, ExecutionException, UnsupportedAudioFileException,
-                    InterruptedException
-    {
-        GameLoadController glc = new GameLoadController(this);
-        glc.playGame(false);
-    }
-
-    /**
-     * Handles occured eception by displaying apology and exception message
-     * @param message Exception message.
-     */
-    void handleExceptions(String message){
-        mainPanel.removeAll();
-        errorInfoLbl.setText("<html><div style='width: 100%; text-align: center; display: block;'>" +
-                "<b>WE ARE SORRY</b><br />" +
-                "<h1>something broke</h1><br /><h2 style='color: red'>"
-                + message + "<br /><br /><br />" +
-                "</h2><h1>The game will save current score and close.</h1></div></html>");
-        errorInfoLbl.setVisible(true);
-        mainPanel.add(errorInfoLbl);
-        mainPanel.repaint();
-        mainPanel.revalidate();
     }
 
     /**
@@ -187,5 +132,62 @@ public class MainFrameController {
         typeSymbolsLbl = mainFrame.getTypeSymbolsLbl();
         typedSymbolsLbl = mainFrame.getTypedSymbolsLbl();
         typeHintLbl = mainFrame.getTypeHintLbl();
+    }
+
+    //</editor-fold>
+
+    /**
+     * Creates new instance of menu - resulting in menu showing up
+     */
+    public void OpenMenu(){
+        MenuController mc = new MenuController(this);
+        mainFrame.setVisible(true);
+        mainPanel.grabFocus();
+    }
+
+    /**
+     * Function that provides bridge between menu and the game.
+     * Switches input (KeyDown) to game mode by turning gameOn.
+     * Initializes Map and calls function that makes the game start.
+     */
+    void makeItHappen()
+    {
+        try {
+            level = 0;
+            gameOn = true;
+            map = loadedMap.Map;
+            loadGame();
+        }
+        catch(IOException | LineUnavailableException | ExecutionException
+                | UnsupportedAudioFileException | InterruptedException e)
+        {
+            handleExceptions(e.getMessage());
+            mainFrame.dispose();
+        }
+    }
+
+    private void loadGame()
+            throws LineUnavailableException, IOException, ExecutionException, UnsupportedAudioFileException,
+                    InterruptedException
+    {
+        GameLoadController glc = new GameLoadController(this);
+        glc.playGame(false);
+    }
+
+    /**
+     * Handles occured eception by displaying apology and exception message
+     * @param message Exception message.
+     */
+    void handleExceptions(String message){
+        mainPanel.removeAll();
+        errorInfoLbl.setText("<html><div style='width: 100%; text-align: center; display: block;'>" +
+                "<b>WE ARE SORRY</b><br />" +
+                "<h1>something broke</h1><br /><h2 style='color: red'>"
+                + message + "<br /><br /><br />" +
+                "</h2><h1>The game will save current score and close.</h1></div></html>");
+        errorInfoLbl.setVisible(true);
+        mainPanel.add(errorInfoLbl);
+        mainPanel.repaint();
+        mainPanel.revalidate();
     }
 }
