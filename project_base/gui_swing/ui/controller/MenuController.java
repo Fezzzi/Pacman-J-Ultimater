@@ -20,7 +20,7 @@ public class MenuController{
     private ArrayList<JLabel> activeElements = new ArrayList<>();
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
-    private ArrayList<String> symbols = new ArrayList<>();
+    private ArrayList<Character> symbols = new ArrayList<>();
     private MainFrameController mfc;
 
     //</editor-fold>
@@ -119,7 +119,6 @@ public class MenuController{
     private void menu_SelectMap()
     {
         activeElements.add(mfc.errorLdMapLbl);
-        activeElements.add(mfc.errorInfoLbl);
         activeElements.add(mfc.advancedLdButLbl);
         activeElements.add(mfc.tryAgainButLbl);
         activeElements.add(mfc.escLabelLbl);
@@ -260,17 +259,18 @@ public class MenuController{
             menuLayer = mn.submenu;
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
             String path = mfc.openFileDialog1.getSelectedFile().getAbsolutePath();
-            LoadMap loadMap;
             if (symbols.size() == 0)
-                loadMap = new LoadMap(path);
+                mfc.loadedMap = new LoadMap(path);
             else
             {
                 Character[] chars = symbols.toArray(new Character[0]);
-                loadMap = new LoadMap(path, symbols.toArray(chars));
+                mfc.loadedMap = new LoadMap(path, chars);
                 symbols = new ArrayList<>();
             }
-            if (loadMap.Map != null)
-                ;//makeItHappen(loadMap);
+            if (mfc.loadedMap.Map != null) {
+                menu(null);
+                mfc.makeItHappen();
+            }
         }
     }
 
@@ -341,7 +341,7 @@ public class MenuController{
      * @param source Input characters.
      * @return String of characters separated with " ; ".
      */
-    private String charListToString(ArrayList<String> source)
+    private String charListToString(ArrayList<Character> source)
     {
         StringBuilder output = new StringBuilder();
         if (source.size() > 0)
@@ -400,9 +400,8 @@ public class MenuController{
     /**
      * Function handling key pressing in menu.
      * @param keyCode int code of pressed key.
-     * @param keyChar string representing pressed key.
      */
-    private void menuKeyDownHandler(int keyCode, String keyChar) {
+    private void menuKeyDownHandler(int keyCode) {
         try {
             if (menuLayer == mn.start) {
                 if (keyCode == KeyEvent.VK_ESCAPE)
@@ -433,8 +432,8 @@ public class MenuController{
                         symbols.remove(symbols.size() - 1);
                         mfc.typedSymbolsLbl.setText(charListToString(symbols));
                     }
-                    if (!symbols.contains(keyChar) && keyCode != KeyEvent.VK_BACK_SPACE) {
-                        symbols.add(keyChar);
+                    if (!symbols.contains((char)keyCode) && keyCode != KeyEvent.VK_BACK_SPACE) {
+                        symbols.add((char)keyCode);
                         mfc.typedSymbolsLbl.setText(charListToString(symbols));
                     }
                     mfc.mainFrame.revalidate();
@@ -465,7 +464,7 @@ public class MenuController{
             }
         }
         catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-            tryToSaveScore();
+            mfc.tryToSaveScore();
             mfc.handleExceptions(exception.toString());
         }
     }
@@ -498,12 +497,12 @@ public class MenuController{
         ActionMap aMap = kb.getAMap();
     }
 
-    public void keyDownHandler(int key, String str)
+    public void keyDownHandler(int key)
     {
         if(!mfc.gameOn)
-            menuKeyDownHandler(key, str);
+            menuKeyDownHandler(key);
         else
-            ;//gameKeyDownHandler(key, str);
+            ;//gameKeyDownHandler(key);
 
         mfc.mainFrame.revalidate();
     }
@@ -587,19 +586,6 @@ public class MenuController{
         }
     }
 
-    /**
-     * Attempts to save player's score to file.
-     */
-    private void tryToSaveScore(){
-        try{
-            if(!mfc.player2 && mfc.score > 0)
-                HighScoreClass.saveHighScore(mfc.score, mfc.resourcesPath);
-        }
-        catch(IOException exception){
-            mfc.handleExceptions(exception.getMessage());
-        }
-    }
-
     //</editor-fold>
 
     //<editor-fold desc="- LISTENERS Block -">
@@ -621,7 +607,7 @@ public class MenuController{
                 menu(MenuController.class.getDeclaredMethod("menu_Start"));
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-                tryToSaveScore();
+                mfc.tryToSaveScore();
                 mfc.handleExceptions(exception.getMessage());
             }
         }
@@ -632,7 +618,7 @@ public class MenuController{
          */
         @Override
         public void windowClosing(WindowEvent e){
-            tryToSaveScore();
+            mfc.tryToSaveScore();
             mfc.mainFrame.dispose();
         }
 
@@ -642,7 +628,7 @@ public class MenuController{
          */
         @Override
         public void windowClosed(WindowEvent e){
-            tryToSaveScore();
+            mfc.tryToSaveScore();
         }
 
         /**
@@ -698,7 +684,7 @@ public class MenuController{
             try {
                 switch (mat) {
                     case clickToEscape:
-                        menuKeyDownHandler(KeyEvent.VK_ESCAPE, "esc");
+                        menuKeyDownHandler(KeyEvent.VK_ESCAPE);
                         break;
                     case tryAgainBtn:
                         selectMap_Click();
@@ -707,12 +693,12 @@ public class MenuController{
                         advancedLdBut_Click();
                         break;
                     default:
-                        menuKeyDownHandler(KeyEvent.VK_ENTER, "enter");
+                        menuKeyDownHandler(KeyEvent.VK_ENTER);
                         break;
                 }
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-                tryToSaveScore();
+                mfc.tryToSaveScore();
                 mfc.handleExceptions(exception.getMessage());
             }
         }

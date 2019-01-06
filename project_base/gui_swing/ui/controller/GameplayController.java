@@ -1,24 +1,20 @@
-//package pacman_ultimater.project_base.gui_swing.ui.controller;
-//
-//public class GameplayController {
-//
-//    //<editor-fold desc="- VARIABLES Block -">
-//
-//    int keyTicks = 5, Ticks, GhostsEaten;
-//    int FreeGhost, GhostRelease, EatEmTimer, keyCountdown1, keyCountdown2;
-//    bool keyPressed1, keyPressed2;
+package pacman_ultimater.project_base.gui_swing.ui.controller;
+
+class GameplayController {
+
+    //<editor-fold desc="- VARIABLES Block -">
+
+   private int keyTicks = 5;
+   private int FreeGhost, GhostRelease, EatEmTimer;
 //    bool killed;
 //    bool[] teleported = new bool[EntityCount];
-//    string SoundPath = System.IO.Path.GetFullPath("../sounds/");
-//    WMPLib.WindowsMediaPlayer[] SoundPlayers = new WMPLib.WindowsMediaPlayer[SoundPlayersCount];
-//    System.Media.SoundPlayer MusicPlayer = new System.Media.SoundPlayer();
 //    Direction.nType NewDirection1 = Direction.nType.DIRECTION;
 //    Direction.nType NewDirection2 = Direction.nType.DIRECTION;
-//    Point[] redrawPellets = new Point[RDPSize];
 //    Point[] EntitiesPixDeltas = new Point[EntityCount];
 //    byte RDPIndex = 0;
-//    byte PacSmoothMoveStep;
-//    byte GhostSmoothMoveStep;
+    private byte pacSmoothMoveStep;
+    private byte ghostSmoothMoveStep;
+    private GameLoadController glc;
 //
 //        const
 //    int BonusLifeScore = 10000;
@@ -38,11 +34,15 @@
 //    byte ghostMaxSpeed = 3;    // The smaller the number the faster the ghosts.
 //        const
 //    int ghostBaseSpeed = (GhostAccLimLevel / 2) + ghostMaxSpeed + 1;
-//
-//    //</editor-fold>
-//
-//    //<editor-fold desc="- GAMEPLAY Block -">
-//
+
+    //</editor-fold>
+
+    //<editor-fold desc="- GAMEPLAY Block -">
+
+    GameplayController(GameLoadController controller){
+        this.glc = controller;
+    }
+
 //    /// <summary>
 //    /// Function handling key pressing during gameplay.
 //    /// </summary>
@@ -585,57 +585,52 @@
 //            keyCountdown = 0;
 //        }
 //    }
-//
-//    /// <summary>
-//    /// Topmost layer of instructions executed each frame.
-//    /// </summary>
-//    private void GameLoop(bool pacman) {
-//        // In case that one of the players have pushed a valid key, countdown, which represents
-//        // the number tiles remaining until the information about the pushed button is lost, is started.
-//        if (keyPressed1) {
-//            keyCountdown1 = keyTicks;
-//            keyPressed1 = false;
-//        }
-//        if (keyPressed2) {
-//            keyCountdown2 = keyTicks;
-//            keyPressed2 = false;
-//        }
-//
+
+    /// <summary>
+    /// Topmost layer of instructions executed each frame.
+    /// </summary>
+    private void gameLoop(boolean isPacman) {
+        // In case that one of the players have pushed a valid key, countdown, which represents
+        // the number tiles remaining until the information about the pushed button is lost, is started.
+        if (glc.mfc.keyPressed1) {
+            glc.mfc.keyCountdown1 = keyTicks;
+            glc.mfc.keyPressed1 = false;
+        }
+        if (glc.mfc.keyPressed2) {
+            glc.mfc.keyCountdown2 = keyTicks;
+            glc.mfc.keyPressed2 = false;
+        }
+
 //        // Calls main Update function.
-//        UpdateGame(pacman);
+//        UpdateGame(isPacman);
 //
 //        // Function for key countdown.
 //        KeyCountAndDir(ref NewDirection1, ref keyCountdown1);
-//        if (Player2)
+//        if (mfc.player2)
 //            KeyCountAndDir(ref NewDirection2, ref keyCountdown2);
-//
-//        // Checks if the player has already collected all the pellets.
-//        // In such case in relation to level and game mode, plays another level or ends the game.
-//        if (CollectedDots >= Map.Item2)
-//            EndLevel();
-//
-//        if (pacman) {
-//            this.PacSmoothTimer.Start();
-//            PacSmoothMoveStep = 0;
-//        } else {
-//            this.GhostSmoothTimer.Start();
-//            GhostSmoothMoveStep = 0;
-//        }
-//
-//    }
-//
-//    /// <summary>
-//    /// Handles end game freezing, blinking and calls new level or end game function.
-//    /// </summary>
-//    private async
-//
-//    void EndLevel() {
-//        PacUpdater.Stop();
-//        GhostUpdater.Stop();
-//        MusicPlayer.Stop();
+
+        // Checks if the player has already collected all the pellets.
+        // In such case in relation to level and game mode, plays another level or ends the game.
+        if (glc.mfc.collectedDots >= glc.mfc.map.item2)
+            endLevel();
+
+        if (isPacman) {
+            glc.mfc.pacSmoothTimer.start();
+            pacSmoothMoveStep = 0;
+        } else {
+            glc.mfc.ghostSmoothTimer.start();
+            ghostSmoothMoveStep = 0;
+        }
+
+    }
+
+    private void endLevel() {
+        glc.mfc.pacUpdater.stop();
+        glc.mfc.ghostUpdater.stop();
+        glc.mfc.musicPlayer.stop();
 //        for (int i = 0; i < 8; i++) {
 //            if (i % 2 == 0)
-//                RenderMap(MapFresh, Color.White);
+//                RenderMap(MapFresh, Color.white);
 //            else
 //                RenderMap(MapFresh, MapColor);
 //
@@ -644,30 +639,30 @@
 //        }
 //
 //        Controls.Clear();
-//        Level++;
-//        if (Level < MaxLevel && !Player2)
-//            PlayGame(false);
+//        mfc.level++;
+//        if (mfc.level < MainFrameController.MAXLEVEL && !mfc.player2)
+//            playGame(false);
 //        else
-//            EndGame();
-//    }
-//
-//    /// <summary>
-//    /// Creates ilusion of game loop.
-//    /// Handles event raised by pacman's timer's periodical ticks.
-//    /// </summary>
-//    private void PacUpdater_Tick(object sender, EventArgs e) {
-//        this.PacSmoothTimer.Stop();
-//        GameLoop(true);
-//    }
-//
-//    /// <summary>
-//    /// Creates ilusion of game loop.
-//    /// Handles event raised by ghosts' timer's periodical ticks.
-//    /// </summary>
-//    private void GhostUpdater_Tick(object sender, EventArgs e) {
-//        this.GhostSmoothTimer.Stop();
-//        GameLoop(false);
-//    }
+//            endGame();
+    }
+
+    /// <summary>
+    /// Creates ilusion of game loop.
+    /// Handles event raised by pacman's timer's periodical ticks.
+    /// </summary>
+    private void pacUpdater_Tick() {
+        glc.mfc.pacSmoothTimer.stop();
+        gameLoop(true);
+    }
+
+    /// <summary>
+    /// Creates ilusion of game loop.
+    /// Handles event raised by ghosts' timer's periodical ticks.
+    /// </summary>
+    private void ghostUpdater_Tick() {
+        glc.mfc.ghostSmoothTimer.stop();
+        gameLoop(false);
+    }
 //
 //    /// <summary>
 //    /// Handles animating of pacman's translation between old and the new tile.
@@ -734,4 +729,4 @@
 //    }
 //
 //    //</editor-fold>
-//}
+}

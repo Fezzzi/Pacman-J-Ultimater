@@ -54,9 +54,9 @@ public class MainFrame extends JFrame{
 
         setLocationRelativeTo(null);
         setIconImage(new ImageIcon(resourcesPath + "\\PacManJUltimater.png").getImage());
-        setMinimumSize(new Dimension(490, 529));
+        setMinimumSize(new Dimension(464, 529));
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+        this.setLocation(dim.width/2 - this.getSize().width/2, dim.height/2 - this.getSize().height/2);
         setName("PacManJUltimater");
         setTitle("Pac-Man J-Ultimater");
         setResizable(false);
@@ -102,7 +102,7 @@ public class MainFrame extends JFrame{
         //
         pacmanLbl.setFont(new Font("Ravie", Font.BOLD, 54));
         pacmanLbl.setForeground(Color.YELLOW);
-        pacmanLbl.setBounds(65, 50,380,75);
+        pacmanLbl.setBounds(55, 50,380,75);
         pacmanLbl.setName("pacman");
         pacmanLbl.setText("PAC-MAN");
         pacmanLbl.setVisible(false);
@@ -112,7 +112,7 @@ public class MainFrame extends JFrame{
         //
         ultimateLbl.setFont(new Font("Ravie", Font.BOLD, 32));
         ultimateLbl.setForeground(Color.red);
-        ultimateLbl.setBounds(53, 115,380,50);
+        ultimateLbl.setBounds(43, 115,380,50);
         ultimateLbl.setName("jultimater");
         ultimateLbl.setText("- J-ULTIMATER -");
         ultimateLbl.setVisible(false);
@@ -121,9 +121,9 @@ public class MainFrame extends JFrame{
         // copyright
         //
         copyrightLbl.setForeground(Color.yellow);
-        copyrightLbl.setBounds(292, 460, 179,17);
+        copyrightLbl.setBounds(270, 460, 179,17);
         copyrightLbl.setName("copyright");
-        copyrightLbl.setText("© Copyright Filip Horký 2018");
+        copyrightLbl.setText("© Copyright Filip Horký 2019");
         copyrightLbl.setVisible(false);
         copyrightLbl.setFocusable(false);
         //
@@ -131,7 +131,7 @@ public class MainFrame extends JFrame{
         //
         pressEnterLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         pressEnterLbl.setForeground(Color.white);
-        pressEnterLbl.setBounds(105, 180,400,200);
+        pressEnterLbl.setBounds(95, 180,400,200);
         pressEnterLbl.setName("pressEnter");
         pressEnterLbl.setText("<html>&nbsp;&nbsp;INSERT COIN<br/><br/>- press any key -</html>");
         pressEnterLbl.setVisible(false);
@@ -141,7 +141,7 @@ public class MainFrame extends JFrame{
         //
         orgGameLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         orgGameLbl.setForeground(Color.white);
-        orgGameLbl.setBounds(107,51,241,45);
+        orgGameLbl.setBounds(100,51,241,45);
         orgGameLbl.setName("OrgGame");
         orgGameLbl.setText("Original Game");;
         orgGameLbl.setVisible(false);
@@ -151,7 +151,7 @@ public class MainFrame extends JFrame{
         //
         selectMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         selectMapLbl.setForeground(Color.white);
-        selectMapLbl.setBounds(135,118,190,45);
+        selectMapLbl.setBounds(128,118,190,45);
         selectMapLbl.setName("SelectMap");
         selectMapLbl.setText("Select Map");
         selectMapLbl.setVisible(false);
@@ -161,7 +161,7 @@ public class MainFrame extends JFrame{
         //
         settingsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         settingsLbl.setForeground(Color.white);
-        settingsLbl.setBounds(158,186,143,45);
+        settingsLbl.setBounds(151,186,143,45);
         settingsLbl.setName("Settings");
         settingsLbl.setText("Settings");
         settingsLbl.setVisible(false);
@@ -171,7 +171,7 @@ public class MainFrame extends JFrame{
         //
         vsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         vsLbl.setForeground(Color.white);
-        vsLbl.setBounds(201,255,60,45);
+        vsLbl.setBounds(194,255,60,45);
         vsLbl.setName("Vs");
         vsLbl.setText("VS");
         vsLbl.setVisible(false);
@@ -181,7 +181,7 @@ public class MainFrame extends JFrame{
         //
         highScrLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         highScrLbl.setForeground(Color.white);
-        highScrLbl.setBounds(120,328,260,45);
+        highScrLbl.setBounds(113,328,260,45);
         highScrLbl.setName("HighScr");
         highScrLbl.setText("Highest Score");
         highScrLbl.setVisible(false);
@@ -190,7 +190,7 @@ public class MainFrame extends JFrame{
         // EscLabel
         //
         escLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 20));
-        escLabelLbl.setBounds(145, 427, 185, 22);
+        escLabelLbl.setBounds(138, 427, 185, 22);
         escLabelLbl.setForeground(Color.yellow);
         escLabelLbl.setName("EscLabel");
         escLabelLbl.setText("Press ESC to return");
@@ -291,7 +291,7 @@ public class MainFrame extends JFrame{
         //
         errorLdMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         errorLdMapLbl.setForeground(Color.white);
-        errorLdMapLbl.setBounds(85,42,302,39);
+        errorLdMapLbl.setBounds(78,42,302,39);
         errorLdMapLbl.setName("ErrorLdMap");
         errorLdMapLbl.setText("Error Loading Map");
         errorLdMapLbl.setVisible(false);
@@ -301,7 +301,7 @@ public class MainFrame extends JFrame{
         //
         errorInfoLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         errorInfoLbl.setForeground(Color.white);
-        errorInfoLbl.setBounds(0,50, 480, 350);
+        errorInfoLbl.setBounds(0,50, 450, 350);
         errorInfoLbl.setName("ErrorInfo");
         errorInfoLbl.setText("");
         errorInfoLbl.setVisible(false);
@@ -313,7 +313,7 @@ public class MainFrame extends JFrame{
         tryAgainButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         tryAgainButLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 25));
         tryAgainButLbl.setForeground(Color.black);
-        tryAgainButLbl.setBounds(34,370,148,31);
+        tryAgainButLbl.setBounds(27,370,148,31);
         tryAgainButLbl.setName("TryAgainBut");
         tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
         tryAgainButLbl.setVisible(false);
@@ -325,7 +325,7 @@ public class MainFrame extends JFrame{
         advancedLdButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         advancedLdButLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 25));
         advancedLdButLbl.setForeground(Color.black);
-        advancedLdButLbl.setBounds(208,370,230,31);
+        advancedLdButLbl.setBounds(201,370,230,31);
         advancedLdButLbl.setName("AdvancedLdBut");
         advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
         advancedLdButLbl.setVisible(false);
@@ -335,7 +335,7 @@ public class MainFrame extends JFrame{
         //
         typeSymbolsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         typeSymbolsLbl.setForeground(Color.white);
-        typeSymbolsLbl.setBounds(105,163,379,39);
+        typeSymbolsLbl.setBounds(98,163,379,39);
         typeSymbolsLbl.setName("TypeSymbols");
         typeSymbolsLbl.setText("Type 5 symbols:");
         typeSymbolsLbl.setVisible(false);
@@ -345,7 +345,7 @@ public class MainFrame extends JFrame{
         //
         typedSymbolsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 36));
         typedSymbolsLbl.setForeground(Color.yellow);
-        typedSymbolsLbl.setBounds(105,260,350,48);
+        typedSymbolsLbl.setBounds(98,260,350,48);
         typedSymbolsLbl.setName("TypedSymbols");
         typedSymbolsLbl.setText("Q ; F ; X ; A ; W");
         typedSymbolsLbl.setVisible(false);
@@ -356,7 +356,7 @@ public class MainFrame extends JFrame{
         typeHintLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         typeHintLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 22));
         typeHintLbl.setForeground(Color.white);
-        typeHintLbl.setBounds(42,141,386,180);
+        typeHintLbl.setBounds(35,141,386,180);
         typeHintLbl.setName("TypeHint");
         typeHintLbl.setText("<html><div style='padding-left: 10px; padding-top: 10px;'>[Free ; Pellet ; P. pellet ; Wall ; Gate]</div></html>");
         typeHintLbl.setVisible(false);
@@ -366,6 +366,12 @@ public class MainFrame extends JFrame{
     private void instantiateComponents(){
         mainPanel = new JPanel();
         openFileDialog1 = new JFileChooser(resourcesPath);
+
+        // Timers will be set up properly lately
+        pacUpdater = new Timer(100, null);
+        pacSmoothTimer = new Timer(100, null);
+        ghostUpdater = new Timer(100, null);
+        ghostSmoothTimer = new Timer(100, null);
 
         pacmanLbl = new JLabel();
         ultimateLbl = new JLabel();

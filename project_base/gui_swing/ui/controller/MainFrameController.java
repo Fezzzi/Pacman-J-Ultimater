@@ -1,5 +1,6 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
+import pacman_ultimater.project_base.core.HighScoreClass;
 import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.core.Tile;
 import pacman_ultimater.project_base.custom_utils.IntPair;
@@ -28,6 +29,7 @@ public class MainFrameController {
     Clip[] soundPlayers;
     Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> map;
     Tile[][] mapFresh;
+    Point[] redrawPellets = new Point[LoadMap.RDPSIZE];
     LoadMap loadedMap;
 
     MainFrame mainFrame;
@@ -63,8 +65,6 @@ public class MainFrameController {
     JLabel typeSymbolsLbl;
     JLabel typedSymbolsLbl;
     JLabel typeHintLbl;
-
-    private MenuController mc;
 
     static final int SOUNDPLAYERSCOUNT = 6;
     static final int GHOSTFLASHINGSTART = 30;
@@ -173,6 +173,20 @@ public class MainFrameController {
         GameLoadController glc = new GameLoadController(this);
         glc.playGame(false);
     }
+
+    /**
+     * Attempts to save player's score to file.
+     */
+    void tryToSaveScore(){
+        try{
+            if(!player2 && score > 0)
+                HighScoreClass.saveHighScore(score, resourcesPath);
+        }
+        catch(IOException exception){
+            handleExceptions(exception.getMessage());
+        }
+    }
+
 
     /**
      * Handles occured eception by displaying apology and exception message

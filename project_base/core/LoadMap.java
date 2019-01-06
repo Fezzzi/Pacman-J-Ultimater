@@ -16,6 +16,7 @@ public class LoadMap
     public static final int PACMANINITIALY = 23;
     public static final int PACMANINITIALX = 13;
     public static final int RDPSIZE = 12;
+    public static final byte TILESIZEINPXS = 16;
     public static final Color TRANSPARENT = new Color(255,255,255,0);
 
     private Tile[][] tileMap;
@@ -236,17 +237,17 @@ public class LoadMap
 
         if (color.length() == 6)
         {
-            return new Color(   Integer.decode(color.substring(0, 1)),
-                                Integer.decode(color.substring(2, 3)),
-                                Integer.decode(color.substring(4, 5))
+            return new Color(   Integer.decode("0x" + color.substring(0, 2)),
+                                Integer.decode("0x" + color.substring(2, 4)),
+                                Integer.decode("0x" + color.substring(4, 6))
                             );
         }
         else if (color.length() == 8)
         {
-            return new Color(   Integer.decode(color.substring(0, 1)),
-                                Integer.decode(color.substring(2, 3)),
-                                Integer.decode(color.substring(4, 5)),
-                                Integer.decode(color.substring(6, 7))
+            return new Color(   Integer.decode("0x" + color.substring(0, 2)),
+                                Integer.decode("0x" + color.substring(2, 4)),
+                                Integer.decode("0x" + color.substring(4, 6)),
+                                Integer.decode("0x" + color.substring(6, 8))
             );
         }
         return TRANSPARENT;
