@@ -1,6 +1,15 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
-class GameplayController {
+import pacman_ultimater.project_base.core.IKeyDownHandler;
+import pacman_ultimater.project_base.gui_swing.model.GameModel;
+import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
+class GameplayController implements IKeyDownHandler {
 
     //<editor-fold desc="- VARIABLES Block -">
 
@@ -15,6 +24,8 @@ class GameplayController {
     private byte pacSmoothMoveStep;
     private byte ghostSmoothMoveStep;
     private GameLoadController glc;
+    private MainFrameModel model;
+    private GameModel vars;
 //
 //        const
 //    int BonusLifeScore = 10000;
@@ -39,15 +50,25 @@ class GameplayController {
 
     //<editor-fold desc="- GAMEPLAY Block -">
 
-    GameplayController(GameLoadController controller){
-        this.glc = controller;
+    GameplayController(MainFrameModel model, GameModel vars)
+            throws LineUnavailableException
+    {
+        this.model = model;
+        this.vars = vars;
+        glc = new GameLoadController(model, vars);
+    }
+
+    void loadGame(boolean restart)
+            throws IOException, LineUnavailableException, InterruptedException, ExecutionException, UnsupportedAudioFileException
+    {
+        glc.playGame(restart);
     }
 
 //    /// <summary>
 //    /// Function handling key pressing during gameplay.
 //    /// </summary>
 //    /// <param name="e">Identifies pressed key.</param>
-//    private void GameKeyDownHandler(KeyEventArgs e) {
+    public void handleKey(int keyCode) {
 //        //Two booleans keyPressed1 and 2 to notice which of the players during VS play has pushed the key
 //        if (Player2) {
 //            if (e.KeyCode == Keys.A || e.KeyCode == Keys.W || e.KeyCode == Keys.D || e.KeyCode == Keys.S)
@@ -81,7 +102,7 @@ class GameplayController {
 //            keyPressed2 = false;
 //        } else
 //            keyPressed1 = false;
-//    }
+    }
 //
 //    /// <summary>
 //    /// Ends game by stoping game loop and enabling menu functionality.
@@ -592,13 +613,13 @@ class GameplayController {
     private void gameLoop(boolean isPacman) {
         // In case that one of the players have pushed a valid key, countdown, which represents
         // the number tiles remaining until the information about the pushed button is lost, is started.
-        if (glc.mfc.keyPressed1) {
-            glc.mfc.keyCountdown1 = keyTicks;
-            glc.mfc.keyPressed1 = false;
+        if (vars.keyPressed1) {
+            vars.keyCountdown1 = keyTicks;
+            vars.keyPressed1 = false;
         }
-        if (glc.mfc.keyPressed2) {
-            glc.mfc.keyCountdown2 = keyTicks;
-            glc.mfc.keyPressed2 = false;
+        if (vars.keyPressed2) {
+            vars.keyCountdown2 = keyTicks;
+            vars.keyPressed2 = false;
         }
 
 //        // Calls main Update function.
@@ -611,23 +632,23 @@ class GameplayController {
 
         // Checks if the player has already collected all the pellets.
         // In such case in relation to level and game mode, plays another level or ends the game.
-        if (glc.mfc.collectedDots >= glc.mfc.map.item2)
+        if (vars.collectedDots >= vars.map.item2)
             endLevel();
 
         if (isPacman) {
-            glc.mfc.pacSmoothTimer.start();
+            model.pacSmoothTimer.start();
             pacSmoothMoveStep = 0;
         } else {
-            glc.mfc.ghostSmoothTimer.start();
+            model.ghostSmoothTimer.start();
             ghostSmoothMoveStep = 0;
         }
 
     }
 
     private void endLevel() {
-        glc.mfc.pacUpdater.stop();
-        glc.mfc.ghostUpdater.stop();
-        glc.mfc.musicPlayer.stop();
+        model.pacUpdater.stop();
+        model.ghostUpdater.stop();
+        vars.musicPlayer.stop();
 //        for (int i = 0; i < 8; i++) {
 //            if (i % 2 == 0)
 //                RenderMap(MapFresh, Color.white);
@@ -651,7 +672,7 @@ class GameplayController {
     /// Handles event raised by pacman's timer's periodical ticks.
     /// </summary>
     private void pacUpdater_Tick() {
-        glc.mfc.pacSmoothTimer.stop();
+        model.pacSmoothTimer.stop();
         gameLoop(true);
     }
 
@@ -660,7 +681,7 @@ class GameplayController {
     /// Handles event raised by ghosts' timer's periodical ticks.
     /// </summary>
     private void ghostUpdater_Tick() {
-        glc.mfc.ghostSmoothTimer.stop();
+        model.ghostSmoothTimer.stop();
         gameLoop(false);
     }
 //

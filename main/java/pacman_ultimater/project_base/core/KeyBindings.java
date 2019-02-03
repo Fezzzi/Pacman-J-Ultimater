@@ -7,14 +7,14 @@ import java.awt.event.KeyEvent;
 
 public class KeyBindings {
     private JPanel panel;
-    private MenuController mc;
+    private IKeyDownHandler handler;
 
-    public KeyBindings(JPanel panel, MenuController menuController){
+    public KeyBindings(JPanel panel, IKeyDownHandler handler){
         this.panel = panel;
-        mc = menuController;
+        this.handler = handler;
     }
 
-    public InputMap getIMap(){
+    public void setIMap(){
         InputMap iMap = panel.getInputMap();
 
         // ALPHABET SYMBOLS -------------------------------------------------------------------------------
@@ -87,11 +87,9 @@ public class KeyBindings {
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "esc_key");
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "back_key");
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter_key");
-
-        return iMap;
     }
 
-    public ActionMap getAMap(){
+    public void setAMap(){
         ActionMap aMap = panel.getActionMap();
 
         // ALPHABET SYMBOLS -------------------------------------------------------------------------------
@@ -164,8 +162,6 @@ public class KeyBindings {
         aMap.put("esc_key", key_pressed_ESC);
         aMap.put("back_key", key_pressed_BACK);
         aMap.put("enter_key", key_pressed_ENTER);
-
-        return aMap;
     }
 
     // ALPHABET SYMBOLS -------------------------------------------------------------------------------
@@ -429,6 +425,6 @@ public class KeyBindings {
     };
 
     private void keyDownHandler(int key){
-        mc.keyDownHandler(key);
+        handler.handleKey(key);
     }
 }

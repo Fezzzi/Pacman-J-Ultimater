@@ -3,6 +3,8 @@ package pacman_ultimater.project_base.gui_swing.ui.controller;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
+import pacman_ultimater.project_base.gui_swing.model.GameModel;
+import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -14,37 +16,20 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+import static pacman_ultimater.project_base.gui_swing.model.GameConsts.*;
+
 class GameLoadController {
 
-    //<editor-fold desc="- VARIABLES Block -">
-
-    private ArrayList<Quintet<Integer, Integer, JLabel, Direction.nType, DefaultAI>> entities;
-    private DefaultAI[] defaultAIs;
-    private IntPair topGhostInTiles;
-    private JLabel[] pacLives;
-    private Dimension defSize, size;
-    private JLabel up1, up2, loading, levelLabel, ready, gameMap;
-    private Color mapColor;
-    private int[] animLabelsIds = new int[5];
-
-    private static final int PACTIMER = 100;
-    private static final byte ENTITYCOUNT = 5;
-    private static final byte MAXLIVES = 6;
-    private static final byte ENTITIESSIZEINPXS = 28;
-    private static final int OPENINGTHEMELENGTH = 4000;
-
-    MainFrameController mfc;
-    private GameplayController gpc;
-
-    //</editor-fold>
+    private MainFrameModel model;
+    private GameModel vars;
 
     //<editor-fold desc="- STARTGAME Block -">
 
-    GameLoadController(MainFrameController controller) throws LineUnavailableException
+    GameLoadController(MainFrameModel model, GameModel vars) throws LineUnavailableException
     {
-        mfc = controller;
-        mfc.musicPlayer = AudioSystem.getClip();
-        gpc = new GameplayController(this);
+        this.model = model;
+        this.vars = vars;
+        vars.musicPlayer = AudioSystem.getClip();
     }
 
     /**
@@ -54,26 +39,26 @@ class GameLoadController {
      */
     private void renderMap(Tile[][] tiles, Color color)
     {
-        gameMap = new JLabel();
-        gameMap.setSize(size);
-        Image bufferImage = mfc.mainFrame.createImage(size.width, size.height);
+        vars.gameMap = new JLabel();
+        vars.gameMap.setSize(vars.size);
+        Image bufferImage = model.mainFrame.createImage(vars.size.width, vars.size.height);
         Graphics bufferGraphics = bufferImage.getGraphics();
         Graphics2D bg2D = (Graphics2D)bufferGraphics;
         bg2D.setStroke(new BasicStroke(2));
         bufferGraphics.setColor(Color.BLACK);
-        bufferGraphics.fillRect(0,0, size.width, size.height);
+        bufferGraphics.fillRect(0,0, vars.size.width, vars.size.height);
 
         if (color == LoadMap.TRANSPARENT)
             color = chooseRandomColor();
         if(color != Color.white)
-            mapColor = color;
+            vars.mapColor = color;
         for (int i = 0; i < LoadMap.MAPHEIGHTINTILES; i++)
             for (int j = 0; j < LoadMap.MAPWIDTHINTILES; j++)
                 tiles[i][j].DrawTile(bufferGraphics, new Point(j * LoadMap.TILESIZEINPXS, (i + 3) * LoadMap.TILESIZEINPXS), color);
 
-        gameMap.setIcon(new ImageIcon(bufferImage));
-        mfc.mainPanel.add(gameMap);
-        gameMap.setVisible(true);
+        vars.gameMap.setIcon(new ImageIcon(bufferImage));
+        model.mainPanel.add(vars.gameMap);
+        vars.gameMap.setVisible(true);
     }
 
     /**
@@ -105,7 +90,7 @@ class GameLoadController {
         pic.setIcon(image);
         pic.setLocation(point);
         pic.setSize(size);
-        mfc.mainPanel.add(pic);
+        model.mainPanel.add(pic);
     }
 
     /**
@@ -123,7 +108,7 @@ class GameLoadController {
         label.setLocation(point);
         label.setFont(font);
         label.setFocusable(false);
-        mfc.mainPanel.add(label);
+        model.mainPanel.add(label);
     }
 
     /**
@@ -136,7 +121,7 @@ class GameLoadController {
         //  - Picturebox containing entity's image and its physical location.
         //  - Direction used later for entity's movement and selecting the right image.
         //  - Type of entity such as Player1, Player2, or all the other kinds of enemy's AI.
-        defaultAIs = new DefaultAI[]
+        vars.defaultAIs = new DefaultAI[]
         {
             new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES),
             new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES),
@@ -144,40 +129,40 @@ class GameLoadController {
             new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)
         };
 
-        entities = new ArrayList<>();
-        entities.add(new Quintet<>(
+        vars.entities = new ArrayList<>();
+        vars.entities.add(new Quintet<>(
                 LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY, new JLabel(), Direction.nType.LEFT,
                 new DefaultAI(DefaultAI.nType.PLAYER1, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)));
-        entities.add(new Quintet<>(
-                topGhostInTiles.item1, topGhostInTiles.item2, new JLabel(), Direction.nType.LEFT,
-                mfc.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)
-                            : defaultAIs[0]));
-        entities.add(new Quintet<>(
-                topGhostInTiles.item1 - 2, topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, defaultAIs[1]));
-        entities.add(new Quintet<>(
-                topGhostInTiles.item1, topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, defaultAIs[2]));
-        entities.add(new Quintet<>(
-                topGhostInTiles.item1 + 2, topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, defaultAIs[3]));
+        vars.entities.add(new Quintet<>(
+                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2, new JLabel(), Direction.nType.LEFT,
+                vars.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)
+                            : vars.defaultAIs[0]));
+        vars.entities.add(new Quintet<>(
+                vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, vars.defaultAIs[1]));
+        vars.entities.add(new Quintet<>(
+                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, vars.defaultAIs[2]));
+        vars.entities.add(new Quintet<>(
+                vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, vars.defaultAIs[3]));
 
         //Setting entities names for easy later manipulation and automatic image selection
         for (int i = 1; i <= ENTITYCOUNT; i++)
-            entities.get(i - 1).item3.setName("Entity" + Integer.toString(i));
+            vars.entities.get(i - 1).item3.setName("Entity" + Integer.toString(i));
 
         // All those magic numbers are X and Y axes correction for entities' pictures to be correctly placed.
-        placePicture(entities.get(0).item3,
-            new ImageIcon(mfc.resourcesPath + "/Textures/PacStart.png"),
-            new Point(entities.get(0).item1 * LoadMap.TILESIZEINPXS + 3, entities.get(0).item2 * LoadMap.TILESIZEINPXS + 42),
+        placePicture(vars.entities.get(0).item3,
+            new ImageIcon(model.resourcesPath + "/Textures/PacStart.png"),
+            new Point(vars.entities.get(0).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(0).item2 * LoadMap.TILESIZEINPXS + 42),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
-        placePicture(entities.get(1).item3,
-            new ImageIcon(mfc.resourcesPath + "/Textures/Entity2Left.png"),
-            new Point(entities.get(1).item1 * LoadMap.TILESIZEINPXS + 3, entities.get(1).item2 * LoadMap.TILESIZEINPXS + 42),
+        placePicture(vars.entities.get(1).item3,
+            new ImageIcon(model.resourcesPath + "/Textures/Entity2Left.png"),
+            new Point(vars.entities.get(1).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(1).item2 * LoadMap.TILESIZEINPXS + 42),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
         for (int i = 2; i < ENTITYCOUNT; i++)
-            placePicture(entities.get(i).item3,
-                new ImageIcon(mfc.resourcesPath + "/Textures/Entity" + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")),
-                new Point(entities.get(i).item1 * LoadMap.TILESIZEINPXS + 3, entities.get(i).item2 * LoadMap.TILESIZEINPXS + 42),
+            placePicture(vars.entities.get(i).item3,
+                new ImageIcon(model.resourcesPath + "/Textures/Entity" + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")),
+                new Point(vars.entities.get(i).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(i).item2 * LoadMap.TILESIZEINPXS + 42),
                 new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
     }
 
@@ -190,46 +175,45 @@ class GameLoadController {
         final Font hudTextFont = new Font("Arial", Font.BOLD, 18);
         final int HEARTHSIZEINPX = 32;
         int lives = 0;
-        up1 = new JLabel();
-        up1.setSize(50,30);
-        mfc.scoreBox.setSize(120,30);
-        System.out.print(mfc.mainFrame.getLocation().y);
-        placeLabel(up1, "1UP", Color.white, new Point(3 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
-        placeLabel(mfc.scoreBox, mfc.score > 0 ? Integer.toString(mfc.score) : "00", Color.white,
+        vars.up1 = new JLabel();
+        vars.up1.setSize(50,30);
+        vars.scoreBox.setSize(120,30);
+        placeLabel(vars.up1, "1UP", Color.white, new Point(3 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
+        placeLabel(vars.scoreBox, vars.score > 0 ? Integer.toString(vars.score) : "00", Color.white,
                 new Point(4 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
-        up1.setVisible(true);
-        mfc.scoreBox.setVisible(true);
+        vars.up1.setVisible(true);
+        vars.scoreBox.setVisible(true);
 
         //Selects labels depending on game mode
-        if (!mfc.player2)
+        if (!vars.player2)
         {
-            mfc.highScoreBox.setSize(200,30);
-            placeLabel(mfc.highScoreBox, mfc.highScore > 0 ? Integer.toString(mfc.highScore) : "00", Color.white,
+            vars.highScoreBox.setSize(200,30);
+            placeLabel(vars.highScoreBox, vars.highScore > 0 ? Integer.toString(vars.highScore) : "00", Color.white,
                     new Point(21 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
             JLabel highScoreText = new JLabel();
             highScoreText.setSize(200,30);
             placeLabel(highScoreText, "HIGH SCORE", Color.white, new Point(17 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
-            mfc.highScoreBox.setVisible(true);
+            vars.highScoreBox.setVisible(true);
             highScoreText.setVisible(true);
 
         }
         else
         {
-            up2 = new JLabel();
-            up2.setSize(50,30);
-            mfc.score2Box.setSize(200,30);
-            placeLabel(up2, "2UP", Color.white, new Point(21 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
-            placeLabel(mfc.score2Box, mfc.score2 > 0 ? Integer.toString(mfc.score2) : "00", Color.white,
+            vars.up2 = new JLabel();
+            vars.up2.setSize(50,30);
+            vars.score2Box.setSize(200,30);
+            placeLabel(vars.up2, "2UP", Color.white, new Point(21 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
+            placeLabel(vars.score2Box, vars.score2 > 0 ? Integer.toString(vars.score2) : "00", Color.white,
                     new Point(22 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
-            up2.setVisible(true);
-            mfc.score2Box.setVisible(true);
+            vars.up2.setVisible(true);
+            vars.score2Box.setVisible(true);
         }
 
         // Places all lives on their supposed place.
-        for (JLabel item : pacLives)
+        for (JLabel item : vars.pacLives)
         {
             item.setSize(50,50);
-            placePicture(item, new ImageIcon(mfc.resourcesPath + "/textures/Life.png"),
+            placePicture(item, new ImageIcon(model.resourcesPath + "/textures/Life.png"),
                     new Point(lives * HEARTHSIZEINPX + LoadMap.TILESIZEINPXS, ((LoadMap.MAPHEIGHTINTILES + 3) * LoadMap.TILESIZEINPXS) + 4),
                     new Dimension(HEARTHSIZEINPX, HEARTHSIZEINPX));
             lives++;
@@ -237,7 +221,7 @@ class GameLoadController {
 
         // Sets visibility of lives depending on number of player's lives.
         for (int i = MAXLIVES - 1; i > hp && i >= 0; i--)
-           pacLives[i].setVisible(false);
+           vars.pacLives[i].setVisible(false);
     }
 
     /**
@@ -309,7 +293,7 @@ class GameLoadController {
      * Returns random color by fixing one channel to max, another to min and the last one chooses randomly.
      * @return Color
      */
-    private Color chooseRandomColor()
+    private static Color chooseRandomColor()
     {
         Random rndm = new Random();
         switch (rndm.nextInt(6))

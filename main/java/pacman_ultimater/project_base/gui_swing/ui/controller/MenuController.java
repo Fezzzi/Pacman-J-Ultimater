@@ -1,10 +1,13 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
-import pacman_ultimater.project_base.core.HighScoreClass;
-import pacman_ultimater.project_base.core.KeyBindings;
-import pacman_ultimater.project_base.core.LoadMap;
+import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.Pair;
+import pacman_ultimater.project_base.gui_swing.model.GameModel;
+import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
+import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -12,8 +15,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
-public class MenuController{
+public class MenuController implements IKeyDownHandler {
 
     //<editor-fold desc="- VARIABLES Block -">
 
@@ -21,58 +25,54 @@ public class MenuController{
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private ArrayList<Character> symbols = new ArrayList<>();
-    private MainFrameController mfc;
+    private MainFrameModel model;
+    private GameModel vars;
 
     //</editor-fold>
 
     //<editor-fold desc="- CONSTRUCTION Block -">
 
-    MenuController(MainFrameController controller){
-        mfc = controller;
+    MenuController(MainFrameModel model, GameModel vars){
+        this.model = model;
+        this.vars = vars;
+
+        menuLayer = MenuController.mn.start;
+        menuSelected = new Pair<>(MenuController.mn.game, model.orgGameLbl);
 
         initListeners();
-        addKeyBindings();
+        addKeyBindings(this);
     }
 
     /**
      * Put listeners on selected labels and mainFrame.
      */
     private void initListeners(){
-        mfc.mainFrame.addWindowListener(new MenuController.windowListener());
-
-        JLabel[] labels = {mfc.vsLbl, mfc.orgGameLbl, mfc.selectMapLbl, mfc.settingsLbl, mfc.highScrLbl};
+        JLabel[] labels = {model.vsLbl, model.orgGameLbl, model.selectMapLbl, model.settingsLbl, model.highScrLbl};
         for(JLabel label : labels)
-            label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu));
+            label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu, model));
 
-        mfc.errorInfoLbl.addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent e) { }
+        model.errorInfoLbl.addComponentListener(new ErrorLblListener(model));
+        model.escLabelLbl.addMouseListener(new labelListener(model.escLabelLbl, mouseAdapterType.clickToEscape, model));
+        model.pressEnterLbl.addMouseListener(new labelListener(model.pressEnterLbl, mouseAdapterType.clickToEnter, model));
+        model.musicButtonLbl.addMouseListener(new labelListener(model.musicButtonLbl, mouseAdapterType.highlight_settings, model));
+        model.soundsButtonLbl.addMouseListener(new labelListener(model.soundsButtonLbl, mouseAdapterType.highlight_settings, model));
+        model.tryAgainButLbl.addMouseListener(new labelListener(model.tryAgainButLbl, mouseAdapterType.tryAgainBtn, model));
+        model.advancedLdButLbl.addMouseListener(new labelListener(model.advancedLdButLbl, mouseAdapterType.advancedLdBtn, model));
+    }
 
-            @Override
-            public void componentMoved(ComponentEvent e) { }
+    /**
+     * Ties keys to class implementing keyDownHandler interface.
+     */
+    private void addKeyBindings(IKeyDownHandler keyHandler){
+        KeyBindings kb = new KeyBindings(model.mainPanel, keyHandler);
+        kb.setIMap();
+        kb.setAMap();
+    }
 
-            /**
-             * Kills the program 2,5s after the error label has appeared.
-             * @param e ComponentEvent
-             */
-            @Override
-            public void componentShown(ComponentEvent e) {
-                try{
-                    Thread.sleep(2500);
-                }
-                catch(InterruptedException ignore){ }
-                mfc.mainFrame.dispose();
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) { }
-        });
-        mfc.escLabelLbl.addMouseListener(new labelListener(mfc.escLabelLbl, mouseAdapterType.clickToEscape));
-        mfc.pressEnterLbl.addMouseListener(new labelListener(mfc.pressEnterLbl, mouseAdapterType.clickToEnter));
-        mfc.musicButtonLbl.addMouseListener(new labelListener(mfc.musicButtonLbl, mouseAdapterType.highlight_settings));
-        mfc.soundsButtonLbl.addMouseListener(new labelListener(mfc.soundsButtonLbl, mouseAdapterType.highlight_settings));
-        mfc.tryAgainButLbl.addMouseListener(new labelListener(mfc.tryAgainButLbl, mouseAdapterType.tryAgainBtn));
-        mfc.advancedLdButLbl.addMouseListener(new labelListener(mfc.advancedLdButLbl, mouseAdapterType.advancedLdBtn));
+    void openMenu()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        menu(MenuController.class.getDeclaredMethod("menu_Start"));
     }
 
     //</editor-fold>
@@ -85,7 +85,7 @@ public class MenuController{
      * @throws IllegalAccessException should be handled once in parent method.
      * @throws InvocationTargetException should be handled once in parent method.
      */
-    void menu(Method menu_Func) throws IllegalAccessException, InvocationTargetException
+    private void menu(Method menu_Func) throws IllegalAccessException, InvocationTargetException
     {
         for (JLabel label : activeElements)
             label.setVisible(false);
@@ -100,124 +100,123 @@ public class MenuController{
 
     private void menu_Start()
     {
-        activeElements.add(mfc.pressEnterLbl);
-        activeElements.add(mfc.pacmanLbl);
-        activeElements.add(mfc.ultimateLbl);
-        activeElements.add(mfc.copyrightLbl);
+        activeElements.add(model.pressEnterLbl);
+        activeElements.add(model.pacmanLbl);
+        activeElements.add(model.ultimateLbl);
+        activeElements.add(model.copyrightLbl);
     }
 
     private void menu_MainMenu()
     {
-        activeElements.add(mfc.selectMapLbl);
-        activeElements.add(mfc.orgGameLbl);
-        activeElements.add(mfc.settingsLbl);
-        activeElements.add(mfc.escLabelLbl);
-        activeElements.add(mfc.highScrLbl);
-        activeElements.add(mfc.vsLbl);
+        activeElements.add(model.selectMapLbl);
+        activeElements.add(model.orgGameLbl);
+        activeElements.add(model.settingsLbl);
+        activeElements.add(model.escLabelLbl);
+        activeElements.add(model.highScrLbl);
+        activeElements.add(model.vsLbl);
     }
 
     private void menu_SelectMap()
     {
-        activeElements.add(mfc.errorLdMapLbl);
-        activeElements.add(mfc.advancedLdButLbl);
-        activeElements.add(mfc.tryAgainButLbl);
-        activeElements.add(mfc.escLabelLbl);
+        activeElements.add(model.errorLdMapLbl);
+        activeElements.add(model.advancedLdButLbl);
+        activeElements.add(model.tryAgainButLbl);
+        activeElements.add(model.escLabelLbl);
     }
 
     private void menu_HighScore1P() throws IOException
     {
-        if (mfc.score != 0)
+        if (vars.score != 0)
         {
-            mfc.gameOverLabelLbl.setText("GAME OVER");
-            mfc.gameOverLabelLbl.setForeground(Color.red);
-            mfc.gameOverLabelLbl.setLocation(52, 33);
-            mfc.scoreLabelLbl.setText("Your Score");
-            mfc.scoreNumLbl.setText(Integer.toString(mfc.score));
+            model.gameOverLabelLbl.setText("GAME OVER");
+            model.gameOverLabelLbl.setForeground(Color.red);
+            model.gameOverLabelLbl.setLocation(52, 33);
+            model.scoreLabelLbl.setText("Your Score");
+            model.scoreNumLbl.setText(Integer.toString(vars.score));
         }
         else
         {
-            mfc.scoreLabelLbl.setText("");
-            mfc.scoreNumLbl.setText("");
-            mfc.gameOverLabelLbl.setText("");
+            model.scoreLabelLbl.setText("");
+            model.scoreNumLbl.setText("");
+            model.gameOverLabelLbl.setText("");
         }
-        if (mfc.highScore == -1)
+        if (vars.highScore == -1)
         {
             //In case the HighScore is not loaded yet (value is -1) do so
-            mfc.highScore = HighScoreClass.loadHighScore(mfc.resourcesPath);
+            vars.highScore = HighScoreClass.loadHighScore(model.resourcesPath);
         }
-        mfc.highScoreLabelLbl.setText("Highest Score");
-        mfc.highScoreLabelLbl.setForeground(Color.yellow);
-        mfc.highScoreNumLbl.setForeground(Color.yellow);
-        mfc.highScoreNumLbl.setText(Integer.toString(mfc.highScore));
+        model.highScoreLabelLbl.setText("Highest Score");
+        model.highScoreLabelLbl.setForeground(Color.yellow);
+        model.highScoreNumLbl.setForeground(Color.yellow);
+        model.highScoreNumLbl.setText(Integer.toString(vars.highScore));
     }
 
     private void menu_HighScore2P()
     {
         //Game selects the winner as the pleyer with highest score
         //In case of tie chooses the winner by remaining pacman lives
-        if (mfc.score < mfc.score2 || (mfc.score == mfc.score2 && mfc.lives <= 0))
+        if (vars.score < vars.score2 || (vars.score == vars.score2 && vars.lives <= 0))
         {
-            mfc.gameOverLabelLbl.setText("GHOSTS WIN");
-            mfc.gameOverLabelLbl.setForeground(Color.red);
-            mfc.gameOverLabelLbl.setLocation(36, 33);
-            mfc.highScoreLabelLbl.setText("2UP");
-            mfc.highScoreLabelLbl.setForeground(Color.red);
-            mfc.highScoreNumLbl.setText(Integer.toString(mfc.score2));
-            mfc.highScoreNumLbl.setForeground(Color.red);
-            mfc.scoreLabelLbl.setText("1UP");
-            mfc.scoreNumLbl.setText(Integer.toString(mfc.score));
+            model.gameOverLabelLbl.setText("GHOSTS WIN");
+            model.gameOverLabelLbl.setForeground(Color.red);
+            model.gameOverLabelLbl.setLocation(36, 33);
+            model.highScoreLabelLbl.setText("2UP");
+            model.highScoreLabelLbl.setForeground(Color.red);
+            model.highScoreNumLbl.setText(Integer.toString(vars.score2));
+            model.highScoreNumLbl.setForeground(Color.red);
+            model.scoreLabelLbl.setText("1UP");
+            model.scoreNumLbl.setText(Integer.toString(vars.score));
         }
         else
         {
-            mfc.gameOverLabelLbl.setText("PACMAN WINS");
-            mfc.gameOverLabelLbl.setForeground(Color.yellow);
-            mfc.gameOverLabelLbl.setLocation(34, 33);
-            mfc.highScoreLabelLbl.setText("1UP");
-            mfc.highScoreNumLbl.setText(Integer.toString(mfc.score));
-            mfc.scoreLabelLbl.setText("2UP");
-            mfc.scoreNumLbl.setText(Integer.toString(mfc.score2));
+            model.gameOverLabelLbl.setText("PACMAN WINS");
+            model.gameOverLabelLbl.setForeground(Color.yellow);
+            model.gameOverLabelLbl.setLocation(34, 33);
+            model.highScoreLabelLbl.setText("1UP");
+            model.highScoreNumLbl.setText(Integer.toString(vars.score));
+            model.scoreLabelLbl.setText("2UP");
+            model.scoreNumLbl.setText(Integer.toString(vars.score2));
         }
     }
 
     private void menu_HighScore() throws IOException
     {
-        activeElements.add(mfc.gameOverLabelLbl);
-        activeElements.add(mfc.scoreLabelLbl);
-        activeElements.add(mfc.scoreNumLbl);
-        activeElements.add(mfc.highScoreLabelLbl);
-        activeElements.add(mfc.highScoreNumLbl);
-        activeElements.add(mfc.escLabelLbl);
+        activeElements.add(model.gameOverLabelLbl);
+        activeElements.add(model.scoreLabelLbl);
+        activeElements.add(model.scoreNumLbl);
+        activeElements.add(model.highScoreLabelLbl);
+        activeElements.add(model.highScoreNumLbl);
+        activeElements.add(model.escLabelLbl);
 
         //Two branches depending on the mode player has chosen - normal x VS
-        if (!mfc.player2)
+        if (!vars.player2)
             menu_HighScore1P();
         else
             menu_HighScore2P();
 
-        //It is necessary to set scre and player boolean in order to be able to access default Highscore
-        //page later on from menu
-        mfc.score = 0;
-        mfc.player2 = false;
+        //To be able to access default Highscore page later from menu.
+        vars.score = 0;
+        vars.player2 = false;
     }
 
     private void menu_Settings()
     {
-        activeElements.add(mfc.musicButtonLbl);
-        activeElements.add(mfc.soundsButtonLbl);
-        activeElements.add(mfc.escLabelLbl);
-        mfc.musicBtnSelectorLbl.setVisible(true);
+        activeElements.add(model.musicButtonLbl);
+        activeElements.add(model.soundsButtonLbl);
+        activeElements.add(model.escLabelLbl);
+        model.musicBtnSelectorLbl.setVisible(true);
 
         // Buttons load with color depending on associated booleans.
         // Music button is by default selected by arrows.
-        if (mfc.music)
-            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+        if (vars.music)
+            model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
         else
-            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
+            model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
 
-        if (mfc.sound)
-            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+        if (vars.sound)
+            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
         else
-            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
+            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
     }
 
     /**
@@ -225,10 +224,10 @@ public class MenuController{
      */
     private void orgGame_Click() throws InvocationTargetException, IllegalAccessException
     {
-        mfc.loadedMap = new LoadMap(mfc.resourcesPath + "\\OriginalMap.txt");
-        if (mfc.loadedMap.Map != null) {
+        vars.loadedMap = new LoadMap(model.resourcesPath + "\\OriginalMap.txt");
+        if (vars.loadedMap.Map != null) {
             menu(null);
-            mfc.makeItHappen();
+            makeItHappen();
         }
     }
 
@@ -238,13 +237,25 @@ public class MenuController{
     private void advancedLdBut_Click()
     {
         menuLayer = mn.submenu;
-        activeElements.add(mfc.typeSymbolsLbl);
-        activeElements.add(mfc.typedSymbolsLbl);
-        mfc.typedSymbolsLbl.setText("");
-        mfc.typedSymbolsLbl.grabFocus();
-        activeElements.add(mfc.typeHintLbl);
+        activeElements.add(model.typeSymbolsLbl);
+        activeElements.add(model.typedSymbolsLbl);
+        model.typedSymbolsLbl.setText("");
+        model.typedSymbolsLbl.grabFocus();
+        activeElements.add(model.typeHintLbl);
         for (JLabel label : activeElements)
             label.setVisible(true);
+    }
+
+    /**
+     * Simulates select map click and sets number of players to 2 in case of successful map load.
+     * @throws NoSuchMethodException exceptions are handled in parent.
+     * @throws IllegalAccessException exceptions are handled in parent.
+     * @throws InvocationTargetException exceptions are handled in parent.
+     */
+    private void vs_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        selectMap_Click();
+        vars.player2 = vars.gameOn;
     }
 
     /**
@@ -254,23 +265,64 @@ public class MenuController{
      */
     private void selectMap_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
-        if (mfc.openFileDialog1.showOpenDialog(mfc.mainFrame) == JFileChooser.APPROVE_OPTION)
+        if (model.openFileDialog1.showOpenDialog(model.mainFrame) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
-            String path = mfc.openFileDialog1.getSelectedFile().getAbsolutePath();
+            String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
             if (symbols.size() == 0)
-                mfc.loadedMap = new LoadMap(path);
+                vars.loadedMap = new LoadMap(path);
             else
             {
                 Character[] chars = symbols.toArray(new Character[0]);
-                mfc.loadedMap = new LoadMap(path, chars);
+                vars.loadedMap = new LoadMap(path, chars);
                 symbols = new ArrayList<>();
             }
-            if (mfc.loadedMap.Map != null) {
+            if (vars.loadedMap.Map != null) {
                 menu(null);
-                mfc.makeItHappen();
+                makeItHappen();
             }
+        }
+    }
+
+    /**
+     * Function that provides bridge between menu and the game.
+     * Switches input (KeyDown) to game mode by turning gameOn.
+     * Initializes Map and calls function that makes the game start.
+     */
+    private void makeItHappen()
+    {
+        try {
+            vars.level = 0;
+            vars.gameOn = true;
+            vars.map = vars.loadedMap.Map;
+            GameplayController gp = new GameplayController(model, vars);
+            addKeyBindings(gp);
+            gp.loadGame(false);
+        }
+        catch(IOException | LineUnavailableException | ExecutionException
+                | UnsupportedAudioFileException | InterruptedException e)
+        {
+            model.handleExceptions(e.getMessage());
+            model.mainFrame.dispose();
+        }
+    }
+
+    /**
+     * Enables/Disables Sound and Sound button in menu - settings.
+     */
+    private void soundsButton_Click()
+    {
+        vars.sound = !vars.sound;
+        if (vars.sound)
+        {
+            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+            model.soundsButtonLbl.setForeground(Color.white);
+        }
+        else
+        {
+            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
+            model.soundsButtonLbl.setForeground(Color.black);
         }
     }
 
@@ -279,49 +331,17 @@ public class MenuController{
      */
     private void musicButton_Click()
     {
-        mfc.music = !mfc.music;
-        if (mfc.music)
+        vars.music = !vars.music;
+        if (vars.music)
         {
-            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
-            mfc.musicButtonLbl.setForeground(Color.white);
+            model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+            model.musicButtonLbl.setForeground(Color.white);
         }
         else
         {
-            mfc.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
-            mfc.musicButtonLbl.setForeground(Color.black);
+            model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
+            model.musicButtonLbl.setForeground(Color.black);
         }
-    }
-
-    /**
-     * Enables/Disables Sounds and Sounds button in menu - settings.
-     */
-    private void soundsButton_Click()
-    {
-        mfc.sound = !mfc.sound;
-        if (mfc.sound)
-        {
-            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
-            mfc.soundsButtonLbl.setForeground(Color.white);
-        }
-        else
-        {
-            mfc.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
-            mfc.soundsButtonLbl.setForeground(Color.black);
-        }
-    }
-
-    /**
-     * Simulates select map click and sets number of players to 2 in case of successfull map load.
-     * @throws NoSuchMethodException exceptions are handled in parent.
-     * @throws IllegalAccessException exceptions are handled in parent.
-     * @throws InvocationTargetException exceptions are handled in parent.
-     */
-    private void vs_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
-    {
-        selectMap_Click();
-        mfc.player2 = true;
-        if (!mfc.gameOn)
-            mfc.player2 = false;
     }
 
     private void settings_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
@@ -363,6 +383,7 @@ public class MenuController{
     private void moveInMenu(int delta)
     {
         final byte menuSize = 5;
+
         JLabel newLabel = enumToLabel(mn.values()[((menuSelected.item1.ordinal() + delta + menuSize) % menuSize)]);
         highlightSelected(menuSelected.item2, newLabel);
         menuSelected = new Pair<>(mn.values()[((menuSelected.item1.ordinal() + delta + menuSize) % menuSize)], newLabel);
@@ -373,7 +394,7 @@ public class MenuController{
      */
     private void moveInSettings()
     {
-        if (mfc.soundsBtnSelectorLbl.isVisible())
+        if (model.soundsBtnSelectorLbl.isVisible())
             musicButton_MouseEnter();
         else
             soundsButton_MouseEnter();
@@ -384,8 +405,8 @@ public class MenuController{
      */
     private void soundsButton_MouseEnter()
     {
-        mfc.soundsBtnSelectorLbl.setVisible(true);
-        mfc.musicBtnSelectorLbl.setVisible(false);
+        model.soundsBtnSelectorLbl.setVisible(true);
+        model.musicBtnSelectorLbl.setVisible(false);
     }
 
     /**
@@ -393,23 +414,23 @@ public class MenuController{
      */
     private void musicButton_MouseEnter()
     {
-        mfc.soundsBtnSelectorLbl.setVisible(false);
-        mfc.musicBtnSelectorLbl.setVisible(true);
+        model.soundsBtnSelectorLbl.setVisible(false);
+        model.musicBtnSelectorLbl.setVisible(true);
     }
 
     /**
      * Function handling key pressing in menu.
      * @param keyCode int code of pressed key.
      */
-    private void menuKeyDownHandler(int keyCode) {
+    public void handleKey(int keyCode) {
         try {
             if (menuLayer == mn.start) {
                 if (keyCode == KeyEvent.VK_ESCAPE)
-                    mfc.mainFrame.dispose();
+                    model.mainFrame.dispose();
                 else {
                     menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
-                    highlightSelected(menuSelected.item2, mfc.orgGameLbl);
-                    menuSelected = new Pair<>(mn.game, mfc.orgGameLbl);
+                    highlightSelected(menuSelected.item2, model.orgGameLbl);
+                    menuSelected = new Pair<>(mn.game, model.orgGameLbl);
                     menuLayer = mn.game;
                 }
             } else {
@@ -417,8 +438,8 @@ public class MenuController{
                     // Escape returns you to menu form everywhere except from menu itself.
                     if (menuLayer == mn.submenu) {
                         if (menuSelected.item1 == mn.settings) {
-                            mfc.musicBtnSelectorLbl.setVisible(false);
-                            mfc.soundsBtnSelectorLbl.setVisible(false);
+                            model.musicBtnSelectorLbl.setVisible(false);
+                            model.soundsBtnSelectorLbl.setVisible(false);
                         }
                         menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                         menuLayer = mn.game;
@@ -426,17 +447,17 @@ public class MenuController{
                         menuLayer = mn.start;
                         menu(this.getClass().getDeclaredMethod("menu_Start"));
                     }
-                } else if (mfc.typedSymbolsLbl.isVisible()) {
+                } else if (model.typedSymbolsLbl.isVisible()) {
                     // Branch accessible during typing of symbols used on Map to load.
                     if (keyCode == KeyEvent.VK_BACK_SPACE && symbols.size() > 0) {
                         symbols.remove(symbols.size() - 1);
-                        mfc.typedSymbolsLbl.setText(charListToString(symbols));
+                        model.typedSymbolsLbl.setText(charListToString(symbols));
                     }
                     if (!symbols.contains((char)keyCode) && keyCode != KeyEvent.VK_BACK_SPACE) {
                         symbols.add((char)keyCode);
-                        mfc.typedSymbolsLbl.setText(charListToString(symbols));
+                        model.typedSymbolsLbl.setText(charListToString(symbols));
                     }
-                    mfc.mainFrame.revalidate();
+                    model.mainFrame.revalidate();
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
@@ -456,7 +477,7 @@ public class MenuController{
                         if (action != null)
                             action.invoke(this);
                     } else if (menuSelected.item1 == mn.settings) {
-                        if (mfc.musicBtnSelectorLbl.isVisible())
+                        if (model.musicBtnSelectorLbl.isVisible())
                             musicButton_Click();
                         else
                             soundsButton_Click();
@@ -464,9 +485,14 @@ public class MenuController{
             }
         }
         catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-            mfc.tryToSaveScore();
-            mfc.handleExceptions(exception.toString());
+            try {
+                vars.tryToSaveScore(model.resourcesPath);
+            }
+            catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
+            model.handleExceptions(exception.toString());
         }
+
+        model.mainFrame.revalidate();
     }
 
     /**
@@ -484,27 +510,6 @@ public class MenuController{
             newLabel.setForeground(Color.yellow);
             newLabel.setFont(new Font(newLabel.getFont().getFontName(), Font.BOLD, 36));
         }
-    }
-
-    //</editor-fold>
-
-    //<editor-fold desc="- KEY BINDINGS Block -">
-
-    private void addKeyBindings(){
-        KeyBindings kb = new KeyBindings(mfc.mainPanel, this);
-
-        InputMap iMap = kb.getIMap();
-        ActionMap aMap = kb.getAMap();
-    }
-
-    public void keyDownHandler(int key)
-    {
-        if(!mfc.gameOn)
-            menuKeyDownHandler(key);
-        else
-            ;//gameKeyDownHandler(key);
-
-        mfc.mainFrame.revalidate();
     }
 
     //</editor-fold>
@@ -548,17 +553,17 @@ public class MenuController{
     {
         switch(selected) {
             case game:
-                return this.mfc.orgGameLbl;
+                return model.orgGameLbl;
             case selectmap:
-                return this.mfc.selectMapLbl;
+                return model.selectMapLbl;
             case vs:
-                return this.mfc.vsLbl;
+                return model.vsLbl;
             case highscore:
-                return this.mfc.highScrLbl;
+                return model.highScrLbl;
             case settings:
-                return this.mfc.settingsLbl;
+                return model.settingsLbl;
             default:
-                return this.mfc.orgGameLbl;
+                return model.orgGameLbl;
         }
     }
 
@@ -590,89 +595,17 @@ public class MenuController{
 
     //<editor-fold desc="- LISTENERS Block -">
 
-    /**
-     * Handles events like window minimisation, window closing, atc...
-     */
-    private class windowListener implements WindowListener {
-
-        /**
-         * Method handling form's load request.
-         * @param e WindowEvent
-         */
-        @Override
-        public void windowOpened(WindowEvent e) {
-            menuLayer = mn.start;
-            menuSelected = new Pair<>(mn.game, mfc.orgGameLbl);
-            try {
-                menu(MenuController.class.getDeclaredMethod("menu_Start"));
-            }
-            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-                mfc.tryToSaveScore();
-                mfc.handleExceptions(exception.getMessage());
-            }
-        }
-
-        /**
-         * Method handling score saving and form disposing in case of application termination from outside the code.
-         * @param e WindowEvent
-         */
-        @Override
-        public void windowClosing(WindowEvent e){
-            mfc.tryToSaveScore();
-            mfc.mainFrame.dispose();
-        }
-
-        /**
-         * Method handling score saving in case of from code exit (pressing esc/exception)
-         * @param e WindowEvent
-         */
-        @Override
-        public void windowClosed(WindowEvent e){
-            mfc.tryToSaveScore();
-        }
-
-        /**
-         * Method handling timers and music pausing on window minimisation.
-         * @param e WindowEvent
-         */
-        @Override
-        public void windowIconified(WindowEvent e) {
-            mfc.pacUpdater.stop();
-            mfc.pacSmoothTimer.stop();
-            mfc.ghostUpdater.stop();
-            mfc.ghostSmoothTimer.stop();
-        }
-
-        /**
-         * Resumes timers and music and redraws game graphics after window minimisation.
-         * @param e WindowEvent
-         */
-        @Override
-        public void windowDeiconified(WindowEvent e) {
-            if(mfc.gameOn){
-                mfc.pacUpdater.start();
-                mfc.pacSmoothTimer.start();
-                mfc.ghostUpdater.start();
-                mfc.ghostSmoothTimer.start();
-            }
-        }
-
-        @Override
-        public void windowActivated(WindowEvent e) { }
-
-        @Override
-        public void windowDeactivated(WindowEvent e) { }
-    }
-
     private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
 
     private class labelListener extends MouseAdapter {
         private JLabel label;
         private mouseAdapterType mat;
+        private MainFrameModel model;
 
-        labelListener(JLabel label, mouseAdapterType mat){
+        labelListener(JLabel label, mouseAdapterType mat, MainFrameModel model){
             this.label = label;
             this.mat = mat;
+            this.model = model;
         }
 
         /**
@@ -684,7 +617,7 @@ public class MenuController{
             try {
                 switch (mat) {
                     case clickToEscape:
-                        menuKeyDownHandler(KeyEvent.VK_ESCAPE);
+                        handleKey(KeyEvent.VK_ESCAPE);
                         break;
                     case tryAgainBtn:
                         selectMap_Click();
@@ -693,13 +626,16 @@ public class MenuController{
                         advancedLdBut_Click();
                         break;
                     default:
-                        menuKeyDownHandler(KeyEvent.VK_ENTER);
+                        handleKey(KeyEvent.VK_ENTER);
                         break;
                 }
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-                mfc.tryToSaveScore();
-                mfc.handleExceptions(exception.getMessage());
+                try {
+                    vars.tryToSaveScore(model.resourcesPath);
+                }
+                catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
+                model.handleExceptions(exception.getMessage());
             }
         }
 
@@ -727,10 +663,10 @@ public class MenuController{
                     menuSelected = new Pair<>(labelToEnum(label), label);
                     break;
                 case tryAgainBtn:
-                    mfc.tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    model.tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
                     break;
                 case advancedLdBtn:
-                    mfc.advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    model.advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
                     break;
             }
         }
@@ -745,14 +681,44 @@ public class MenuController{
                     label.setForeground(Color.white);
                     break;
                 case tryAgainBtn:
-                    mfc.tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    model.tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
                     break;
                 case advancedLdBtn:
-                    mfc.advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    model.advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
                     break;
             }
 
         }
+    }
+
+    private class ErrorLblListener implements ComponentListener{
+        MainFrameModel model;
+
+        ErrorLblListener(MainFrameModel model){
+            this.model = model;
+        }
+
+        @Override
+        public void componentResized(ComponentEvent e) { }
+
+        @Override
+        public void componentMoved(ComponentEvent e) { }
+
+        /**
+         * Kills the program 2,5s after the error label has appeared.
+         * @param e ComponentEvent
+         */
+        @Override
+        public void componentShown(ComponentEvent e) {
+            try{
+                Thread.sleep(2500);
+            }
+            catch(InterruptedException ignore){ }
+            model.mainFrame.dispose();
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent e) { }
     }
 
     //</editor-fold>
