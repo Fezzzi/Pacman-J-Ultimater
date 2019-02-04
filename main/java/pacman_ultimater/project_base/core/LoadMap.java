@@ -9,8 +9,8 @@ import java.util.Stack;
 /**
  * Class that handles manipulation with text files containing map.
  */
-public class LoadMap
-{
+public class LoadMap {
+
     public static final int MAPWIDTHINTILES = 28;
     public static final int MAPHEIGHTINTILES = 31;
     public static final int PACMANINITIALY = 23;
@@ -24,6 +24,7 @@ public class LoadMap
 
     /**
      * Calls loading function with default symbols.
+     *
      * @param path Path to the map file that is to be loaded.
      */
     public LoadMap(String path)
@@ -33,6 +34,7 @@ public class LoadMap
 
     /**
      * Calls loading function with given symbols.
+     *
      * @param path Path to the map file that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      */
@@ -43,6 +45,7 @@ public class LoadMap
 
     /**
      * Handles function calling to ensure map's loading and testing of its playability.
+     *
      * @param path Path to the map file that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Return array of loaded tiles, translated to game's language (null in case of failure).
@@ -69,6 +72,7 @@ public class LoadMap
 
     /**
      * Function that loads map from text file and creates Tile map if possible. Returns null otherwise.
+     *
      * @param path Path to the map file that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Returns Tile map if possible, null otherwise.
@@ -76,7 +80,7 @@ public class LoadMap
     private Quartet<char[][], Integer, Color, ArrayList<Point>> LoadIt(String path, Character[] symbols)
             throws IOException
     {
-        // Map is created bigger so it is possible to automaticaly call transform to tiles with indexes
+        // Map is created bigger so it is possible to automatically call transform to tiles with indexes
         // out of range of map without causing IndexOutOfRange Exception.
         int numOfDots = 0;
         char[][] map = new char[MAPHEIGHTINTILES + 2][];
@@ -113,7 +117,7 @@ public class LoadMap
             map[lineNum][column] = (char)symbol;
 
             //Transforms symbol in line above with use of already read surrounding symbols
-            //The only one sybol not read yet is accessed via sr.peek function
+            //The only one symbol not read yet is accessed via sr.peek function
             if (lineNum > 1)
             {
                 tileMap[lineNum - 2][column - 1] = TransformToTile
@@ -193,6 +197,7 @@ public class LoadMap
     /**
      * Iterates through not yet decided tiles in reverse order.
      * First in row neighbours with already decided tiles and enables their evaluation.
+     *
      * @param hStack Horizontal stack of to be decided tiles.
      * @param vStack Vertical stack og to be decided tiles.
      * @return Boolean
@@ -226,6 +231,7 @@ public class LoadMap
 
     /**
      *  Parses first line of the map text representation file to get color in which is game field to be displayed.
+     *
      * @param line Read first line of the file.
      * @return Color in which is game field to be displayed.
      */
@@ -254,9 +260,9 @@ public class LoadMap
     }
 
     /**
-     * Tests whether the already loaded map is playable and finishable.
-     * That means: Contains Ghost House, Pacman initial position is free
-     * and all the pellets are accessible for both pacman and ghosts.
+     * Tests whether the already loaded map is playable and completable.
+     * Contains Ghost House, Pacman initial position is free and all the pellets are accessible for both pacman and ghosts.
+     *
      * @param map Loaded tile map.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @param numOfDots Number of pellets found on the loaded map.
@@ -322,7 +328,7 @@ public class LoadMap
                     {
                         //If the algorithm has reached gate Tiles searches tiles underneath to find out if the contain ghost House
                         //The algorithm knows how the ghost house should look and tests each tile if it contains what it should
-                        //the algorithm increases ghostHouse for each successfull comparison
+                        //the algorithm increases ghostHouse for each successful comparison
                         if (map[position.item1][position.item2] == symbols[0] && map[position.item1][position.item2 + 1] == symbols[0])
                         {
                             ghostPosition = new IntPair(position.item2, position.item1);
@@ -362,6 +368,7 @@ public class LoadMap
 
     /**
      * Function that transforms read symbol to tile.
+     *
      * @param tile Currently processed symbol.
      * @param tileLeft Symbol to the left.
      * @param tileRight Symbol to the right.

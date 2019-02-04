@@ -1,19 +1,14 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
 import pacman_ultimater.project_base.core.HighScoreClass;
-import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ExecutionException;
 
 public class MainFrameController {
 
@@ -53,10 +48,10 @@ public class MainFrameController {
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
                 try{
-                    vars.tryToSaveScore(model.resourcesPath);
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
                 }
                 catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
-                model.handleExceptions(exception.getMessage());
+                MainFrameController.handleExceptions(exception.getMessage(), model);
             }
         }
 
@@ -67,7 +62,7 @@ public class MainFrameController {
         @Override
         public void windowClosing(WindowEvent e){
             try{
-                vars.tryToSaveScore(model.resourcesPath);
+                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
             catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
             model.mainFrame.dispose();
@@ -80,7 +75,7 @@ public class MainFrameController {
         @Override
         public void windowClosed(WindowEvent e){
             try {
-                vars.tryToSaveScore(model.resourcesPath);
+                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
             catch (IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
         }
@@ -116,5 +111,22 @@ public class MainFrameController {
 
         @Override
         public void windowDeactivated(WindowEvent e) { }
+    }
+
+    /**
+     * Handles occurred exception by displaying apology and exception message
+     * @param message Exception message.
+     */
+    static void handleExceptions(String message, MainFrameModel model){
+        model.mainPanel.removeAll();
+        model.errorInfoLbl.setText("<html><div style='width: 100%; text-align: center; display: block;'>" +
+                "<b>WE ARE SORRY</b><br />" +
+                "<h1>something broke</h1><br /><h2 style='color: red'>"
+                + message + "<br /><br /><br />" +
+                "</h2><h1>The game will save current score and close.</h1></div></html>");
+        model.errorInfoLbl.setVisible(true);
+        model.mainPanel.add(model.errorInfoLbl);
+        model.mainPanel.repaint();
+        model.mainPanel.revalidate();
     }
 }

@@ -1,10 +1,8 @@
 package pacman_ultimater.project_base.gui_swing.model;
 
-import pacman_ultimater.project_base.core.HighScoreClass;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.swing.*;
-import java.io.IOException;
 
 public class MainFrameModel {
 
@@ -44,7 +42,8 @@ public class MainFrameModel {
     public JLabel typedSymbolsLbl;
     public JLabel typeHintLbl;
 
-    public MainFrameModel(MainFrame view){
+    public MainFrameModel(MainFrame view)
+    {
         mainFrame = view;
         mainPanel = view.getMainPanel();
         resourcesPath = view.getResourcesPath();
@@ -80,22 +79,5 @@ public class MainFrameModel {
         typeSymbolsLbl = view.getTypeSymbolsLbl();
         typedSymbolsLbl = view.getTypedSymbolsLbl();
         typeHintLbl = view.getTypeHintLbl();
-    }
-
-    /**
-     * Handles occurred exception by displaying apology and exception message
-     * @param message Exception message.
-     */
-    public void handleExceptions(String message){
-        mainPanel.removeAll();
-        errorInfoLbl.setText("<html><div style='width: 100%; text-align: center; display: block;'>" +
-                "<b>WE ARE SORRY</b><br />" +
-                "<h1>something broke</h1><br /><h2 style='color: red'>"
-                + message + "<br /><br /><br />" +
-                "</h2><h1>The game will save current score and close.</h1></div></html>");
-        errorInfoLbl.setVisible(true);
-        mainPanel.add(errorInfoLbl);
-        mainPanel.repaint();
-        mainPanel.revalidate();
     }
 }

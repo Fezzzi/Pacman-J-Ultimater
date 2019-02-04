@@ -4,7 +4,6 @@ import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
-import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -32,7 +31,8 @@ public class MenuController implements IKeyDownHandler {
 
     //<editor-fold desc="- CONSTRUCTION Block -">
 
-    MenuController(MainFrameModel model, GameModel vars){
+    MenuController(MainFrameModel model, GameModel vars)
+    {
         this.model = model;
         this.vars = vars;
 
@@ -44,9 +44,10 @@ public class MenuController implements IKeyDownHandler {
     }
 
     /**
-     * Put listeners on selected labels and mainFrame.
+     * Put listeners on selected labels.
      */
-    private void initListeners(){
+    private void initListeners()
+    {
         JLabel[] labels = {model.vsLbl, model.orgGameLbl, model.selectMapLbl, model.settingsLbl, model.highScrLbl};
         for(JLabel label : labels)
             label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu, model));
@@ -63,12 +64,20 @@ public class MenuController implements IKeyDownHandler {
     /**
      * Ties keys to class implementing keyDownHandler interface.
      */
-    private void addKeyBindings(IKeyDownHandler keyHandler){
+    private void addKeyBindings(IKeyDownHandler keyHandler)
+    {
         KeyBindings kb = new KeyBindings(model.mainPanel, keyHandler);
         kb.setIMap();
         kb.setAMap();
     }
 
+    /**
+     * Calls menu controller "entry point" displaying first menu screen.
+     *
+     * @throws NoSuchMethodException To be handled by calling procedure.
+     * @throws IllegalAccessException To be handled by calling procedure.
+     * @throws InvocationTargetException To be handled by calling procedure.
+     */
     void openMenu()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
@@ -81,6 +90,7 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Function that makes Menu work by simple enabling and disabling visibility of selected controls.
+     *
      * @param menu_Func Function to be called (Built-in delegate for void function that takes no parameters).
      * @throws IllegalAccessException should be handled once in parent method.
      * @throws InvocationTargetException should be handled once in parent method.
@@ -124,7 +134,8 @@ public class MenuController implements IKeyDownHandler {
         activeElements.add(model.escLabelLbl);
     }
 
-    private void menu_HighScore1P() throws IOException
+    private void menu_HighScore1P()
+            throws IOException
     {
         if (vars.score != 0)
         {
@@ -153,7 +164,7 @@ public class MenuController implements IKeyDownHandler {
 
     private void menu_HighScore2P()
     {
-        //Game selects the winner as the pleyer with highest score
+        //Game selects the winner as the player with highest score
         //In case of tie chooses the winner by remaining pacman lives
         if (vars.score < vars.score2 || (vars.score == vars.score2 && vars.lives <= 0))
         {
@@ -179,7 +190,8 @@ public class MenuController implements IKeyDownHandler {
         }
     }
 
-    private void menu_HighScore() throws IOException
+    private void menu_HighScore()
+            throws IOException
     {
         activeElements.add(model.gameOverLabelLbl);
         activeElements.add(model.scoreLabelLbl);
@@ -188,7 +200,6 @@ public class MenuController implements IKeyDownHandler {
         activeElements.add(model.highScoreNumLbl);
         activeElements.add(model.escLabelLbl);
 
-        //Two branches depending on the mode player has chosen - normal x VS
         if (!vars.player2)
             menu_HighScore1P();
         else
@@ -206,8 +217,6 @@ public class MenuController implements IKeyDownHandler {
         activeElements.add(model.escLabelLbl);
         model.musicBtnSelectorLbl.setVisible(true);
 
-        // Buttons load with color depending on associated booleans.
-        // Music button is by default selected by arrows.
         if (vars.music)
             model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
         else
@@ -220,9 +229,10 @@ public class MenuController implements IKeyDownHandler {
     }
 
     /**
-     * Loads predefined original map and calls makeItHappen() to procced to gameplay.
+     * Loads predefined original map and calls makeItHappen() to proceed to gameplay.
      */
-    private void orgGame_Click() throws InvocationTargetException, IllegalAccessException
+    private void orgGame_Click()
+            throws InvocationTargetException, IllegalAccessException
     {
         vars.loadedMap = new LoadMap(model.resourcesPath + "\\OriginalMap.txt");
         if (vars.loadedMap.Map != null) {
@@ -248,11 +258,13 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Simulates select map click and sets number of players to 2 in case of successful map load.
-     * @throws NoSuchMethodException exceptions are handled in parent.
-     * @throws IllegalAccessException exceptions are handled in parent.
-     * @throws InvocationTargetException exceptions are handled in parent.
+     *
+     * @throws NoSuchMethodException To be handled by calling procedure.
+     * @throws IllegalAccessException To be handled by calling procedure.
+     * @throws InvocationTargetException To be handled by calling procedure.
      */
-    private void vs_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    private void vs_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         selectMap_Click();
         vars.player2 = vars.gameOn;
@@ -262,8 +274,13 @@ public class MenuController implements IKeyDownHandler {
      * Opens file dialog after clinking on Select Map in menu.
      * Tries to open and load selected map from the file afterwards.
      * Calls procedure makeItHappen() in case of success.
+     *
+     * @throws NoSuchMethodException To be handled by calling procedure.
+     * @throws IllegalAccessException To be handled by calling procedure.
+     * @throws InvocationTargetException To be handled by calling procedure.
      */
-    private void selectMap_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    private void selectMap_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         if (model.openFileDialog1.showOpenDialog(model.mainFrame) == JFileChooser.APPROVE_OPTION)
         {
@@ -287,8 +304,8 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Function that provides bridge between menu and the game.
-     * Switches input (KeyDown) to game mode by turning gameOn.
-     * Initializes Map and calls function that makes the game start.
+     * Switches key binding's handler to GamePlayController's one.
+     * Initializes Map and on success calls function that makes the game load process start.
      */
     private void makeItHappen()
     {
@@ -303,7 +320,7 @@ public class MenuController implements IKeyDownHandler {
         catch(IOException | LineUnavailableException | ExecutionException
                 | UnsupportedAudioFileException | InterruptedException e)
         {
-            model.handleExceptions(e.getMessage());
+            MainFrameController.handleExceptions(e.getMessage(), model);
             model.mainFrame.dispose();
         }
     }
@@ -358,6 +375,7 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Function to convert typed characters separated by ';' to string for output.
+     *
      * @param source Input characters.
      * @return String of characters separated with " ; ".
      */
@@ -367,7 +385,6 @@ public class MenuController implements IKeyDownHandler {
         if (source.size() > 0)
             output.append(source.get(0).toString());
 
-        StringBuilder sb = new StringBuilder();
         for (int i = 1; i < source.size(); i++)
         {
             output.append(" ; ");
@@ -378,6 +395,7 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Changes selected element in menu.
+     *
      * @param delta Indicates whether to move up or down in menu (Values +1/-1).
      */
     private void moveInMenu(int delta)
@@ -419,10 +437,12 @@ public class MenuController implements IKeyDownHandler {
     }
 
     /**
-     * Function handling key pressing in menu.
+     * Function implementing key press handler in menu.
+     *
      * @param keyCode int code of pressed key.
      */
-    public void handleKey(int keyCode) {
+    public void handleKey(int keyCode)
+    {
         try {
             if (menuLayer == mn.start) {
                 if (keyCode == KeyEvent.VK_ESCAPE)
@@ -484,19 +504,21 @@ public class MenuController implements IKeyDownHandler {
                     }
             }
         }
-        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
+        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception)
+        {
             try {
-                vars.tryToSaveScore(model.resourcesPath);
+                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
             catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
-            model.handleExceptions(exception.toString());
+            MainFrameController.handleExceptions(exception.toString(),model);
         }
 
         model.mainFrame.revalidate();
     }
 
     /**
-     * Function that switches active labels by unhighlighting the old one and highlighting the new one.
+     * Function that switches active labels by dehighlighting the old one and highlighting the new one.
+     *
      * @param prevLabel Previous active label.
      * @param newLabel New active label.
      */
@@ -514,15 +536,16 @@ public class MenuController implements IKeyDownHandler {
 
     //</editor-fold>
 
-    //<editor-fold desc="- MN enum -"
+    //<editor-fold desc="- MN Enum -"
 
     /**
      * Enumeration for identifying menu states.
      */
-    enum mn { game, selectmap, settings, vs, highscore, start, submenu, none };
+    enum mn { game, selectmap, settings, vs, highscore, start, submenu, none }
 
     /**
      * Function that associates selected labels to menu states.
+     *
      * @param label Label to be associated.
      * @return Resulting associated menu state (default: mn.start).
      */
@@ -546,6 +569,7 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Function that associates menu states to selected labels.
+     *
      * @param selected Menu state to be associated.
      * @return Resulting associated label (default: OrgGame).
      */
@@ -569,6 +593,7 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Function that associates on-click functions to menu states.
+     *
      * @param selected Menu state to be associated.
      * @return Resulting on-click function (default: OrgGame_Click).
      * @throws NoSuchMethodException Exception is to be handled in parent.
@@ -598,11 +623,13 @@ public class MenuController implements IKeyDownHandler {
     private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
 
     private class labelListener extends MouseAdapter {
+
         private JLabel label;
         private mouseAdapterType mat;
         private MainFrameModel model;
 
-        labelListener(JLabel label, mouseAdapterType mat, MainFrameModel model){
+        labelListener(JLabel label, mouseAdapterType mat, MainFrameModel model)
+        {
             this.label = label;
             this.mat = mat;
             this.model = model;
@@ -610,10 +637,12 @@ public class MenuController implements IKeyDownHandler {
 
         /**
          * Function simulating enter/escape key push on label clicked.
+         *
          * @param e MouseEvent
          */
         @Override
-        public void mouseClicked(MouseEvent e){
+        public void mouseClicked(MouseEvent e)
+        {
             try {
                 switch (mat) {
                     case clickToEscape:
@@ -630,21 +659,24 @@ public class MenuController implements IKeyDownHandler {
                         break;
                 }
             }
-            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
+            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception)
+            {
                 try {
-                    vars.tryToSaveScore(model.resourcesPath);
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
                 }
                 catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
-                model.handleExceptions(exception.getMessage());
+                MainFrameController.handleExceptions(exception.getMessage(), model);
             }
         }
 
         /**
          * Function that provides color change of labels in menu on cursor entry of label's domain.
+         *
          * @param e MouseEvent
          */
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mouseEntered(MouseEvent e)
+        {
             switch(mat){
                 case highlight_settings:
                     if(label.getName().equals("MusicButton"))
@@ -672,7 +704,8 @@ public class MenuController implements IKeyDownHandler {
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mouseExited(MouseEvent e)
+        {
             switch (mat){
                 case clickToEscape:
                     label.setForeground(Color.yellow);
@@ -691,10 +724,12 @@ public class MenuController implements IKeyDownHandler {
         }
     }
 
-    private class ErrorLblListener implements ComponentListener{
+    private class ErrorLblListener implements ComponentListener
+    {
         MainFrameModel model;
 
-        ErrorLblListener(MainFrameModel model){
+        ErrorLblListener(MainFrameModel model)
+        {
             this.model = model;
         }
 
@@ -706,11 +741,13 @@ public class MenuController implements IKeyDownHandler {
 
         /**
          * Kills the program 2,5s after the error label has appeared.
+         *
          * @param e ComponentEvent
          */
         @Override
-        public void componentShown(ComponentEvent e) {
-            try{
+        public void componentShown(ComponentEvent e)
+        {
+            try {
                 Thread.sleep(2500);
             }
             catch(InterruptedException ignore){ }

@@ -223,14 +223,14 @@ class GameplayController implements IKeyDownHandler {
 //    }
 //
 //    /// <summary>
-//    /// Combines entity's in-tiles movement with procedure handling its physicall movement and
+//    /// Combines entity's in-tiles movement with procedure handling its physical movement and
 //    /// right texture loading.
 //    /// </summary>
 //    /// <param name="change">Boolean indicating whether the entity's direction has changed.</param>
 //    /// <param name="entX">New entity's in-tiles X-axis position.</param>
 //    /// <param name="entY">New entity's in-tiles Y-axis position.</param>
-//    /// <param name="dX">Physicall X-axis change.</param>
-//    /// <param name="dY">Physicall Y-axis change.</param>
+//    /// <param name="dX">Physical X-axis change.</param>
+//    /// <param name="dY">Physical Y-axis change.</param>
 //    /// <param name="entity">The observed entity.</param>
 //    private void MoveEntity(bool change, int entX, int entY, int dX, int dY, byte entNum,
 //                            ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity) {
@@ -395,7 +395,7 @@ class GameplayController implements IKeyDownHandler {
 //    }
 //
 //    /// <summary>
-//    /// Playes sound specified as parameter with current soundplayer and moves to another one.
+//    /// Players sound specified as parameter with current soundplayer and moves to another one.
 //    /// </summary>
 //    /// <param name="file">Sounds name.</param>
 //    private void PlayWithSoundPlayer(string file) {
@@ -429,7 +429,7 @@ class GameplayController implements IKeyDownHandler {
 //    /// <summary>
 //    /// Checks whether pacman is not on a tile with pellet.
 //    /// if so, plays the sound and increases number of collected pellets and score.
-//    /// Also enables pacman's excitemnet via EatEmTimer.
+//    /// Also enables pacman's excitement via EatEmTimer.
 //    /// </summary>
 //    private void UpdateEatPellet() {
 //        if (MapFresh[Entities[0].Item2][Entities[0].Item1].tile == Tile.nType.DOT ||
@@ -446,7 +446,7 @@ class GameplayController implements IKeyDownHandler {
 //                    MusicPlayer.SoundLocation = "../sounds/pacman_powersiren.wav";
 //                    MusicPlayer.PlayLooping();
 //                }
-//                //Pacman's excitemnt lasts shorter each level
+//                //Pacman's excitement lasts shorter each level
 //                EatEmTimer = Player2 ? (3 * BaseEatEmTimer) / 4 : BaseEatEmTimer - Level;
 //                GhostsEaten = 0;
 //                GhostUpdater.Interval = (PacTimer + 40 - (Level > 13 ? 65 : Level * 5)) * 2;
@@ -456,7 +456,7 @@ class GameplayController implements IKeyDownHandler {
 //                    Entities[i].Item5.State = DefaultAI.nType.CANBEEATEN;
 //            }
 //
-//            //Delets pellet from the tile
+//            //Deletes pellet from the tile
 //            MapFresh[Entities[0].Item2][Entities[0].Item1].tile = Tile.nType.FREE;
 //            MapFresh[Entities[0].Item2][Entities[0].Item1].FreeTile(bg.Graphics, new Point(Entities[0].Item1 * TileSizeInPxs,
 //                    (Entities[0].Item2 + 3) * TileSizeInPxs), this.BackColor);
@@ -521,7 +521,7 @@ class GameplayController implements IKeyDownHandler {
 //    }
 //
 //    /// <summary>
-//    /// Body of the update mechanism. Selectivly updates entities and map.
+//    /// Body of the update mechanism. Selectively updates entities and map.
 //    /// </summary>
 //    private void UpdateGame(bool isPacman) {
 //        UpdateMove(isPacman);
@@ -668,7 +668,7 @@ class GameplayController implements IKeyDownHandler {
     }
 
     /// <summary>
-    /// Creates ilusion of game loop.
+    /// Creates illusion of game loop.
     /// Handles event raised by pacman's timer's periodical ticks.
     /// </summary>
     private void pacUpdater_Tick() {
@@ -677,7 +677,7 @@ class GameplayController implements IKeyDownHandler {
     }
 
     /// <summary>
-    /// Creates ilusion of game loop.
+    /// Creates illusion of game loop.
     /// Handles event raised by ghosts' timer's periodical ticks.
     /// </summary>
     private void ghostUpdater_Tick() {
@@ -693,7 +693,7 @@ class GameplayController implements IKeyDownHandler {
 //        if (Entities[0].Item4 != Direction.nType.DIRECTION && !teleported[0]) {
 //            Point d = GetDeltas(0);
 //
-//            // Last part of smooth move is done at the beggining of ueach update cycle.
+//            // Last part of smooth move is done at the beginning of each update cycle.
 //            if (EntitiesPixDeltas[0].X <= 1 && EntitiesPixDeltas[0].Y <= 1 && EntitiesPixDeltas[0].X >= -1 && EntitiesPixDeltas[0].Y >= -1)
 //                PacSmoothTimer.Stop();
 //            else
@@ -717,7 +717,7 @@ class GameplayController implements IKeyDownHandler {
 //            if (Entities[i].Item4 != Direction.nType.DIRECTION && !teleported[i]) {
 //                Point d = GetDeltas(i);
 //
-//                // Last part of smooth move is done at the beggining of ueach update cycle.
+//                // Last part of smooth move is done at the beginning of each update cycle.
 //                if (EntitiesPixDeltas[i].X <= 1 && EntitiesPixDeltas[i].Y <= 1 && EntitiesPixDeltas[i].X >= -1 && EntitiesPixDeltas[i].Y >= -1)
 //                    GhostSmoothTimer.Stop();
 //                else
@@ -726,7 +726,7 @@ class GameplayController implements IKeyDownHandler {
 //    }
 //
 //    /// <summary>
-//    /// Gets translation deltas for entity specifyed by input index.
+//    /// Gets translation deltas for entity specified by input index.
 //    /// </summary>
 //    /// <param name="index">Input index identifying entity.</param>
 //    /// <returns>Returns point of deltas in X and Y axes.</returns>

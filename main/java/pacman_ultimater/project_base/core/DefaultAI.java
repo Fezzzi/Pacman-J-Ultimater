@@ -3,11 +3,10 @@ package pacman_ultimater.project_base.core;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
- * Class providing methods for AI movement and enumerable for easy programmicaly recognition of entities.
+ * Class providing methods for AI movement and enumerable for easy programmatically recognition of entities.
  */
 public class DefaultAI {
     /*  Instruction for adding another AI algorithm:
@@ -18,16 +17,16 @@ public class DefaultAI {
                 2.3) Eaten - entity has been eaten
     *///        2.4) CanBeEaten - entity can be eaten by pacman
 
-    private nType State;
-    private int fieldSizeInColumns, fieldSizeInRows;
+    private final nType State;
+    private final int fieldSizeInColumns, fieldSizeInRows;
 
     /**
-     * Class's constructor.
      * @param state Entity's state such as Player1, Player2, Hostile....
      * @param tsc   Tile Map Size in Columns.
      * @param tsr   Tile Map Size in Rows.
      */
-    public DefaultAI(nType state, int tsc, int tsr) {
+    public DefaultAI(nType state, int tsc, int tsr)
+    {
         this.State = state;
         fieldSizeInColumns = tsc;
         fieldSizeInRows = tsr;
@@ -36,9 +35,7 @@ public class DefaultAI {
     /**
      * Enumerable that characterizes all the possible entity's states.
      */
-    public enum nType {
-        PLAYER1, PLAYER2, HOSTILEATTACK, HOSTILERETREAT, CANBEEATEN, EATEN
-    }
+    public enum nType { PLAYER1, PLAYER2, HOSTILEATTACK, HOSTILERETREAT, CANBEEATEN, EATEN }
 
     /**
      * Function that chooses entity's next position based on set AI algorithms and entity's current state.
@@ -50,8 +47,8 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    public Direction.nType NextStep(IntPair position, IntPair target, Direction.nType direction, Tile[][] map) {
-        //Calls function to return AI's next direction
+    public Direction.nType NextStep(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    {
         if (State == nType.HOSTILERETREAT)
             return HostileRetreat(position, target, direction, map);
         else if (State == nType.EATEN)
@@ -63,7 +60,7 @@ public class DefaultAI {
     }
 
     /**
-     * AI Algorithm choosing next position for hostille entities during their attack phase.
+     * AI Algorithm choosing next position for hostile entities during their attack phase.
      * Returns chosen direction for the entity.
      *
      * @param position  The entity's position.
@@ -72,12 +69,13 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType HostileAttack(IntPair position, IntPair target, Direction.nType direction, Tile[][] map) {
+    private Direction.nType HostileAttack(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    {
         return RandomAI(position, direction, map);
     }
 
     /**
-     * AI Algorithm choosing next position for hostille entities during their retreat phase.
+     * AI Algorithm choosing next position for hostile entities during their retreat phase.
      * Returns chosen direction for the entity.
      *
      * @param position  The entity's position.
@@ -86,20 +84,23 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType HostileRetreat(IntPair position, IntPair target, Direction.nType direction, Tile[][] map) {
+    private Direction.nType HostileRetreat(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    {
         return RandomAI(position, direction, map);
     }
 
     /**
      * AI Algorithm choosing next position for eaten entities.
      * Returns chosen direction for the entity.
+     *
      * @param position  The entity's position.
-     * @param target    Target tile (Usuallyghost house entrance tile).
-     * @param direction The entity's curent direction.
+     * @param target    Target tile (Usually ghost house entrance tile).
+     * @param direction The entity's current direction.
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType Eaten(IntPair position, IntPair target, Direction.nType direction, Tile[][] map) {
+    private Direction.nType Eaten(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    {
         return RandomAI(position, direction, map);
     }
 
@@ -113,7 +114,8 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType CanBeEaten(IntPair position, IntPair target, Direction.nType direction, Tile[][] map) {
+    private Direction.nType CanBeEaten(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    {
         return RandomAI(position, direction, map);
     }
 
@@ -127,8 +129,9 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType RandomAI(IntPair position, Direction.nType direction, Tile[][] map) {
-        Random rnmd = new Random();
+    private Direction.nType RandomAI(IntPair position, Direction.nType direction, Tile[][] map)
+    {
+        Random rndm = new Random();
         ArrayList<IntPair> possibilities = new ArrayList<>();
         Direction dir = new Direction();
         IntPair back = dir.directionToIntPair(direction);
@@ -157,7 +160,7 @@ public class DefaultAI {
         }
 
         if (possibilities.size() > 0)
-            return dir.intPairToDirection(possibilities.get(rnmd.nextInt(possibilities.size())));
+            return dir.intPairToDirection(possibilities.get(rndm.nextInt(possibilities.size())));
         else if (direction != Direction.nType.DIRECTION)
             return dir.intPairToDirection(back);
         else
@@ -171,7 +174,8 @@ public class DefaultAI {
      * @param tile The examined tile.
      * @return boolean
      */
-    private boolean CanAdd(Tile tile) {
+    private boolean CanAdd(Tile tile)
+    {
         return (tile.tile == Tile.nType.DOT || tile.tile == Tile.nType.POWERDOT || tile.tile == Tile.nType.FREE);
     }
 }

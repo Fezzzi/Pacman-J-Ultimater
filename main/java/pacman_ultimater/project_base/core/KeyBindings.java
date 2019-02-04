@@ -1,20 +1,22 @@
 package pacman_ultimater.project_base.core;
 
-import pacman_ultimater.project_base.gui_swing.ui.controller.MenuController;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 public class KeyBindings {
+
     private JPanel panel;
     private IKeyDownHandler handler;
 
-    public KeyBindings(JPanel panel, IKeyDownHandler handler){
+    public KeyBindings(JPanel panel, IKeyDownHandler handler)
+    {
         this.panel = panel;
         this.handler = handler;
     }
 
-    public void setIMap(){
+    public void setIMap()
+    {
         InputMap iMap = panel.getInputMap();
 
         // ALPHABET SYMBOLS -------------------------------------------------------------------------------
@@ -89,7 +91,8 @@ public class KeyBindings {
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter_key");
     }
 
-    public void setAMap(){
+    public void setAMap()
+    {
         ActionMap aMap = panel.getActionMap();
 
         // ALPHABET SYMBOLS -------------------------------------------------------------------------------
@@ -424,7 +427,8 @@ public class KeyBindings {
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ESCAPE); }
     };
 
-    private void keyDownHandler(int key){
+    private void keyDownHandler(int key)
+    {
         handler.handleKey(key);
     }
 }

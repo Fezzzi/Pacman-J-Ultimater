@@ -49,7 +49,8 @@ public class MainFrame extends JFrame{
 
     //<editor-fold desc="- INITIALIZATION Block -">
 
-    public MainFrame(){
+    public MainFrame()
+    {
         resourcesPath = new File("src/main/resources").getAbsolutePath();
 
         setLocationRelativeTo(null);
@@ -70,7 +71,8 @@ public class MainFrame extends JFrame{
         mainPanel.revalidate();
     }
 
-    private void initComponents(){
+    private void initComponents()
+    {
         instantiateComponents();
         //
         // Main Frame
@@ -143,7 +145,7 @@ public class MainFrame extends JFrame{
         orgGameLbl.setForeground(Color.white);
         orgGameLbl.setBounds(100,51,241,45);
         orgGameLbl.setName("OrgGame");
-        orgGameLbl.setText("Original Game");;
+        orgGameLbl.setText("Original Game");
         orgGameLbl.setVisible(false);
         orgGameLbl.setFocusable(false);
         //
@@ -401,7 +403,8 @@ public class MainFrame extends JFrame{
         typeHintLbl = new JLabel();
     }
 
-    private void addComponents(){
+    private void addComponents()
+    {
         mainPanel.add(typeSymbolsLbl);
         mainPanel.add(typedSymbolsLbl);
         mainPanel.add(typeHintLbl);

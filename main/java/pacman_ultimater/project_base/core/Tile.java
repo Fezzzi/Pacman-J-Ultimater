@@ -4,7 +4,7 @@ import java.awt.*;
 
 /**
   * Class provides resources for saving text symbols as tiles and easier further manipulation.
-  * Also contains usefull function for converting selected keywords to tiles.
+  * Also contains useful function for converting selected keywords to tiles.
   */
 public class Tile
 {
@@ -17,11 +17,12 @@ public class Tile
     public enum nType { DOT, POWERDOT, FREE, GATE, LWALLDOUBLE, RWALLDOUBLE,
         TWALLDOUBLE, BWALLDOUBLE, LWALLSINGLE, RWALLSINGLE, TWALLSINGLE,
         BWALLSINGLE, TLCURVEDOUBLE, TRCURVEDOUBLE, BRCURVEDOUBLE, BLCURVEDOUBLE,
-        TLCURVESINGLE, TRCURVESINGLE, BRCURVESINGLE, BLCURVESINGLE, HTBDTILE, VTBDTILE, TILE};
+        TLCURVESINGLE, TRCURVESINGLE, BRCURVESINGLE, BLCURVESINGLE, HTBDTILE, VTBDTILE, TILE }
 
     /**
      * Function for conversion between string representation of tile states and enumerable.
-     * Returns coresponding tile state.
+     * Returns corresponding tile state.
+     *
      * @param tile string representation of tile state.
      */
     Tile(String tile)
@@ -101,7 +102,6 @@ public class Tile
     }
 
     /**
-     * Constructor for tile map deep copying.
      * @param tileType Source tile type.
      */
     public Tile(nType tileType)
@@ -111,6 +111,7 @@ public class Tile
 
     /**
      * Function for drawing tile states as their curve representation.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Desired color of tile's curve representation.
@@ -163,7 +164,8 @@ public class Tile
     }
 
     /**
-     * Visualy frees tile by drawing rectangle over it, with the color of background.
+     * Visually frees tile by drawing rectangle over it, with the color of background.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param bkgColor Color of map's background.
@@ -178,6 +180,7 @@ public class Tile
 
     /**
      * Draw collectible dot.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      */
@@ -189,6 +192,7 @@ public class Tile
 
     /**
      * Draw power pellet.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      */
@@ -200,6 +204,7 @@ public class Tile
 
     /**
      * Draw ghost house gate.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      */
@@ -211,6 +216,7 @@ public class Tile
 
     /**
      * Draw left double-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -224,6 +230,7 @@ public class Tile
 
     /**
      * Draw left single-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -236,6 +243,7 @@ public class Tile
 
     /**
      * Draw right double-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -249,6 +257,7 @@ public class Tile
 
     /**
      * Draw right single-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -261,6 +270,7 @@ public class Tile
 
     /**
      * Draw top double-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -274,6 +284,7 @@ public class Tile
 
     /**
      * Draw top single-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -286,6 +297,7 @@ public class Tile
 
     /**
      * Draw bottom double-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -299,6 +311,7 @@ public class Tile
 
     /**
      * Draw bottom single-lined wall.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -311,6 +324,7 @@ public class Tile
 
     /**
      * Draw top left double-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -324,6 +338,7 @@ public class Tile
 
     /**
      * Draw top left single-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -336,6 +351,7 @@ public class Tile
 
     /**
      * Draw top right double-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -349,6 +365,7 @@ public class Tile
 
     /**
      * Draw top right single-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -361,6 +378,7 @@ public class Tile
 
     /**
      * Draw bottom right double-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -374,6 +392,7 @@ public class Tile
 
     /**
      * Draw bottom right single-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -386,6 +405,7 @@ public class Tile
 
     /**
      * Draw bottom left double-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.
@@ -399,6 +419,7 @@ public class Tile
 
     /**
      * Draw bottom left single-lined curve.
+     *
      * @param g Current graphics handler.
      * @param location Tile's top left corner.
      * @param color Wall color.

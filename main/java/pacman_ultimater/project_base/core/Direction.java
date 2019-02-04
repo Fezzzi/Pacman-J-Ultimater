@@ -9,16 +9,14 @@ import pacman_ultimater.project_base.custom_utils.IntPair;
 public class Direction {
 
     /**
-     * Enumarable representing possible directions.
+     * Enumerable representing possible directions.
      */
-    public enum nType
-    {
-        LEFT, RIGHT, UP, DOWN, DIRECTION
-    }
+    public enum nType { LEFT, RIGHT, UP, DOWN, DIRECTION }
 
     /**
      * Function for converting from direction to delta tuple.
      * Returns input's representation as delta tuple of two integers.
+     *
      * @param direction direction representation in form of nType
      * @return IntPair
      */
@@ -42,6 +40,7 @@ public class Direction {
     /**
      * Function for converting from delta tuple to nType direction.
      * Returns input's representation as member of nType enumerable of possible directions.
+     *
      * @param intPair Input delta tuple of two integers.
      * @return nType
      */
