@@ -3,12 +3,13 @@ package pacman_ultimater.project_base.gui_swing.model;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MainFrameModel {
 
     public String resourcesPath;
 
-    public MainFrame mainFrame;
+    private MainFrame mainFrame;
     public JPanel mainPanel;
     public JFileChooser openFileDialog1;
     public Timer pacUpdater;
@@ -79,5 +80,44 @@ public class MainFrameModel {
         typeSymbolsLbl = view.getTypeSymbolsLbl();
         typedSymbolsLbl = view.getTypedSymbolsLbl();
         typeHintLbl = view.getTypeHintLbl();
+    }
+
+    /**
+     * Centers main Frame on the screen
+     *
+     * @param vars Game Model
+     */
+    public void recenterMainFrame(GameModel vars)
+    {
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        mainFrame.setLocation(dim.width/2 - vars.size.width/2, dim.height/2 - vars.size.height/2);
+    }
+
+    /**
+     * Disposes mainFrame resulting in whole app closeup.
+     */
+    public void disposeMainFrame()
+    {
+        mainFrame.dispose();
+    }
+
+    /**
+     * Returns currently set minimum size of window.
+     *
+     * @return Dimension
+     */
+    public Dimension getMainFrameMinimumSize()
+    {
+        return mainFrame.getMinimumSize();
+    }
+
+    /**
+     * Sets new window minimum size.
+     *
+     * @param newSize Dimension to be set
+     */
+    public void setMainFrameMinimumSize(Dimension newSize)
+    {
+        mainFrame.setMinimumSize(newSize);
     }
 }

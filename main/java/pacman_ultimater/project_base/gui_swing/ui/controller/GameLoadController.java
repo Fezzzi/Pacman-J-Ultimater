@@ -44,7 +44,7 @@ class GameLoadController {
     {
         vars.gameMap = new JLabel();
         vars.gameMap.setSize(vars.size);
-        Image bufferImage = model.mainFrame.createImage(vars.size.width, vars.size.height);
+        Image bufferImage = model.mainPanel.createImage(vars.size.width, vars.size.height);
         Graphics bufferGraphics = bufferImage.getGraphics();
         Graphics2D bg2D = (Graphics2D)bufferGraphics;
         bg2D.setStroke(new BasicStroke(2));
@@ -184,6 +184,7 @@ class GameLoadController {
         int lives = 0;
         vars.up1 = new JLabel();
         vars.up1.setSize(50,30);
+        vars.scoreBox = new JLabel();
         vars.scoreBox.setSize(120,30);
         placeLabel(vars.up1, "1UP", Color.white, new Point(3 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
         placeLabel(vars.scoreBox, vars.score > 0 ? Integer.toString(vars.score) : "00", Color.white,
@@ -194,6 +195,7 @@ class GameLoadController {
         //Selects labels depending on game mode
         if (!vars.player2)
         {
+            vars.highScoreBox = new JLabel();
             vars.highScoreBox.setSize(200,30);
             placeLabel(vars.highScoreBox, vars.highScore > 0 ? Integer.toString(vars.highScore) : "00", Color.white,
                     new Point(21 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
@@ -208,6 +210,7 @@ class GameLoadController {
         {
             vars.up2 = new JLabel();
             vars.up2.setSize(50,30);
+            vars.score2Box = new JLabel();
             vars.score2Box.setSize(200,30);
             placeLabel(vars.up2, "2UP", Color.white, new Point(21 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
             placeLabel(vars.score2Box, vars.score2 > 0 ? Integer.toString(vars.score2) : "00", Color.white,
@@ -243,16 +246,17 @@ class GameLoadController {
         {
             loading = new JLabel();
             levelLabel = new JLabel();
-            vars.defSize = model.mainFrame.getMinimumSize();
+            vars.defSize = model.getMainFrameMinimumSize();
             vars.size = new Dimension((LoadMap.MAPWIDTHINTILES) * LoadMap.TILESIZEINPXS,
                                 (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
-            model.mainFrame.setMinimumSize(vars.size);
+            model.setMainFrameMinimumSize(vars.size);
             model.mainPanel.setSize(vars.size);
+            model.recenterMainFrame(vars);
 
             vars.extraLifeGiven = false;
             vars.score = 0;
             vars.score2 = 0;
-            vars.soundTick = 0; //used for sound players to take turns
+            vars.soundTick = 0; // used for sound players to take turns
             vars.soundPlayers = new Clip[SOUNDPLAYERSCOUNT];
             for (int i = 0; i < SOUNDPLAYERSCOUNT; i++) {
                 vars.soundPlayers[i] = AudioSystem.getClip();
@@ -418,8 +422,8 @@ class GameLoadController {
                             }
                             model.mainPanel.remove(loading);
                             model.mainPanel.remove(levelLabel);
-                            model.mainFrame.repaint();
-                            model.mainFrame.revalidate();
+                            model.mainPanel.repaint();
+                            model.mainPanel.revalidate();
                             renderMap(vars.mapFresh, vars.map.item4);
 
                             if (vars.music){

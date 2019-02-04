@@ -16,7 +16,8 @@ public class MainFrameController {
     private MainFrame mainFrame;
     private GameModel vars;
 
-    public MainFrameController(MainFrameModel model, MainFrame mainFrame){
+    public MainFrameController(MainFrameModel model, MainFrame mainFrame)
+    {
         this.model = model;
         this.mainFrame = mainFrame;
         this.vars = new GameModel();
@@ -25,7 +26,8 @@ public class MainFrameController {
     /**
      * Creates new instance of menu - resulting in menu showing up
      */
-    public void OpenMenu(){
+    public void OpenMenu()
+    {
         mainFrame.addWindowListener(new windowListener());
         mainFrame.setVisible(true);
         model.mainPanel.grabFocus();
@@ -41,7 +43,8 @@ public class MainFrameController {
          * @param e WindowEvent
          */
         @Override
-        public void windowOpened(WindowEvent e) {
+        public void windowOpened(WindowEvent e)
+        {
             MenuController mc = new MenuController(model, vars);
             try {
                 mc.openMenu();
@@ -60,12 +63,13 @@ public class MainFrameController {
          * @param e WindowEvent
          */
         @Override
-        public void windowClosing(WindowEvent e){
+        public void windowClosing(WindowEvent e)
+        {
             try{
                 HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
             catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
-            model.mainFrame.dispose();
+            model.disposeMainFrame();
         }
 
         /**
@@ -73,7 +77,8 @@ public class MainFrameController {
          * @param e WindowEvent
          */
         @Override
-        public void windowClosed(WindowEvent e){
+        public void windowClosed(WindowEvent e)
+        {
             try {
                 HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
@@ -85,7 +90,8 @@ public class MainFrameController {
          * @param e WindowEvent
          */
         @Override
-        public void windowIconified(WindowEvent e) {
+        public void windowIconified(WindowEvent e)
+        {
             model.pacUpdater.stop();
             model.pacSmoothTimer.stop();
             model.ghostUpdater.stop();
@@ -97,7 +103,8 @@ public class MainFrameController {
          * @param e WindowEvent
          */
         @Override
-        public void windowDeiconified(WindowEvent e) {
+        public void windowDeiconified(WindowEvent e)
+        {
             if(vars.gameOn){
                 model.pacUpdater.start();
                 model.pacSmoothTimer.start();
@@ -117,7 +124,8 @@ public class MainFrameController {
      * Handles occurred exception by displaying apology and exception message
      * @param message Exception message.
      */
-    static void handleExceptions(String message, MainFrameModel model){
+    static void handleExceptions(String message, MainFrameModel model)
+    {
         model.mainPanel.removeAll();
         model.errorInfoLbl.setText("<html><div style='width: 100%; text-align: center; display: block;'>" +
                 "<b>WE ARE SORRY</b><br />" +

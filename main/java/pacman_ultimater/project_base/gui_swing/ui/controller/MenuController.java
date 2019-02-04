@@ -282,7 +282,7 @@ public class MenuController implements IKeyDownHandler {
     private void selectMap_Click()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
-        if (model.openFileDialog1.showOpenDialog(model.mainFrame) == JFileChooser.APPROVE_OPTION)
+        if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
@@ -321,7 +321,7 @@ public class MenuController implements IKeyDownHandler {
                 | UnsupportedAudioFileException | InterruptedException e)
         {
             MainFrameController.handleExceptions(e.getMessage(), model);
-            model.mainFrame.dispose();
+            model.disposeMainFrame();
         }
     }
 
@@ -446,7 +446,7 @@ public class MenuController implements IKeyDownHandler {
         try {
             if (menuLayer == mn.start) {
                 if (keyCode == KeyEvent.VK_ESCAPE)
-                    model.mainFrame.dispose();
+                    model.disposeMainFrame();
                 else {
                     menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                     highlightSelected(menuSelected.item2, model.orgGameLbl);
@@ -477,7 +477,7 @@ public class MenuController implements IKeyDownHandler {
                         symbols.add((char)keyCode);
                         model.typedSymbolsLbl.setText(charListToString(symbols));
                     }
-                    model.mainFrame.revalidate();
+                    model.mainPanel.revalidate();
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
@@ -510,10 +510,10 @@ public class MenuController implements IKeyDownHandler {
                 HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
             catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
-            MainFrameController.handleExceptions(exception.toString(),model);
+            MainFrameController.handleExceptions(exception.toString(), model);
         }
 
-        model.mainFrame.revalidate();
+        model.mainPanel.revalidate();
     }
 
     /**
@@ -751,7 +751,7 @@ public class MenuController implements IKeyDownHandler {
                 Thread.sleep(2500);
             }
             catch(InterruptedException ignore){ }
-            model.mainFrame.dispose();
+            model.disposeMainFrame();
         }
 
         @Override
