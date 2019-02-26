@@ -66,8 +66,6 @@ public class MainFrame extends JFrame{
         addComponents();
 
         setContentPane(mainPanel);
-        //Might want to set margin to (3, 2, 3, 2);
-
         mainPanel.revalidate();
     }
 
@@ -370,10 +368,10 @@ public class MainFrame extends JFrame{
         openFileDialog1 = new JFileChooser(resourcesPath);
 
         // Timers will be set up properly lately
-        pacUpdater = new Timer(100, null);
-        pacSmoothTimer = new Timer(100, null);
-        ghostUpdater = new Timer(100, null);
-        ghostSmoothTimer = new Timer(100, null);
+        pacUpdater = null;
+        pacSmoothTimer = null;
+        ghostUpdater = null;
+        ghostSmoothTimer = null;
 
         pacmanLbl = new JLabel();
         ultimateLbl = new JLabel();

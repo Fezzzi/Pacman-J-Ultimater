@@ -160,6 +160,7 @@ public class LoadMap {
                 }
             }
         }
+        cr.closeReader();
         if(lineNum == MAPHEIGHTINTILES && column == MAPWIDTHINTILES)
         {
             // Separately transform to tile last line because reading loop has ended on 31st line.

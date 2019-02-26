@@ -9,7 +9,7 @@ public class MainFrameModel {
 
     public String resourcesPath;
 
-    private MainFrame mainFrame;
+    public MainFrame mainFrame;
     public JPanel mainPanel;
     public JFileChooser openFileDialog1;
     public Timer pacUpdater;
@@ -85,12 +85,12 @@ public class MainFrameModel {
     /**
      * Centers main Frame on the screen
      *
-     * @param vars Game Model
+     * @param size Current window size
      */
-    public void recenterMainFrame(GameModel vars)
+    public void recenterMainFrame(Dimension size)
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        mainFrame.setLocation(dim.width/2 - vars.size.width/2, dim.height/2 - vars.size.height/2);
+        mainFrame.setLocation(dim.width/2 - size.width/2, dim.height/2 - size.height/2);
     }
 
     /**
@@ -112,12 +112,14 @@ public class MainFrameModel {
     }
 
     /**
-     * Sets new window minimum size.
+     * Changes window's size.
      *
      * @param newSize Dimension to be set
      */
-    public void setMainFrameMinimumSize(Dimension newSize)
+    public void setMainFrameSize(Dimension newSize)
     {
         mainFrame.setMinimumSize(newSize);
+        mainFrame.setSize(newSize);
+        mainFrame.setMaximumSize(newSize);
     }
 }

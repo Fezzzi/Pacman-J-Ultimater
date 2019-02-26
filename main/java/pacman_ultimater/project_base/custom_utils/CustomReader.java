@@ -26,4 +26,8 @@ public class CustomReader {
         this.br.reset();
         return peekedChar;
     }
+
+    public void closeReader() throws IOException{
+        br.close();
+    }
 }

@@ -1,31 +1,38 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
+import pacman_ultimater.project_base.core.Direction;
+import pacman_ultimater.project_base.core.HighScoreClass;
+import pacman_ultimater.project_base.core.IGameOverHandler;
 import pacman_ultimater.project_base.core.IKeyDownHandler;
+import pacman_ultimater.project_base.custom_utils.TimersListeners;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 class GameplayController implements IKeyDownHandler {
 
     //<editor-fold desc="- VARIABLES Block -">
 
-   private int keyTicks = 5;
-   private int FreeGhost, GhostRelease, EatEmTimer;
+    private int keyTicks = 5;
+    private int FreeGhost, GhostRelease, EatEmTimer;
 //    bool killed;
 //    bool[] teleported = new bool[EntityCount];
-//    Direction.nType NewDirection1 = Direction.nType.DIRECTION;
-//    Direction.nType NewDirection2 = Direction.nType.DIRECTION;
+    private Direction.nType newDirection1 = Direction.nType.DIRECTION;
+    private Direction.nType newDirection2 = Direction.nType.DIRECTION;
 //    Point[] EntitiesPixDeltas = new Point[EntityCount];
 //    byte RDPIndex = 0;
     private byte pacSmoothMoveStep;
     private byte ghostSmoothMoveStep;
+    private TimersListeners timers;
     private GameLoadController glc;
     private MainFrameModel model;
     private GameModel vars;
+    private IGameOverHandler gameOverHandler;
 //
 //        const
 //    int BonusLifeScore = 10000;
@@ -50,85 +57,116 @@ class GameplayController implements IKeyDownHandler {
 
     //<editor-fold desc="- GAMEPLAY Block -">
 
-    GameplayController(MainFrameModel model, GameModel vars)
+    GameplayController(MainFrameModel model, GameModel vars, IGameOverHandler gameOverHandler)
             throws LineUnavailableException
     {
         this.model = model;
         this.vars = vars;
+        this.gameOverHandler = gameOverHandler;
         glc = new GameLoadController(model, vars);
+        timers = new TimersListeners(
+                new TimerListener(timer_types.PACMAN), new TimerListener(timer_types.GHOST),
+                new TimerListener(timer_types.PACMAN_SMOOTH), new TimerListener(timer_types.GHOST_SMOOTH));
     }
 
+    /**
+     *
+     * @param restart
+     */
     void loadGame(boolean restart)
-            throws IOException, LineUnavailableException, InterruptedException, ExecutionException, UnsupportedAudioFileException
     {
-        glc.playGame(restart);
+        glc.playGame(restart, timers);
     }
 
-//    /// <summary>
-//    /// Function handling key pressing during gameplay.
-//    /// </summary>
-//    /// <param name="e">Identifies pressed key.</param>
+    /**
+     * Function handling key pressing during gameplay.
+     * @param keyCode Identifies pressed key.
+     */
     public void handleKey(int keyCode) {
-//        //Two booleans keyPressed1 and 2 to notice which of the players during VS play has pushed the key
-//        if (Player2) {
-//            if (e.KeyCode == Keys.A || e.KeyCode == Keys.W || e.KeyCode == Keys.D || e.KeyCode == Keys.S)
-//                keyPressed1 = true;
-//            else
-//                keyPressed2 = true;
-//        } else
-//            keyPressed1 = true;
-//        //NewDirection1 and 2 to save desired direction of both players
-//        if (e.KeyCode == Keys.A || !Player2 && e.KeyCode == Keys.Left)
-//            NewDirection1 = Direction.nType.LEFT;
-//        else if (e.KeyCode == Keys.W || !Player2 && e.KeyCode == Keys.Up)
-//            NewDirection1 = Direction.nType.UP;
-//        else if (e.KeyCode == Keys.D || !Player2 && e.KeyCode == Keys.Right)
-//            NewDirection1 = Direction.nType.RIGHT;
-//        else if (e.KeyCode == Keys.S || !Player2 && e.KeyCode == Keys.Down)
-//            NewDirection1 = Direction.nType.DOWN;
-//        else if (Player2 && e.KeyCode == Keys.Left)
-//            NewDirection2 = Direction.nType.LEFT;
-//        else if (Player2 && e.KeyCode == Keys.Up)
-//            NewDirection2 = Direction.nType.UP;
-//        else if (Player2 && e.KeyCode == Keys.Right)
-//            NewDirection2 = Direction.nType.RIGHT;
-//        else if (Player2 && e.KeyCode == Keys.Down)
-//            NewDirection2 = Direction.nType.DOWN;
-//        else if (e.KeyCode == Keys.Escape)
-//            EndGame();
-//            //In case the statment has reached this part the pushed key is invalid so disable the booleans
-//        else if (Player2) {
-//            keyPressed1 = false;
-//            keyPressed2 = false;
-//        } else
-//            keyPressed1 = false;
+        //Two booleans keyPressed[1|2] are used to distinguish which of the players has pressed the key during VS play.
+        if (vars.player2) {
+            if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_S)
+                vars.keyPressed1 = true;
+            else
+                vars.keyPressed2 = true;
+        } else
+            vars.keyPressed1 = true;
+
+        if (keyCode == KeyEvent.VK_ESCAPE) {
+            endGame();
+        }
+        else if (vars.player2) {
+            switch(keyCode){
+                case KeyEvent.VK_LEFT:
+                    newDirection2 = Direction.nType.LEFT;
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    newDirection2 = Direction.nType.RIGHT;
+                    break;
+                case KeyEvent.VK_UP:
+                    newDirection2 = Direction.nType.UP;
+                    break;
+                case KeyEvent.VK_DOWN:
+                    newDirection2 = Direction.nType.DOWN;
+                    break;
+                default:
+                    vars.keyPressed1 = false;
+                    vars.keyPressed2 = false;
+            }
+        }
+        else {
+            if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)
+                newDirection1 = Direction.nType.LEFT;
+            else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)
+                newDirection1 = Direction.nType.UP;
+            else if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT)
+                newDirection1 = Direction.nType.RIGHT;
+            else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN)
+                newDirection1 = Direction.nType.DOWN;
+            else
+                vars.keyPressed1 = false;
+        }
     }
-//
-//    /// <summary>
-//    /// Ends game by stoping game loop and enabling menu functionality.
-//    /// Saves new highscore in case of beating the previous one by the player.
-//    /// Generally destroys all of the forms's controls and loads them again with their default settings.
-//    /// </summary>
-//    private void EndGame() {
-//        PacUpdater.Stop();
-//        GhostUpdater.Stop();
-//        gameOn = false;
-//        MapFresh = null;
-//        if (Score >= HighScore) {
-//            HighScoreClass hscr = new HighScoreClass();
-//            hscr.SaveHighScore(Score);
-//        }
-//        MusicPlayer.Stop();
-//        this.AutoSize = true;
-//        this.Size = defSize;
-//        this.Controls.Clear();
-//        components.Dispose();
-//        InitializeComponent(false);
-//        HighlightSelected(menuSelected.Item2, HighScr);     // To unhighlight previous selection and enable highscore load.
-//        menuSelected = new Tuple<mn, Label>(mn.highscore, HighScr);
-//        menuLayer = mn.submenu;
-//        Menu(Menu_HighScore);
-//    }
+
+    /**
+     * Ends game by stopping game loop and enabling menu functionality.
+     * Saves new highscore in case of beating the previous one by the player.
+     * Generally destroys all of the forms's controls and loads them again with their default settings.
+     */
+    private void endGame() {
+        glc = null;
+        vars.gameOn = false;
+        if(model.pacUpdater != null)
+            model.pacUpdater.stop();
+        if(model.pacSmoothTimer != null)
+            model.pacSmoothTimer.stop();
+        if(model.ghostUpdater != null)
+            model.ghostUpdater.stop();
+        if(model.ghostSmoothTimer != null)
+            model.ghostSmoothTimer.stop();
+
+        model.pacUpdater = null;
+        model.ghostUpdater = null;
+        model.pacSmoothTimer = null;
+        model.ghostSmoothTimer = null;
+        vars.mapFresh = null;
+        if (vars.score >= vars.highScore) {
+            try {
+                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+            }
+            catch (IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
+        }
+        if(vars.musicPlayer != null) {
+            vars.musicPlayer.stop();
+            vars.musicPlayer.close();
+        }
+        vars.size = vars.defSize;
+        model.setMainFrameSize(vars.size);
+        model.mainPanel.setSize(vars.size);
+        model.recenterMainFrame(vars.size);
+        model.mainPanel.repaint();
+        gameOverHandler.handleGameOverRequest();
+    }
 //
 //    /// <summary>
 //    /// Handles the event raised by unexcited pacman's contact with one of the ghosts.
@@ -667,19 +705,50 @@ class GameplayController implements IKeyDownHandler {
 //            endGame();
     }
 
-    /// <summary>
-    /// Creates illusion of game loop.
-    /// Handles event raised by pacman's timer's periodical ticks.
-    /// </summary>
+    enum timer_types { PACMAN, GHOST, PACMAN_SMOOTH, GHOST_SMOOTH }
+
+    /**
+     * Handles events raised by timers and distributes them to appropriate functions.
+     */
+    private class TimerListener implements ActionListener{
+        timer_types timer_type;
+
+        private TimerListener(timer_types type){
+            timer_type = type;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switch(timer_type) {
+                case PACMAN:
+                    pacUpdater_Tick();
+                    break;
+                case GHOST:
+                    ghostUpdater_Tick();
+                    break;
+                case PACMAN_SMOOTH:
+                    pacSmoothTimer_Tick();
+                    break;
+                case GHOST_SMOOTH:
+                    ghostSmoothTimer_Tick();
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Creates illusion of game loop.
+     * Handles event raised by pacman's timer's periodical ticks.
+     */
     private void pacUpdater_Tick() {
         model.pacSmoothTimer.stop();
         gameLoop(true);
     }
 
-    /// <summary>
-    /// Creates illusion of game loop.
-    /// Handles event raised by ghosts' timer's periodical ticks.
-    /// </summary>
+    /**
+     * Creates illusion of game loop.
+     * Handles event raised by ghosts' timer's periodical ticks.
+     */
     private void ghostUpdater_Tick() {
         model.ghostSmoothTimer.stop();
         gameLoop(false);
@@ -688,7 +757,7 @@ class GameplayController implements IKeyDownHandler {
 //    /// <summary>
 //    /// Handles animating of pacman's translation between old and the new tile.
 //    /// </summary>
-//    private void PacSmoothTimer_Tick(object sender, EventArgs e) {
+    private void pacSmoothTimer_Tick() {
 //        ++PacSmoothMoveStep;
 //        if (Entities[0].Item4 != Direction.nType.DIRECTION && !teleported[0]) {
 //            Point d = GetDeltas(0);
@@ -706,12 +775,12 @@ class GameplayController implements IKeyDownHandler {
 //                    Entities[0].Item3.Image = Image.FromFile("../Textures/" + Entities[0].Item3.Name + Entities[0].Item4.ToString() + ".png");
 //            }
 //        }
-//    }
+    }
 //
 //    /// <summary>
 //    /// Handles animating of ghosts' translation between old and the new tile.
 //    /// </summary>
-//    private void GhostSmoothTimer_Tick(object sender, EventArgs e) {
+    private void ghostSmoothTimer_Tick() {
 //        ++GhostSmoothMoveStep;
 //        for (byte i = 1; i <= FreeGhost; i++)
 //            if (Entities[i].Item4 != Direction.nType.DIRECTION && !teleported[i]) {
@@ -723,7 +792,7 @@ class GameplayController implements IKeyDownHandler {
 //                else
 //                    Entities[i].Item3.Location = new Point((Entities[i].Item3.Location.X + d.X), (Entities[i].Item3.Location.Y + d.Y));
 //            }
-//    }
+    }
 //
 //    /// <summary>
 //    /// Gets translation deltas for entity specified by input index.

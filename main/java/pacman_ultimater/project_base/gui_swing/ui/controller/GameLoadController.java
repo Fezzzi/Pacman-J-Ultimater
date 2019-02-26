@@ -3,6 +3,7 @@ package pacman_ultimater.project_base.gui_swing.ui.controller;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
+import pacman_ultimater.project_base.custom_utils.TimersListeners;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
@@ -247,11 +248,11 @@ class GameLoadController {
             loading = new JLabel();
             levelLabel = new JLabel();
             vars.defSize = model.getMainFrameMinimumSize();
-            vars.size = new Dimension((LoadMap.MAPWIDTHINTILES) * LoadMap.TILESIZEINPXS,
+            vars.size = new Dimension((LoadMap.MAPWIDTHINTILES + 1) * LoadMap.TILESIZEINPXS,
                                 (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
-            model.setMainFrameMinimumSize(vars.size);
+            model.setMainFrameSize(vars.size);
             model.mainPanel.setSize(vars.size);
-            model.recenterMainFrame(vars);
+            model.recenterMainFrame(vars.size);
 
             vars.extraLifeGiven = false;
             vars.score = 0;
@@ -267,7 +268,6 @@ class GameLoadController {
             ++vars.level;
         }
 
-        model.mainPanel.removeAll();
         loading.setSize(350,60);
         placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
                     new Font("Ravie", Font.BOLD, 48));
@@ -330,16 +330,11 @@ class GameLoadController {
      * Provides loading and general preparing of the game at the level start-up.
      *
      * @param restart Indicates whether is method triggered by level's restart or finish.
-     * @throws IOException Propagation from highScore loading.
-     * @throws LineUnavailableException Propagation from music playing.
-     * @throws ExecutionException Propagation from Threading.
-     * @throws InterruptedException Propagation from Threading.
-     * @throws UnsupportedAudioFileException Propagation form music playing.
+     * @param timers Class implementing timers' handling.
      */
-    void playGame(boolean restart)
-            throws IOException, LineUnavailableException, ExecutionException, InterruptedException, UnsupportedAudioFileException
+    void playGame(boolean restart, TimersListeners timers)
     {
-        PlayGameTask pgTask = new PlayGameTask(restart);
+        PlayGameTask pgTask = new PlayGameTask(restart, timers);
         pgTask.execute();
     }
 
@@ -348,10 +343,12 @@ class GameLoadController {
     class PlayGameTask extends SwingWorker<Void, playGamePhase>
     {
         boolean restart;
+        TimersListeners timers;
 
-        PlayGameTask(boolean restart)
+        PlayGameTask(boolean restart, TimersListeners timers)
         {
             this.restart = restart;
+            this.timers = timers;
         }
 
         @Override
@@ -385,54 +382,57 @@ class GameLoadController {
                 for (playGamePhase phase : phases) {
                     switch (phase) {
                         case PHASE1:
-                            loadingAndInit();
+                            if (vars.gameOn) {
+                                loadingAndInit();
 
-                            if (!this.restart) {
+                                if (!this.restart) {
+                                    if (vars.music) {
+                                        AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_intermission.wav"));
+                                        byte[] buffer1 = new byte[65536];
+                                        sound.read(buffer1, 0, 65536);
+
+                                        vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
+                                        vars.musicPlayer.start();
+                                    }
+                                }
+                            }
+                            break;
+                        case PHASE2:
+                            if (vars.gameOn) {
+                                if (vars.music)
+                                    vars.musicPlayer.close();
+
+                                loadHud(vars.lives - 2);
+                                vars.topGhostInTiles = new IntPair(vars.map.item3.item1 - 1, vars.map.item3.item2 - 1);
+                                loadEntities();
+                                ready = new JLabel();
+                                ready.setSize(150, 30);
+                                placeLabel(ready, "READY!", Color.yellow,
+                                        new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
+                                                (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
+                                        new Font("Ravie", Font.BOLD, 22));
+                                ready.setVisible(true);
+
+                                if (!restart) {
+                                    vars.collectedDots = 0;
+                                    vars.mapFresh = deepCopy(vars.map.item1);
+                                    if (vars.level <= 13 && vars.level > 1)
+                                        model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
+                                }
+                                model.mainPanel.remove(loading);
+                                model.mainPanel.remove(levelLabel);
+                                model.mainPanel.repaint();
+                                model.mainPanel.revalidate();
+                                renderMap(vars.mapFresh, vars.map.item4);
+
                                 if (vars.music) {
-                                    AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_intermission.wav"));
+                                    AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_beginning.wav"));
                                     byte[] buffer1 = new byte[65536];
                                     sound.read(buffer1, 0, 65536);
 
                                     vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
                                     vars.musicPlayer.start();
                                 }
-                            }
-                            break;
-                        case PHASE2:
-                            if(vars.music)
-                                vars.musicPlayer.close();
-
-                            loadHud(vars.lives - 2);
-                            vars.topGhostInTiles = new IntPair(vars.map.item3.item1 - 1, vars.map.item3.item2 - 1);
-                            loadEntities();
-                            ready = new JLabel();
-                            ready.setSize(150, 30);
-                            placeLabel(ready, "READY!", Color.yellow,
-                                    new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                                            (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
-                                    new Font("Ravie", Font.BOLD, 22));
-                            ready.setVisible(true);
-
-                            if (!restart)
-                            {
-                                vars.collectedDots = 0;
-                                vars.mapFresh = deepCopy(vars.map.item1);
-                                if (vars.level <= 13 && vars.level > 1)
-                                    model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
-                            }
-                            model.mainPanel.remove(loading);
-                            model.mainPanel.remove(levelLabel);
-                            model.mainPanel.repaint();
-                            model.mainPanel.revalidate();
-                            renderMap(vars.mapFresh, vars.map.item4);
-
-                            if (vars.music){
-                                AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_beginning.wav"));
-                                byte[] buffer1 = new byte[65536];
-                                sound.read(buffer1, 0, 65536);
-
-                                vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                                vars.musicPlayer.start();
                             }
                             break;
                         case PHASE3:
@@ -460,18 +460,24 @@ class GameLoadController {
                                     vars.musicPlayer.start();
                                 }
                                 // Starts updaters that provides effect of main game cycle.
-                                model.pacUpdater.setDelay(PACTIMER);
+                                model.pacUpdater = new Timer(PACTIMER, timers.getPacman_timer());
                                 model.pacUpdater.setRepeats(true);
-                                model.ghostUpdater.setDelay(!vars.player2 ? (PACTIMER + 40 - (vars.level > 13 ? 65
-                                                                                                        : vars.level * 5))
-                                                                        : model.pacUpdater.getDelay() + 10);
+                                model.ghostUpdater = new Timer(
+                                        !vars.player2 ? (PACTIMER + 40 - (vars.level > 13 ? 65
+                                                                                          : vars.level * 5))
+                                                      : model.pacUpdater.getDelay() + 10,
+                                        timers.getGhost_timer());
                                 model.ghostUpdater.setRepeats(true);
-                                model.pacSmoothTimer.setDelay(model.pacUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));
+                                model.pacSmoothTimer = new Timer(
+                                        model.pacUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
+                                        timers.getPacman_smooth_timer());
                                 model.pacSmoothTimer.setRepeats(true);
-                                model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));
+                                model.ghostSmoothTimer = new Timer(
+                                        model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
+                                        timers.getGhost_smooth_timer());
                                 model.ghostSmoothTimer.setRepeats(true);
-//                                mfc.pacUpdater.start();
-//                                mfc.ghostUpdater.start();
+                                model.pacUpdater.start();
+                                model.ghostUpdater.start();
                             }
                             break;
                         case EXECUTIONEXCEPTION:
@@ -532,7 +538,7 @@ class GameLoadController {
             int startX = LoadMap.MAPWIDTHINTILES * LoadMap.TILESIZEINPXS;
 
             // FIRST ANIMATION: From right to left --------------------------------------------------------------------
-            for (int i = 1; i <= elemCount; i++)
+            for (int i = 1; i <= elemCount && vars.gameOn; i++)
             {
                 elements[i-1] = new JLabel();
                 elements[i-1].setIcon(new ImageIcon(model.resourcesPath + "/textures/Entity" + Integer.toString(i) + "Left.png"));
@@ -545,7 +551,7 @@ class GameLoadController {
 
             Point[] locations = new Point[elemCount];
             ImageIcon pacmanImage = new ImageIcon(model.resourcesPath + "/Textures/PacStart.png");
-            for (int j = startX; j > -300; j -= 4)
+            for (int j = startX; j > -300 && vars.gameOn; j -= 4)
             {
                 ++pacCount;
                 for (int i = 0; i < elemCount; i++)
@@ -564,7 +570,7 @@ class GameLoadController {
             }
 
             // SECOND ANIMATION: From left to right -------------------------------------------------------------------
-            if(vars.level % 5 == 0){
+            if(vars.level % 5 == 0 && vars.gameOn){
                 elements[0].setSize(new Dimension(ENTITIESSIZEINPXS * 2, ENTITIESSIZEINPXS * 2));
                 elements[0].setLocation(new Point(elements[0].getLocation().x, elements[0].getLocation().y - ENTITIESSIZEINPXS));
                 elements[0].setIcon(new ImageIcon(model.resourcesPath + "/textures/Entity1RightBig.png"));
@@ -574,7 +580,7 @@ class GameLoadController {
 
                 Thread.sleep(250);
                 pacCount = 0;
-                for (int j = 0; j < 260; ++j)
+                for (int j = 0; j < 260 && vars.gameOn; ++j)
                 {
                     ++pacCount;
                     for (int i = 0; i < elemCount; i++)

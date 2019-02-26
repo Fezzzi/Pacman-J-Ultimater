@@ -15,7 +15,16 @@ public class KeyBindings {
         this.handler = handler;
     }
 
-    public void setIMap()
+    public void init(){
+        setIMap();
+        setAMap();
+    }
+
+    public void changeHandler(IKeyDownHandler handler){
+        this.handler = handler;
+    }
+
+    private void setIMap()
     {
         InputMap iMap = panel.getInputMap();
 
@@ -91,7 +100,7 @@ public class KeyBindings {
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter_key");
     }
 
-    public void setAMap()
+    private void setAMap()
     {
         ActionMap aMap = panel.getActionMap();
 

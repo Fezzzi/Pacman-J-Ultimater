@@ -21,11 +21,14 @@ public class MenuController implements IKeyDownHandler {
     //<editor-fold desc="- VARIABLES Block -">
 
     private ArrayList<JLabel> activeElements = new ArrayList<>();
+    private Component[] menuComponents;
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private ArrayList<Character> symbols = new ArrayList<>();
     private MainFrameModel model;
     private GameModel vars;
+    private GameplayController gp;
+    private KeyBindings kb;
 
     //</editor-fold>
 
@@ -40,7 +43,11 @@ public class MenuController implements IKeyDownHandler {
         menuSelected = new Pair<>(MenuController.mn.game, model.orgGameLbl);
 
         initListeners();
-        addKeyBindings(this);
+        kb = new KeyBindings(model.mainPanel, this);
+        kb.init();
+
+        // might want to set inputContext
+        model.openFileDialog1.showOpenDialog(this.model.mainPanel);
     }
 
     /**
@@ -59,16 +66,6 @@ public class MenuController implements IKeyDownHandler {
         model.soundsButtonLbl.addMouseListener(new labelListener(model.soundsButtonLbl, mouseAdapterType.highlight_settings, model));
         model.tryAgainButLbl.addMouseListener(new labelListener(model.tryAgainButLbl, mouseAdapterType.tryAgainBtn, model));
         model.advancedLdButLbl.addMouseListener(new labelListener(model.advancedLdButLbl, mouseAdapterType.advancedLdBtn, model));
-    }
-
-    /**
-     * Ties keys to class implementing keyDownHandler interface.
-     */
-    private void addKeyBindings(IKeyDownHandler keyHandler)
-    {
-        KeyBindings kb = new KeyBindings(model.mainPanel, keyHandler);
-        kb.setIMap();
-        kb.setAMap();
     }
 
     /**
@@ -229,7 +226,7 @@ public class MenuController implements IKeyDownHandler {
     }
 
     /**
-     * Loads predefined original map and calls makeItHappen() to proceed to gameplay.
+     * Loads predefined original map and calls proceedToGameplay() to proceed to gameplay.
      */
     private void orgGame_Click()
             throws InvocationTargetException, IllegalAccessException
@@ -237,7 +234,7 @@ public class MenuController implements IKeyDownHandler {
         vars.loadedMap = new LoadMap(model.resourcesPath + "\\OriginalMap.txt");
         if (vars.loadedMap.Map != null) {
             menu(null);
-            makeItHappen();
+            proceedToGameplay();
         }
     }
 
@@ -273,7 +270,7 @@ public class MenuController implements IKeyDownHandler {
     /**
      * Opens file dialog after clinking on Select Map in menu.
      * Tries to open and load selected map from the file afterwards.
-     * Calls procedure makeItHappen() in case of success.
+     * Calls procedure proceedToGameplay() in case of success.
      *
      * @throws NoSuchMethodException To be handled by calling procedure.
      * @throws IllegalAccessException To be handled by calling procedure.
@@ -297,32 +294,68 @@ public class MenuController implements IKeyDownHandler {
             }
             if (vars.loadedMap.Map != null) {
                 menu(null);
-                makeItHappen();
+                proceedToGameplay();
             }
         }
     }
 
     /**
-     * Function that provides bridge between menu and the game.
+     * Used as bridge from gamePlayController back to MenuController
+     */
+    private class GameOverHandler implements IGameOverHandler
+    {
+        public void handleGameOverRequest(){
+            returnToMenu();
+        }
+    }
+
+    /**
+     * Function that provides bridge from menu to gameplay.
      * Switches key binding's handler to GamePlayController's one.
      * Initializes Map and on success calls function that makes the game load process start.
      */
-    private void makeItHappen()
+    private void proceedToGameplay()
     {
         try {
             vars.level = 0;
             vars.gameOn = true;
             vars.map = vars.loadedMap.Map;
-            GameplayController gp = new GameplayController(model, vars);
-            addKeyBindings(gp);
+            menuComponents = model.mainPanel.getComponents();
+            model.mainPanel.removeAll();
+            gp = new GameplayController(model, vars, new GameOverHandler());
+            kb.changeHandler(gp);
             gp.loadGame(false);
         }
-        catch(IOException | LineUnavailableException | ExecutionException
-                | UnsupportedAudioFileException | InterruptedException e)
+        catch(LineUnavailableException e)
         {
             MainFrameController.handleExceptions(e.getMessage(), model);
             model.disposeMainFrame();
         }
+    }
+
+    /**
+     * Function that provides bridge from gameplay to menu.
+     * Switches key binding's handler back to MenuController's one.
+     */
+    private void returnToMenu(){
+        kb.changeHandler(this);
+        gp = null;
+        model.mainPanel.removeAll();
+        for(Component component: menuComponents){
+            model.mainPanel.add(component);
+        }
+        highlightSelected(menuSelected.item2, model.highScrLbl);
+        menuSelected = new Pair<>(mn.highscore, model.highScrLbl);
+        menuLayer = mn.submenu;
+        try {
+            menu(this.getClass().getDeclaredMethod("menu_HighScore"));
+        }
+        catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException e){
+            MainFrameController.handleExceptions(e.getMessage(), model);
+            model.disposeMainFrame();
+        }
+
+        model.mainPanel.revalidate();
     }
 
     /**
@@ -445,8 +478,9 @@ public class MenuController implements IKeyDownHandler {
     {
         try {
             if (menuLayer == mn.start) {
-                if (keyCode == KeyEvent.VK_ESCAPE)
+                if (keyCode == KeyEvent.VK_ESCAPE) {
                     model.disposeMainFrame();
+                }
                 else {
                     menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                     highlightSelected(menuSelected.item2, model.orgGameLbl);
