@@ -6,7 +6,6 @@ import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,14 +13,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class MenuController implements IKeyDownHandler {
 
     //<editor-fold desc="- VARIABLES Block -">
 
     private ArrayList<JLabel> activeElements = new ArrayList<>();
-    private Component[] menuComponents;
+    private int menuComponentsCount;
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private ArrayList<Character> symbols = new ArrayList<>();
@@ -46,8 +44,7 @@ public class MenuController implements IKeyDownHandler {
         kb = new KeyBindings(model.mainPanel, this);
         kb.init();
 
-        // might want to set inputContext
-        model.openFileDialog1.showOpenDialog(this.model.mainPanel);
+        model.mainPanel.requestFocus();
     }
 
     /**
@@ -320,8 +317,10 @@ public class MenuController implements IKeyDownHandler {
             vars.level = 0;
             vars.gameOn = true;
             vars.map = vars.loadedMap.Map;
-            menuComponents = model.mainPanel.getComponents();
-            model.mainPanel.removeAll();
+            menuComponentsCount = model.mainPanel.getComponentCount();
+            System.out.print("component count menu leave: " + menuComponentsCount + '\n');
+            for(int i = 0; i < menuComponentsCount; ++i)
+                model.mainPanel.getComponent(i).setVisible(false);
             gp = new GameplayController(model, vars, new GameOverHandler());
             kb.changeHandler(gp);
             gp.loadGame(false);
@@ -338,11 +337,13 @@ public class MenuController implements IKeyDownHandler {
      * Switches key binding's handler back to MenuController's one.
      */
     private void returnToMenu(){
+        System.out.print("component count menu enter: " + menuComponentsCount + '\n');
         kb.changeHandler(this);
         gp = null;
-        model.mainPanel.removeAll();
-        for(Component component: menuComponents){
-            model.mainPanel.add(component);
+        int componentsCount = model.mainPanel.getComponentCount();
+        for(int i = componentsCount - 1; i >= 0; --i){
+            if(i >= menuComponentsCount)
+                model.mainPanel.remove(i);
         }
         highlightSelected(menuSelected.item2, model.highScrLbl);
         menuSelected = new Pair<>(mn.highscore, model.highScrLbl);
@@ -355,7 +356,9 @@ public class MenuController implements IKeyDownHandler {
             model.disposeMainFrame();
         }
 
+        model.mainPanel.repaint();
         model.mainPanel.revalidate();
+        model.mainPanel.requestFocus();
     }
 
     /**

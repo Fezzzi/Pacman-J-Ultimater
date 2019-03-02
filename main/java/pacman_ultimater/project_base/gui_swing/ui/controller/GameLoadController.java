@@ -41,16 +41,16 @@ class GameLoadController {
      * @param tiles game map in 2D tile array
      * @param color tiles color
      */
-    private void renderMap(Tile[][] tiles, Color color)
+    public void renderMap(Tile[][] tiles, Color color)
     {
         vars.gameMap = new JLabel();
         vars.gameMap.setSize(vars.size);
         Image bufferImage = model.mainPanel.createImage(vars.size.width, vars.size.height);
-        Graphics bufferGraphics = bufferImage.getGraphics();
-        Graphics2D bg2D = (Graphics2D)bufferGraphics;
-        bg2D.setStroke(new BasicStroke(2));
-        bufferGraphics.setColor(Color.BLACK);
-        bufferGraphics.fillRect(0,0, vars.size.width, vars.size.height);
+        vars.bufferGraphics = bufferImage.getGraphics();
+        Graphics2D bg2D = (Graphics2D)vars.bufferGraphics;
+        bg2D.setStroke(new BasicStroke(3));
+        vars.bufferGraphics.setColor(Color.BLACK);
+        vars.bufferGraphics.fillRect(0,0, vars.size.width, vars.size.height);
 
         if (color == LoadMap.TRANSPARENT)
             color = chooseRandomColor();
@@ -58,7 +58,7 @@ class GameLoadController {
             vars.mapColor = color;
         for (int i = 0; i < LoadMap.MAPHEIGHTINTILES; i++)
             for (int j = 0; j < LoadMap.MAPWIDTHINTILES; j++)
-                tiles[i][j].DrawTile(bufferGraphics, new Point(j * LoadMap.TILESIZEINPXS, (i + 3) * LoadMap.TILESIZEINPXS), color);
+                tiles[i][j].DrawTile(vars.bufferGraphics, new Point(j * LoadMap.TILESIZEINPXS, (i + 3) * LoadMap.TILESIZEINPXS), color);
 
         vars.gameMap.setIcon(new ImageIcon(bufferImage));
         model.mainPanel.add(vars.gameMap);
@@ -130,26 +130,26 @@ class GameLoadController {
         //  - Type of entity such as Player1, Player2, or all the other kinds of enemy's AI.
         vars.defaultAIs = new DefaultAI[]
         {
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES),
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES),
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES),
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)
+            new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
+            new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
+            new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
+            new DefaultAI(DefaultAI.nType.HOSTILEATTACK)
         };
 
         vars.entities = new ArrayList<>();
         vars.entities.add(new Quintet<>(
-                LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY, new JLabel(), Direction.nType.LEFT,
-                new DefaultAI(DefaultAI.nType.PLAYER1, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)));
+                LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY, new JLabel(), Direction.directionType.LEFT,
+                new DefaultAI(DefaultAI.nType.PLAYER1)));
         vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2, new JLabel(), Direction.nType.LEFT,
-                vars.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2, LoadMap.MAPWIDTHINTILES, LoadMap.MAPHEIGHTINTILES)
+                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2, new JLabel(), Direction.directionType.LEFT,
+                vars.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2)
                             : vars.defaultAIs[0]));
         vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, vars.defaultAIs[1]));
+                vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[1]));
         vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, vars.defaultAIs[2]));
+                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[2]));
         vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.nType.DIRECTION, vars.defaultAIs[3]));
+                vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[3]));
 
         //Setting entities names for easy later manipulation and automatic image selection
         for (int i = 1; i <= ENTITYCOUNT; i++)
@@ -349,6 +349,7 @@ class GameLoadController {
         {
             this.restart = restart;
             this.timers = timers;
+            ready = new JLabel();
         }
 
         @Override
@@ -380,9 +381,10 @@ class GameLoadController {
         {
             try {
                 for (playGamePhase phase : phases) {
-                    switch (phase) {
-                        case PHASE1:
-                            if (vars.gameOn) {
+                    if (vars.gameOn) {
+                        switch (phase) {
+                            case PHASE1:
+
                                 loadingAndInit();
 
                                 if (!this.restart) {
@@ -395,17 +397,14 @@ class GameLoadController {
                                         vars.musicPlayer.start();
                                     }
                                 }
-                            }
-                            break;
-                        case PHASE2:
-                            if (vars.gameOn) {
+                                break;
+                            case PHASE2:
                                 if (vars.music)
                                     vars.musicPlayer.close();
 
                                 loadHud(vars.lives - 2);
                                 vars.topGhostInTiles = new IntPair(vars.map.item3.item1 - 1, vars.map.item3.item2 - 1);
                                 loadEntities();
-                                ready = new JLabel();
                                 ready.setSize(150, 30);
                                 placeLabel(ready, "READY!", Color.yellow,
                                         new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
@@ -433,16 +432,14 @@ class GameLoadController {
                                     vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
                                     vars.musicPlayer.start();
                                 }
-                            }
-                            break;
-                        case PHASE3:
-                            if(vars.music)
-                                vars.musicPlayer.close();
+                                break;
+                            case PHASE3:
+                                if (vars.music)
+                                    vars.musicPlayer.close();
 
-                            // It's possible that the player has pressed escape during the opening theme.
-                            if (vars.gameOn) {
                                 ready.setVisible(false);
                                 model.mainPanel.remove(ready);
+                                ready = null;
                                 model.mainPanel.revalidate();
                                 // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
                                 vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
@@ -464,8 +461,8 @@ class GameLoadController {
                                 model.pacUpdater.setRepeats(true);
                                 model.ghostUpdater = new Timer(
                                         !vars.player2 ? (PACTIMER + 40 - (vars.level > 13 ? 65
-                                                                                          : vars.level * 5))
-                                                      : model.pacUpdater.getDelay() + 10,
+                                                : vars.level * 5))
+                                                : model.pacUpdater.getDelay() + 10,
                                         timers.getGhost_timer());
                                 model.ghostUpdater.setRepeats(true);
                                 model.pacSmoothTimer = new Timer(
@@ -478,16 +475,16 @@ class GameLoadController {
                                 model.ghostSmoothTimer.setRepeats(true);
                                 model.pacUpdater.start();
                                 model.ghostUpdater.start();
-                            }
-                            break;
-                        case EXECUTIONEXCEPTION:
-                            HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
-                            MainFrameController.handleExceptions("java.util.concurrent.ExecutionException", model);
-                            break;
-                        case INTERRUPTEDEXCEPTION:
-                            HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
-                            MainFrameController.handleExceptions("java.lang.InterruptedException", model);
-                            break;
+                                break;
+                            case EXECUTIONEXCEPTION:
+                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                MainFrameController.handleExceptions("java.util.concurrent.ExecutionException", model);
+                                break;
+                            case INTERRUPTEDEXCEPTION:
+                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                MainFrameController.handleExceptions("java.lang.InterruptedException", model);
+                                break;
+                        }
                     }
                 }
             }
@@ -606,24 +603,26 @@ class GameLoadController {
         protected void process(List<AnimationFrame> frames)
         {
             for (AnimationFrame frame : frames) {
-                if (frame.initialisation) {
-                    for (int i = 0; i < frame.entities.length; ++i) {
-                        animLabelsIds[i] = model.mainPanel.getComponentCount();
-                        model.mainPanel.add(frame.entities[i]);
-                        model.mainPanel.getComponent(animLabelsIds[i]).setVisible(true);
+                if(vars.gameOn) {
+                    if (frame.initialisation) {
+                        for (int i = 0; i < frame.entities.length; ++i) {
+                            animLabelsIds[i] = model.mainPanel.getComponentCount();
+                            model.mainPanel.add(frame.entities[i]);
+                            model.mainPanel.getComponent(animLabelsIds[i]).setVisible(true);
+                        }
+                    } else if (frame.finished) {
+                        for (int i = frame.entities.length - 1; i >= 0; --i) {
+                            model.mainPanel.remove(animLabelsIds[i]);
+                        }
+                    } else {
+                        for (int i = 0; i < frame.entities.length; ++i) {
+                            model.mainPanel.getComponent(animLabelsIds[i]).setLocation(frame.locations[i].x, frame.locations[i].y);
+                        }
+                        frame.entities[0].setIcon(frame.pacmanImage);
                     }
-                } else if (frame.finished) {
-                    for (int i = frame.entities.length - 1; i >= 0; --i) {
-                        model.mainPanel.remove(animLabelsIds[i]);
-                    }
-                } else {
-                    for (int i = 0; i < frame.entities.length; ++i) {
-                        model.mainPanel.getComponent(animLabelsIds[i]).setLocation(frame.locations[i].x, frame.locations[i].y);
-                    }
-                    frame.entities[0].setIcon(frame.pacmanImage);
+                    model.mainPanel.revalidate();
+                    model.mainPanel.repaint();
                 }
-                model.mainPanel.revalidate();
-                model.mainPanel.repaint();
             }
         }
     }

@@ -3,7 +3,7 @@ package pacman_ultimater.project_base.core;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 
 /**
- * Class providing data structure for directions via enumerable nType.
+ * Class providing data structure for directions via enumerable directionType.
  * It also provides two useful functions for conversions.
  */
 public class Direction {
@@ -11,16 +11,16 @@ public class Direction {
     /**
      * Enumerable representing possible directions.
      */
-    public enum nType { LEFT, RIGHT, UP, DOWN, DIRECTION }
+    public enum directionType { LEFT, RIGHT, UP, DOWN, DIRECTION }
 
     /**
      * Function for converting from direction to delta tuple.
      * Returns input's representation as delta tuple of two integers.
      *
-     * @param direction direction representation in form of nType
+     * @param direction direction representation in form of directionType
      * @return IntPair
      */
-    IntPair directionToIntPair(nType direction)
+    public IntPair directionToIntPair(directionType direction)
     {
         switch (direction)
         {
@@ -38,29 +38,29 @@ public class Direction {
     }
 
     /**
-     * Function for converting from delta tuple to nType direction.
-     * Returns input's representation as member of nType enumerable of possible directions.
+     * Function for converting from delta tuple to directionType direction.
+     * Returns input's representation as member of directionType enumerable of possible directions.
      *
      * @param intPair Input delta tuple of two integers.
-     * @return nType
+     * @return directionType
      */
-    nType intPairToDirection(IntPair intPair)
+    directionType intPairToDirection(IntPair intPair)
     {
         if(intPair.item1 == 0)
         {
             if (intPair.item2 == 1)
-                return nType.RIGHT;
+                return directionType.RIGHT;
             else if (intPair.item2 == -1)
-                return nType.LEFT;
-            else return nType.DIRECTION;
+                return directionType.LEFT;
+            else return directionType.DIRECTION;
         }
         else
         {
             if (intPair.item1 == 1)
-                return nType.DOWN;
+                return directionType.DOWN;
             else if (intPair.item1 == -1)
-                return nType.UP;
-            else return nType.DIRECTION;
+                return directionType.UP;
+            else return directionType.DIRECTION;
         }
     }
 }

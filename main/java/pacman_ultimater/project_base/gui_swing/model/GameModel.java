@@ -12,7 +12,8 @@ import java.util.ArrayList;
 public class GameModel {
 
     public int score, score2, lives, highScore, soundTick, collectedDots, ghostsEaten, ghostRelease,
-                level, keyCountdown1, keyCountdown2, freeGhosts, ticks, eatEmTimer;
+                level, freeGhosts, ticks, eatEmTimer;
+    public Integer keyCountdown1, keyCountdown2;
     public Boolean gameOn;
     public boolean player2, sound, music, extraLifeGiven, keyPressed1, keyPressed2, killed;
     public Clip musicPlayer;
@@ -22,13 +23,14 @@ public class GameModel {
     public Point[] redrawPellets;
     public LoadMap loadedMap;
 
-    public ArrayList<Quintet<Integer, Integer, JLabel, Direction.nType, DefaultAI>> entities;
+    public ArrayList<Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI>> entities;
     public DefaultAI[] defaultAIs;
     public IntPair topGhostInTiles;
     public JLabel[] pacLives;
     public Dimension defSize, size;
     public JLabel up1, up2, gameMap, scoreBox, highScoreBox, score2Box;
     public Color mapColor;
+    public Graphics bufferGraphics;
 
     public GameModel()
     {

@@ -1,17 +1,23 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
-import pacman_ultimater.project_base.core.Direction;
-import pacman_ultimater.project_base.core.HighScoreClass;
-import pacman_ultimater.project_base.core.IGameOverHandler;
-import pacman_ultimater.project_base.core.IKeyDownHandler;
+import pacman_ultimater.project_base.core.*;
+import pacman_ultimater.project_base.custom_utils.IntPair;
+import pacman_ultimater.project_base.custom_utils.Quintet;
 import pacman_ultimater.project_base.custom_utils.TimersListeners;
+import pacman_ultimater.project_base.gui_swing.model.GameConsts;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 
 class GameplayController implements IKeyDownHandler {
@@ -19,13 +25,11 @@ class GameplayController implements IKeyDownHandler {
     //<editor-fold desc="- VARIABLES Block -">
 
     private int keyTicks = 5;
-    private int FreeGhost, GhostRelease, EatEmTimer;
-//    bool killed;
-//    bool[] teleported = new bool[EntityCount];
-    private Direction.nType newDirection1 = Direction.nType.DIRECTION;
-    private Direction.nType newDirection2 = Direction.nType.DIRECTION;
-//    Point[] EntitiesPixDeltas = new Point[EntityCount];
-//    byte RDPIndex = 0;
+    boolean[] teleported = new boolean[GameConsts.ENTITYCOUNT];
+    private Direction.directionType newDirection1;
+    private Direction.directionType newDirection2;
+    private Point[] entitiesPixDeltas = new Point[GameConsts.ENTITYCOUNT];
+    private byte RDPIndex = 0;
     private byte pacSmoothMoveStep;
     private byte ghostSmoothMoveStep;
     private TimersListeners timers;
@@ -33,19 +37,7 @@ class GameplayController implements IKeyDownHandler {
     private MainFrameModel model;
     private GameModel vars;
     private IGameOverHandler gameOverHandler;
-//
-//        const
-//    int BonusLifeScore = 10000;
-//        const
-//    int PelletScore = 10;
-//        const
-//    int PowerPelletScore = 50;
-//        const
-//    int BaseEatEmTimer = 100;
-//        const
-//    int ghostEatBaseScore = 200;
-//        const
-//    int BaseGhostReleaseTimer = 260;
+
 //        const
 //    byte GhostAccLimLevel = 30;
 //        const
@@ -63,6 +55,9 @@ class GameplayController implements IKeyDownHandler {
         this.model = model;
         this.vars = vars;
         this.gameOverHandler = gameOverHandler;
+
+        newDirection1 = Direction.directionType.DIRECTION;
+        newDirection2 = Direction.directionType.DIRECTION;
         glc = new GameLoadController(model, vars);
         timers = new TimersListeners(
                 new TimerListener(timer_types.PACMAN), new TimerListener(timer_types.GHOST),
@@ -70,8 +65,9 @@ class GameplayController implements IKeyDownHandler {
     }
 
     /**
+     * Handles game loading and reloading.
      *
-     * @param restart
+     * @param restart Distinguishes between restarting level / loading new level
      */
     void loadGame(boolean restart)
     {
@@ -80,6 +76,7 @@ class GameplayController implements IKeyDownHandler {
 
     /**
      * Function handling key pressing during gameplay.
+     *
      * @param keyCode Identifies pressed key.
      */
     public void handleKey(int keyCode) {
@@ -98,16 +95,16 @@ class GameplayController implements IKeyDownHandler {
         else if (vars.player2) {
             switch(keyCode){
                 case KeyEvent.VK_LEFT:
-                    newDirection2 = Direction.nType.LEFT;
+                    newDirection2 = Direction.directionType.LEFT;
                     break;
                 case KeyEvent.VK_RIGHT:
-                    newDirection2 = Direction.nType.RIGHT;
+                    newDirection2 = Direction.directionType.RIGHT;
                     break;
                 case KeyEvent.VK_UP:
-                    newDirection2 = Direction.nType.UP;
+                    newDirection2 = Direction.directionType.UP;
                     break;
                 case KeyEvent.VK_DOWN:
-                    newDirection2 = Direction.nType.DOWN;
+                    newDirection2 = Direction.directionType.DOWN;
                     break;
                 default:
                     vars.keyPressed1 = false;
@@ -116,13 +113,13 @@ class GameplayController implements IKeyDownHandler {
         }
         else {
             if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)
-                newDirection1 = Direction.nType.LEFT;
+                newDirection1 = Direction.directionType.LEFT;
             else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)
-                newDirection1 = Direction.nType.UP;
+                newDirection1 = Direction.directionType.UP;
             else if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT)
-                newDirection1 = Direction.nType.RIGHT;
+                newDirection1 = Direction.directionType.RIGHT;
             else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN)
-                newDirection1 = Direction.nType.DOWN;
+                newDirection1 = Direction.directionType.DOWN;
             else
                 vars.keyPressed1 = false;
         }
@@ -167,487 +164,563 @@ class GameplayController implements IKeyDownHandler {
         model.mainPanel.repaint();
         gameOverHandler.handleGameOverRequest();
     }
-//
-//    /// <summary>
-//    /// Handles the event raised by unexcited pacman's contact with one of the ghosts.
-//    /// </summary>
-//    private async
-//
-//    void KillPacman() {
-//            const int PauseBeforeDeath = 500;
-//            const int ExplodingTime = 600;
-//            const int P2ScoreForKill = 1500;
-//
-//        PacUpdater.Stop();
-//        GhostUpdater.Stop();
-//        if (Music) {
-//            MusicPlayer.SoundLocation = "../sounds/pacman_death.wav";
-//            MusicPlayer.Play();
-//        }
-//        if (Player2)
-//            Score2 += P2ScoreForKill;
-//        Entities[0].Item3.Image = Image.FromFile("../textures/PacStart.png");
-//        Refresh();
-//        await Task.Delay(PauseBeforeDeath);
-//        Entities[0].Item3.Image = Image.FromFile("../textures/PacExplode.png");
-//        Refresh();
-//        await Task.Delay(ExplodingTime);
-//        Lives--;
-//        Controls.Clear();
-//
-//        if (Lives > 0)
-//            PlayGame(true);
-//        else
-//            EndGame();
-//    }
-//
-//    /// <summary>
-//    /// Updates desired score box (highscore/player).
-//    /// </summary>
-//    /// <param name="score">New Value to be set.</param>
-//    /// <param name="box">Box whose value is to be set.</param>
-//    private void UpdateHud(int?score, Label box) {
-//        box.Text = score.ToString();
-//    }
-//
-//    /// <summary>
-//    /// Checks whether the direction the entity is aiming in is free.
-//    /// </summary>
-//    /// <param name="y">Y-axis delta.</param>
-//    /// <param name="x">X-axis delta.</param>
-//    /// <param name="entity">The observed entity.</param>
-//    /// <returns>Returns boolean value indicating emptiness of the observed tile.</returns>
-//    private bool IsDirectionFree(int y, int x, Tuple<int, int, PictureBox, Direction.nType, DefaultAI> entity) {
-//        int indexX = entity.Item1 + x;
-//        int indexY = entity.Item2 + y;
-//
-//        if (indexX < 0 || indexX >= FieldSizeInColumns || indexY < 0 || indexY >= FieldSizeInRows
-//                || MapFresh[indexY][indexX].tile == Tile.nType.FREE
-//                || MapFresh[indexY][indexX].tile == Tile.nType.DOT
-//                || MapFresh[indexY][indexX].tile == Tile.nType.POWERDOT)
-//            return true;
-//        else
-//            return false;
-//    }
-//
-//    /// <summary>
-//    /// Tests whether the direction entity wants to move in is free and if so,
-//    /// sests its direction and sets variable for saving direction to default value.
-//    /// </summary>
-//    /// <param name="newDirection">Variable with stored target direction (set to default in case of success).</param>
-//    /// <param name="entity">The observed entity.</param>
-//    private void SetToMove
-//    (ref Direction.nType newDirection, ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity) {
-//        //
-//        Direction dir = new Direction();
-//        Tuple<int, int> delta = dir.DirectionToTuple(newDirection);
-//        if (IsDirectionFree(delta.Item1, delta.Item2, entity)) {
-//            entity = new Tuple<int, int, PictureBox, Direction.nType, DefaultAI>
-//                    (entity.Item1, entity.Item2, entity.Item3, newDirection, entity.Item5);
-//            newDirection = Direction.nType.DIRECTION;
-//        }
-//    }
-//
-//    /// <summary>
-//    /// Checks whether the entity can continue in the direction it goes otherwise stops it.
-//    /// </summary>
-//    /// <param name="entity">The observed Entity.</param>
-//    private void CanMove(ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity) {
-//        Direction dir = new Direction();
-//        Tuple<int, int> delta = dir.DirectionToTuple(entity.Item4);
-//        if (!IsDirectionFree(delta.Item1, delta.Item2, entity))
-//            entity = new Tuple<int, int, PictureBox, Direction.nType, DefaultAI>
-//                    (entity.Item1, entity.Item2, entity.Item3, Direction.nType.DIRECTION, entity.Item5);
-//    }
-//
-//    /// <summary>
-//    /// Combines entity's in-tiles movement with procedure handling its physical movement and
-//    /// right texture loading.
-//    /// </summary>
-//    /// <param name="change">Boolean indicating whether the entity's direction has changed.</param>
-//    /// <param name="entX">New entity's in-tiles X-axis position.</param>
-//    /// <param name="entY">New entity's in-tiles Y-axis position.</param>
-//    /// <param name="dX">Physical X-axis change.</param>
-//    /// <param name="dY">Physical Y-axis change.</param>
-//    /// <param name="entity">The observed entity.</param>
-//    private void MoveEntity(bool change, int entX, int entY, int dX, int dY, byte entNum,
-//                            ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity) {
-//        entity = new Tuple<int, int, PictureBox, Direction.nType, DefaultAI>
-//                (entX, entY, entity.Item3, entity.Item4, entity.Item5);
-//
-//        if (entity.Item5.State != DefaultAI.nType.PLAYER1 && MapFresh[entity.Item2][entity.Item1].tile != Tile.nType.FREE) {
-//            redrawPellets[RDPIndex] = new Point(entity.Item2, entity.Item1);
-//            ++RDPIndex;
-//            RDPIndex %= RDPSize;
-//        }
-//
-//        EntitiesPixDeltas[entNum] = new Point(dX, dY);
-//    }
-//
-//    /// <summary>
-//    /// Moves entity in its saved direction and tells called function true or false in order to stop it from overwriting entity's image
-//    /// in case of teleporting (is reverse move from the program's point of view).
-//    /// </summary>
-//    /// <param name="entity">The observed entity.</param>
-//    private void MoveIt(ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity, byte entNum) {
-//        switch (entity.Item4) {
-//            case Direction.nType.LEFT:
-//                if (entity.Item1 > 0) {
-//                    teleported[entNum] = false;
-//                    MoveEntity(true, entity.Item1 - 1, entity.Item2, -TileSizeInPxs, 0, entNum, ref entity);
-//                } else {
-//                    teleported[entNum] = true;
-//                    MoveEntity(false, FieldSizeInColumns - 1, entity.Item2, (FieldSizeInColumns - 1) * TileSizeInPxs, 0, entNum, ref entity);
-//                }
-//                break;
-//            case Direction.nType.RIGHT:
-//                if (entity.Item1 < FieldSizeInColumns - 1) {
-//                    teleported[entNum] = false;
-//                    MoveEntity(true, entity.Item1 + 1, entity.Item2, TileSizeInPxs, 0, entNum, ref entity);
-//                } else {
-//                    teleported[entNum] = true;
-//                    MoveEntity(false, 0, entity.Item2, -(FieldSizeInColumns - 1) * TileSizeInPxs, 0, entNum, ref entity);
-//                }
-//                break;
-//            case Direction.nType.UP:
-//                if (entity.Item2 > 0) {
-//                    teleported[entNum] = false;
-//                    MoveEntity(true, entity.Item1, entity.Item2 - 1, 0, -TileSizeInPxs, entNum, ref entity);
-//                } else {
-//                    teleported[entNum] = true;
-//                    MoveEntity(false, entity.Item1, FieldSizeInRows - 1, 0, (FieldSizeInRows - 1) * TileSizeInPxs, entNum, ref entity);
-//                }
-//                break;
-//            case Direction.nType.DOWN:
-//                if (entity.Item2 < FieldSizeInRows - 1) {
-//                    teleported[entNum] = false;
-//                    MoveEntity(true, entity.Item1, entity.Item2 + 1, 0, TileSizeInPxs, entNum, ref entity);
-//                } else {
-//                    teleported[entNum] = true;
-//                    MoveEntity(false, entity.Item1, 0, 0, -(FieldSizeInRows - 1) * TileSizeInPxs, entNum, ref entity);
-//                }
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//
-//    /// <summary>
-//    /// Checks whether the position is a crossroad.
-//    /// </summary>
-//    /// <param name="x">X-axis postion.</param>
-//    /// <param name="y">Y-axis position.</param>
-//    /// <returns>Boolean indicating crossroad.</returns>
-//    private bool IsAtCrossroad(int x, int y) {
-//        int turns = 0;
-//        for (int j = 0; j < 2; j++)
-//            for (int i = -1; i < 2; i += 2) {
-//                int indexY = y + (j == 0 ? i : 0);
-//                int indexX = x + (j == 1 ? i : 0);
-//                if (indexY < 0 || indexY >= FieldSizeInRows || indexX < 0 || indexX >= FieldSizeInColumns)
-//                    turns = 1;
-//                else if (Map.Item1[indexY][indexX].tile == Tile.nType.FREE ||
-//                        Map.Item1[indexY][indexX].tile == Tile.nType.DOT ||
-//                        Map.Item1[indexY][indexX].tile == Tile.nType.POWERDOT)
-//                    turns++;
-//            }
-//        if (turns >= 3)
-//            return true;
-//        else return false;
-//    }
-//
-//    /// <summary>
-//    /// Loads right image depending on the game situation and direction.
-//    /// </summary>
-//    /// <param name="change">Boolean indicating whether the entity's direction has changed.</param>
-//    /// <param name="dx">X-axis change.</param>
-//    /// <param name="dy">Y-axis change.</param>
-//    /// <param name="entity">The observed entity.</param>
-//    private void UpdatePicture
-//    (ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity) {
-//        // Normal situation.
-//        // Last Line of if statement ensures ghost flashing at the end of pacman excited mode
-//        if (EatEmTimer <= 0 || entity.Item5.State == DefaultAI.nType.PLAYER1
-//                || (entity.Item5.State != DefaultAI.nType.EATEN && (Ticks % 3 == 0) && EatEmTimer < ghostFlashingStart))
-//            entity.Item3.Image = Image.FromFile("../Textures/" + entity.Item3.Name + entity.Item4.ToString() + ".png");
-//            // Entity has been eaten.
-//        else if (entity.Item5.State == DefaultAI.nType.EATEN)
-//            entity.Item3.Image = Image.FromFile("../Textures/Eyes" + entity.Item4.ToString() + ".png");
-//            // Pacman is in the excited mode - ghosts are vulnerable.
-//        else
-//            entity.Item3.Image = Image.FromFile("../textures/CanBeEaten.png");
-//    }
-//
-//    /// <summary>
-//    /// Places picture to the place it should be according to it's tile indexes.
-//    /// Finishes one cycle of smooth move and enables start of another cycle.
-//    /// </summary>
-//    /// <param name="entity">Entity whose picture is to be corrected.</param>
-//    private void CorrectPicture(ref Tuple<int, int, PictureBox, Direction.nType, DefaultAI>entity) {
-//        entity.Item3.Location = new Point(entity.Item1 * TileSizeInPxs - 6, entity.Item2 * TileSizeInPxs + 42);
-//        if (entity.Item4 != Direction.nType.DIRECTION)
-//            UpdatePicture(ref entity);
-//    }
-//
-//    /// <summary>
-//    /// Function that moves all of the entities and checks whether the pacman and a ghost have met.
-//    /// </summary>
-//    private void UpdateMove(bool isPacman) {
-//        // Direction of entities controlled by players are updated via newDirection variables.
-//        // Direction of UI entities is set through AI algorithms.
-//        if (isPacman) {
-//            if (NewDirection1 != Direction.nType.DIRECTION)
-//                SetToMove(ref NewDirection1, ref Entities[0]);
-//
-//            // Places picture to the place it should be according to it's tile indexes.
-//            // Finishes one cycle of smooth move and enables start of another cycle.
-//            CorrectPicture(ref Entities[0]);
-//
-//            CanMove(ref Entities[0]);
-//            MoveIt(ref Entities[0], 0);
-//        } else {
-//            if (NewDirection2 != Direction.nType.DIRECTION)
-//                SetToMove(ref NewDirection2, ref Entities[1]);
-//
-//            for (byte i = 1; i <= FreeGhost; i++) {
-//                // Places picture to the place it should be according to it's tile indexes.
-//                // Finishes one cycle of smooth move and enables start of another cycle.
-//                CorrectPicture(ref Entities[i]);
-//
-//                // if entity is AI, creates new instance with direction selected by AI algorithm.
-//                if (!Player2 || i > 1 && (Entities[i].Item4 == Direction.nType.DIRECTION || IsAtCrossroad(Entities[i].Item1, Entities[i].Item2)))
-//                    Entities[i] = new Tuple<int, int, PictureBox, Direction.nType, DefaultAI>
-//                            (Entities[i].Item1,
-//                                    Entities[i].Item2,
-//                                    Entities[i].Item3,
-//                                    Entities[i].Item5.NextStep(new Tuple<int, int>(Entities[i].Item1, Entities[i].Item2),
-//                                            Entities[i].Item5.State == DefaultAI.nType.EATEN ? TopGhostInTiles
-//                                                    : new Tuple<int, int>(Entities[0].Item1, Entities[0].Item2),
-//                                            Entities[i].Item4, Map.Item1),
-//                                    Entities[i].Item5);
-//
-//                CanMove(ref Entities[i]);
-//                MoveIt(ref Entities[i], i);
-//            }
-//        }
-//    }
-//
-//    /// <summary>
-//    /// Players sound specified as parameter with current soundplayer and moves to another one.
-//    /// </summary>
-//    /// <param name="file">Sounds name.</param>
-//    private void PlayWithSoundPlayer(string file) {
-//        SoundPlayers[SoundTick].URL = SoundPath + file;
-//        SoundPlayers[SoundTick].controls.play();
-//        SoundTick = (SoundTick + 1) % SoundPlayersCount;
-//    }
-//
-//    /// <summary>
-//    /// Provides timer for pacman's excitement and changes all of the ghost back to normal at the end.
-//    /// </summary>
-//    private void UpdateEatEmTimer() {
-//        if (EatEmTimer > 1)
-//            EatEmTimer--;
-//        else if (EatEmTimer == 1) {
-//            if (Music) {
-//                MusicPlayer.SoundLocation = "../sounds/pacman_siren.wav";
-//                MusicPlayer.PlayLooping();
-//            }
-//            if (GhostsEaten != 0) {
-//                for (int i = 1; i < 5; i++)
-//                    Entities[i].Item5.State = (Player2 && i == 1 ? DefaultAI.nType.PLAYER2 : DefaultAIs[i - 1].State);
-//                GhostsEaten = 0;
-//            }
-//            GhostUpdater.Interval = Player2 ? (PacTimer + 40 - (Level > 13 ? 65 : Level * 5)) : PacUpdater.Interval + 10;
-//            GhostSmoothTimer.Interval = GhostUpdater.Interval / ((TileSizeInPxs / 2) + 1);
-//            EatEmTimer = 0;
-//        }
-//    }
-//
-//    /// <summary>
-//    /// Checks whether pacman is not on a tile with pellet.
-//    /// if so, plays the sound and increases number of collected pellets and score.
-//    /// Also enables pacman's excitement via EatEmTimer.
-//    /// </summary>
-//    private void UpdateEatPellet() {
-//        if (MapFresh[Entities[0].Item2][Entities[0].Item1].tile == Tile.nType.DOT ||
-//                MapFresh[Entities[0].Item2][Entities[0].Item1].tile == Tile.nType.POWERDOT) {
-//            if (Sound) {
-//                PlayWithSoundPlayer("pacman_chomp.wav");
-//            }
-//            CollectedDots++;
-//            if (MapFresh[Entities[0].Item2][Entities[0].Item1].tile == Tile.nType.DOT)
-//                Score += PelletScore;
-//            else {
-//                Score += PowerPelletScore;
-//                if (Music) {
-//                    MusicPlayer.SoundLocation = "../sounds/pacman_powersiren.wav";
-//                    MusicPlayer.PlayLooping();
-//                }
-//                //Pacman's excitement lasts shorter each level
-//                EatEmTimer = Player2 ? (3 * BaseEatEmTimer) / 4 : BaseEatEmTimer - Level;
-//                GhostsEaten = 0;
-//                GhostUpdater.Interval = (PacTimer + 40 - (Level > 13 ? 65 : Level * 5)) * 2;
-//                GhostSmoothTimer.Interval = GhostUpdater.Interval / ((TileSizeInPxs / 2) + 1);
-//                //Return all of the ghost to normal state to be able to be eaten again later
-//                for (int i = 1; i < 5; i++)
-//                    Entities[i].Item5.State = DefaultAI.nType.CANBEEATEN;
-//            }
-//
-//            //Deletes pellet from the tile
-//            MapFresh[Entities[0].Item2][Entities[0].Item1].tile = Tile.nType.FREE;
-//            MapFresh[Entities[0].Item2][Entities[0].Item1].FreeTile(bg.Graphics, new Point(Entities[0].Item1 * TileSizeInPxs,
-//                    (Entities[0].Item2 + 3) * TileSizeInPxs), this.BackColor);
-//
-//            if (Score > HighScore) {
-//                HighScore = Score;
-//                UpdateHud(HighScore, HighScoreBox);
-//            }
-//            UpdateHud(Score, ScoreBox);
-//        }
-//
-//        RedrawPellets();
-//        Blink();
-//    }
-//
-//    /// <summary>
-//    /// Places ghost specified by number out of ghost house and sets its start direction.
-//    /// Also resets timer for ghost releasing.
-//    /// </summary>
-//    /// <param name="ghostNum"></param>
-//    private void SetGhostFree(int ghostNum) {
-//        Entities[ghostNum] = new Tuple<int, int, PictureBox, Direction.nType, DefaultAI>
-//                (TopGhostInTiles.Item1, TopGhostInTiles.Item2, Entities[ghostNum].Item3,
-//                        Direction.nType.LEFT, Entities[ghostNum].Item5);
-//        Entities[ghostNum].Item3.Location = new Point(Entities[ghostNum].Item1 * TileSizeInPxs - 7, Entities[ghostNum].Item2 * TileSizeInPxs + 42);
-//        GhostRelease = Player2 ? (BaseGhostReleaseTimer / 2) / 3 : (BaseGhostReleaseTimer - Level) / 3;
-//        FreeGhost++;
-//    }
-//
-//    /// <summary>
-//    /// Checks if distance in tiles between pacman and each entity is bigger than 1.
-//    /// </summary>
-//    private void CheckCollision() {
-//        for (int i = 1; i < EntityCount; i++)
-//            if ((Math.Abs(Entities[i].Item1 - Entities[0].Item1) + Math.Abs(Entities[i].Item2 - Entities[0].Item2)) <= 1) {
-//                if (EatEmTimer <= 0) {
-//                    KillPacman();
-//                    killed = true;
-//                    return;
-//                }
-//                // In case of pacman's excitemnet and if the ghost is not already eaten
-//                // changes the ghost's state to eaten and increases player's score.
-//                else if (Entities[i].Item5.State != DefaultAI.nType.EATEN) {
-//                    if (Sound)
-//                        PlayWithSoundPlayer("pacman_eatghost.wav");
-//                    if (Music) {
-//                        MusicPlayer.SoundLocation = "../sounds/pacman_eatensiren.wav";
-//                        MusicPlayer.PlayLooping();
-//                    }
-//                    GhostsEaten++;
-//                    Score += ghostEatBaseScore * GhostsEaten;
-//                    UpdateHud(Score, ScoreBox);
-//                    if (GhostsEaten == 4 && Lives < MaxLives - 1) {
-//                        PacLives[Lives - 1].Visible = true;
-//                        ++Lives;
-//                        if (Sound)
-//                            PlayWithSoundPlayer("pacman_extrapac.wav");
-//                    }
-//                    Entities[i].Item5.State = DefaultAI.nType.EATEN;
-//                }
-//            }
-//    }
-//
-//    /// <summary>
-//    /// Body of the update mechanism. Selectively updates entities and map.
-//    /// </summary>
-//    private void UpdateGame(bool isPacman) {
-//        UpdateMove(isPacman);
-//        CheckCollision();
-//
-//        if (killed) {
-//            killed = false;
-//            return;
-//        }
-//
-//        if (isPacman) {
-//            UpdateEatEmTimer();
-//            UpdateEatPellet();
-//
-//            // Gives player one extra life at reaching score of BonusLifeScore.
-//            if (Score >= BonusLifeScore && !extraLifeGiven) {
-//                extraLifeGiven = true;
-//                if (Sound)
-//                    PlayWithSoundPlayer("pacman_extrapac.wav");
-//                PacLives[Lives - 1].Visible = true;
-//                ++Lives;
-//            }
-//            bg.Render(g);
-//        } else {
-//            Ticks = ++Ticks % 6;
-//            //Handles successive ghost releasing
-//            if (GhostRelease <= 0 && FreeGhost < 4)
-//                SetGhostFree(FreeGhost + 1);
-//            if (GhostRelease > 0 && FreeGhost < 4)
-//                GhostRelease--;
-//        }
-//    }
-//
-//    /// <summary>
-//    /// Handles periodical blinking of 1up, 2up and Power Pellets.
-//    /// </summary>
-//    private void Blink() {
-//        if (Ticks % 3 == 0) {
-//            this.up1.Visible = false;
-//            if (Player2)
-//                this.up2.Visible = false;
-//        } else {
-//            this.up1.Visible = true;
-//            if (Player2)
-//                this.up2.Visible = true;
-//        }
-//
-//        for (int i = 0; i < Map.Item5.Count; ++i)
-//            if (MapFresh[Map.Item5[i].X][Map.Item5[i].Y].tile == Tile.nType.POWERDOT) {
-//                if (Ticks % 2 == 0)
-//                    MapFresh[Map.Item5[i].X][Map.Item5[i].Y].FreeTile(bg.Graphics, new Point(Map.Item5[i].Y * TileSizeInPxs,
-//                            (Map.Item5[i].X + 3) * TileSizeInPxs), this.BackColor);
-//                else
-//                    MapFresh[Map.Item5[i].X][Map.Item5[i].Y].DrawTile(bg.Graphics, new Point(Map.Item5[i].Y * TileSizeInPxs,
-//                            (Map.Item5[i].X + 3) * TileSizeInPxs), this.BackColor);
-//            }
-//    }
-//
-//    /// <summary>
-//    /// Handles necessary redrawing of pellets cover by ghosts.
-//    /// </summary>
-//    private void RedrawPellets() {
-//        for (int i = 0; i < RDPSize; i++) {
-//            MapFresh[redrawPellets[i].X][redrawPellets[i].Y].DrawTile(
-//                    bg.Graphics, new Point(redrawPellets[i].Y * TileSizeInPxs, (redrawPellets[i].X + 3) * TileSizeInPxs), this.BackColor);
-//        }
-//    }
-//
-//    /// <summary>
-//    /// Checks whether the direction player intends to move in is free and nulls assosiated timer
-//    /// in such case, continues in countdown otherwise.
-//    /// </summary>
-//    /// <param name="direction">Direction player intends to move in.</param>
-//    /// <param name="keyCountdown">Number of tries left.</param>
-//    private void KeyCountAndDir(ref Direction.nType direction, ref int keyCountdown) {
-//        if (direction == Direction.nType.DIRECTION && keyCountdown != 0)
-//            keyCountdown = 0;
-//        else if (direction != Direction.nType.DIRECTION && keyCountdown > 1)
-//            keyCountdown--;
-//        else if (direction != Direction.nType.DIRECTION && keyCountdown == 1) {
-//            direction = Direction.nType.DIRECTION;
-//            keyCountdown = 0;
-//        }
-//    }
 
-    /// <summary>
-    /// Topmost layer of instructions executed each frame.
-    /// </summary>
+    /**
+     * Handles the event raised by unexcited pacman's contact with one of the ghosts.
+     *
+     * @throws LineUnavailableException
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     */
+    private void killPacman()
+        throws LineUnavailableException, IOException, UnsupportedAudioFileException, InterruptedException
+    {
+        model.pacUpdater.stop();
+        model.ghostUpdater.stop();
+        if (vars.music) {
+            AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_death.wav"));
+            byte[] buffer1 = new byte[65536];
+            sound.read(buffer1, 0, 65536);
+
+            vars.musicPlayer.close();
+            vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
+            vars.musicPlayer.start();
+        }
+        if (vars.player2)
+            vars.score2 += GameConsts.P2SCOREFORKILL;
+        vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacStart.png"));
+        model.mainPanel.repaint();
+        model.mainPanel.revalidate();
+        Thread.sleep(GameConsts.PAUSEBEFOREDEATH);
+        vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacExplode.png"));
+        model.mainPanel.repaint();
+        model.mainPanel.revalidate();
+        Thread.sleep(GameConsts.EXPLODINGTIME);
+        vars.lives--;
+
+        if (vars.lives > 0)
+            loadGame(true);
+        else
+            endGame();
+    }
+
+    /**
+     * Updates desired score box (highscore/player).
+     *
+     * @param score New Value to be set.
+     * @param label Label whose value is to be set.
+     */
+    private void updateHud(int score, JLabel label) {
+        label.setText(Integer.toString(score));
+    }
+
+    /**
+     * Checks whether the direction the entity is aiming in is free.
+     *
+     * @param y Y-axis delta.
+     * @param x X-axis delta.
+     * @param entity The observed entity.
+     * @return boolean value indicating emptiness of the observed tile.
+     */
+    private boolean isDirectionFree(int y, int x, Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
+        int indexX = entity.item1 + x;
+        int indexY = entity.item2 + y;
+
+        return (indexX < 0 || indexX >= LoadMap.MAPWIDTHINTILES || indexY < 0 || indexY >= LoadMap.MAPHEIGHTINTILES
+                || vars.mapFresh[indexY][indexX].tile == Tile.nType.FREE
+                || vars.mapFresh[indexY][indexX].tile == Tile.nType.DOT
+                || vars.mapFresh[indexY][indexX].tile == Tile.nType.POWERDOT);
+    }
+
+    /**
+     * Tests whether the direction entity wants to move in is free and sets its direction and variable for saving direction to default value.
+     *
+     * @param newDirection Variable with stored target direction (set to default in case of success).
+     * @param entity The observed entity.
+     */
+    private void SetToMove
+    (Direction.directionType newDirection, Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
+        Direction dir = new Direction();
+        IntPair delta = dir.directionToIntPair(newDirection);
+        if (isDirectionFree(delta.item1, delta.item2, entity)) {
+            entity = new Quintet<>(entity.item1, entity.item2, entity.item3, newDirection, entity.item5);
+            newDirection = Direction.directionType.DIRECTION;
+        }
+    }
+
+    /**
+     * Checks whether the entity can continue in the direction it goes otherwise stops it.
+     *
+     * @param entity The updated entity.
+     */
+    private void canMove(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity) {
+        Direction dir = new Direction();
+        IntPair delta = dir.directionToIntPair(entity.item4);
+        if (!isDirectionFree(delta.item1, delta.item2, entity))
+            entity.item4 = Direction.directionType.DIRECTION;
+    }
+
+    /**
+     * Combines entity's in-tiles movement with procedure handling its physical movement and right texture loading.
+     *
+     * @param entX New entity's in-tiles X-axis position.
+     * @param entY New entity's in-tiles Y-axis position.
+     * @param dX Physical X-axis change.
+     * @param dY Physical Y-axis change.
+     * @param entNum The updated entity's id (number).
+     * @param entity The updated entity.
+     */
+    private void moveEntity(int entX, int entY, int dX, int dY, byte entNum,
+                            Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
+        entity = new Quintet<>(entX, entY, entity.item3, entity.item4, entity.item5);
+
+        if (entity.item5.state != DefaultAI.nType.PLAYER1 && vars.mapFresh[entity.item2][entity.item1].tile != Tile.nType.FREE) {
+            vars.redrawPellets[RDPIndex] = new Point(entity.item2, entity.item1);
+            ++RDPIndex;
+            RDPIndex %= LoadMap.RDPSIZE;
+        }
+
+        entitiesPixDeltas[entNum] = new Point(dX, dY);
+    }
+
+    /**
+     * Moves entity in its saved direction and tells called function true or false in order to stop it from overwriting
+     * entity's image in case of teleporting (is reverse move from the program's point of view).
+     *
+     * @param entity The updated entity.
+     * @param entNum The updated entity's id (number).
+     */
+    private void moveIt(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity, byte entNum) {
+        switch (entity.item4) {
+            case LEFT:
+                if (entity.item1 > 0) {
+                    teleported[entNum] = false;
+                    moveEntity(entity.item1 - 1, entity.item2, -LoadMap.TILESIZEINPXS, 0, entNum, entity);
+                } else {
+                    teleported[entNum] = true;
+                    moveEntity(LoadMap.MAPWIDTHINTILES - 1, entity.item2,
+                            (LoadMap.MAPWIDTHINTILES - 1) * LoadMap.TILESIZEINPXS, 0, entNum, entity);
+                }
+                break;
+            case RIGHT:
+                if (entity.item1 < LoadMap.MAPWIDTHINTILES - 1) {
+                    teleported[entNum] = false;
+                    moveEntity(entity.item1 + 1, entity.item2, LoadMap.TILESIZEINPXS, 0, entNum, entity);
+                } else {
+                    teleported[entNum] = true;
+                    moveEntity(0, entity.item2,
+                            -(LoadMap.MAPWIDTHINTILES - 1) * LoadMap.TILESIZEINPXS, 0, entNum, entity);
+                }
+                break;
+            case UP:
+                if (entity.item2 > 0) {
+                    teleported[entNum] = false;
+                    moveEntity(entity.item1, entity.item2 - 1, 0, -LoadMap.TILESIZEINPXS, entNum, entity);
+                } else {
+                    teleported[entNum] = true;
+                    moveEntity(entity.item1, LoadMap.MAPHEIGHTINTILES - 1,
+                            0, (LoadMap.MAPHEIGHTINTILES - 1) * LoadMap.TILESIZEINPXS, entNum, entity);
+                }
+                break;
+            case DOWN:
+                if (entity.item2 < LoadMap.MAPHEIGHTINTILES - 1) {
+                    teleported[entNum] = false;
+                    moveEntity(entity.item1, entity.item2 + 1, 0, LoadMap.TILESIZEINPXS, entNum, entity);
+                } else {
+                    teleported[entNum] = true;
+                    moveEntity(entity.item1, 0,
+                            0, -(LoadMap.MAPHEIGHTINTILES - 1) * LoadMap.TILESIZEINPXS, entNum, entity);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Checks whether the position is a crossroad.
+     *
+     * @param x X-axis position.
+     * @param y Y-axis position.
+     * @return Boolean indicating crossroad.
+     */
+    private boolean isAtCrossroad(int x, int y) {
+        int turns = 0;
+        for (int j = 0; j < 2; j++) {
+            for (int i = -1; i < 2; i += 2) {
+                int indexY = y + (j == 0 ? i : 0);
+                int indexX = x + (j == 1 ? i : 0);
+                if (indexY < 0 || indexY >= LoadMap.MAPHEIGHTINTILES || indexX < 0 || indexX >= LoadMap.MAPWIDTHINTILES)
+                    turns = 1;
+                else if (vars.map.item1[indexY][indexX].tile == Tile.nType.FREE ||
+                        vars.map.item1[indexY][indexX].tile == Tile.nType.DOT ||
+                        vars.map.item1[indexY][indexX].tile == Tile.nType.POWERDOT)
+                    turns++;
+            }
+        }
+        return (turns >= 3);
+    }
+
+    /**
+     * Loads right image depending on the game situation and direction.
+     *
+     * @param entity The updated entity.
+     */
+    private void updatePicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity) {
+        // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
+        if (vars.eatEmTimer <= 0 || entity.item5.state == DefaultAI.nType.PLAYER1
+            || (entity.item5.state != DefaultAI.nType.EATEN && (vars.ticks % 3 == 0)
+            && vars.eatEmTimer < GameConsts.GHOSTFLASHINGSTART))
+        {
+            entity.item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/"
+                    + entity.item3.getName() + entity.item4.toString() + ".png"));
+        }
+        else if (entity.item5.state == DefaultAI.nType.EATEN)
+            entity.item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/Eyes" + entity.item4.toString() + ".png"));
+        else
+            entity.item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/CanBeEaten.png"));
+    }
+
+    /**
+     * Places picture to the place it should be according to it's tile indexes.
+     * Finishes one cycle of smooth move and enables start of another cycle.
+     *
+     * @param entity Entity whose picture is to be corrected.
+     */
+    private void correctPicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity) {
+        entity.item3.setLocation(new Point(entity.item1 * LoadMap.TILESIZEINPXS - 6, entity.item2 * LoadMap.TILESIZEINPXS + 42));
+        if (entity.item4 != Direction.directionType.DIRECTION)
+            updatePicture(entity);
+    }
+
+    /**
+     * Function that moves all of the entities and checks whether the pacman and a ghost have met.
+     *
+     * @param isPacman Boolean indicating whether to update pacman or ghosts.
+     */
+    private void updateMove(boolean isPacman) {
+        // Direction of entities controlled by players are updated via newDirection variables.
+        // Direction of UI entities is set through AI algorithms.
+        if (isPacman) {
+            if (newDirection1 != Direction.directionType.DIRECTION)
+                SetToMove(newDirection1, vars.entities.get(0));
+
+            // Places picture to the place it should be according to it's tile indexes.
+            // Finishes one cycle of smooth move and enables start of another cycle.
+            correctPicture(vars.entities.get(0));
+
+            canMove(vars.entities.get(0));
+            moveIt(vars.entities.get(0), (byte)0);
+        } else {
+            if (newDirection2 != Direction.directionType.DIRECTION)
+                SetToMove(newDirection2, vars.entities.get(1));
+
+            for (byte i = 1; i <= vars.freeGhosts; i++) {
+                // Places picture to the place it should be according to it's tile indexes.
+                // Finishes one cycle of smooth move and enables start of another cycle.
+                correctPicture(vars.entities.get(i));
+
+                // if entity is AI, creates new instance with direction selected by AI algorithm.
+                if (!vars.player2 || i > 1 && (vars.entities.get(i).item4 == Direction.directionType.DIRECTION
+                    || isAtCrossroad(vars.entities.get(i).item1, vars.entities.get(i).item2)))
+                {
+                    vars.entities.set(i, new Quintet<>
+                        (vars.entities.get(i).item1, vars.entities.get(i).item2, vars.entities.get(i).item3,
+                        vars.entities.get(i).item5.NextStep(
+                            new IntPair(
+                                vars.entities.get(i).item1, vars.entities.get(i).item2),
+                                vars.entities.get(i).item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
+                                    : new IntPair(vars.entities.get(0).item1, vars.entities.get(0).item2
+                            ), vars.entities.get(i).item4, vars.map.item1),
+                        vars.entities.get(i).item5));
+                }
+
+                canMove(vars.entities.get(i));
+                moveIt(vars.entities.get(i), i);
+            }
+        }
+    }
+
+    /**
+     * Players sound specified as parameter with current sound player and moves to another one.
+     *
+     * @param file Sound's name.
+     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
+     * @throws IOException Exception is to be handled by caller.
+     * @throws LineUnavailableException Exception is to be handled by caller.
+     */
+    private void playWithSoundPlayer(String file)
+        throws UnsupportedAudioFileException, IOException, LineUnavailableException
+    {
+        AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/" + file));
+        byte[] buffer1 = new byte[65536];
+        sound.read(buffer1, 0, 65536);
+
+        vars.soundPlayers[vars.soundTick].close();
+        vars.soundPlayers[vars.soundTick].open(sound.getFormat(), buffer1, 0, 65536);
+        vars.soundPlayers[vars.soundTick].start();
+
+        vars.soundTick = vars.soundTick++ % GameConsts.SOUNDPLAYERSCOUNT;
+    }
+
+    /**
+     * Provides timer for pacman's excitement and changes all of the ghost back to normal at the end.
+     */
+    private void updateEatEmTimer()
+        throws IOException, UnsupportedAudioFileException, LineUnavailableException
+    {
+        if (vars.eatEmTimer > 1)
+            --vars.eatEmTimer;
+        else if (vars.eatEmTimer == 1) {
+            if (vars.music) {
+                AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_siren.wav"));
+                byte[] buffer1 = new byte[65536];
+                sound.read(buffer1, 0, 65536);
+
+                vars.musicPlayer.close();
+                vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
+                vars.musicPlayer.start();
+            }
+            if (vars.ghostsEaten != 0) {
+                for (int i = 1; i < 5; i++)
+                    vars.entities.get(i).item5.state = (vars.player2 && i == 1 ? DefaultAI.nType.PLAYER2 : vars.defaultAIs[i - 1].state);
+                vars.ghostsEaten = 0;
+            }
+            model.ghostUpdater.setDelay(vars.player2 ?
+                    (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) : model.pacUpdater.getDelay() + 10);
+            model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));
+            vars.eatEmTimer = 0;
+        }
+    }
+
+    /**
+     * Checks whether pacman is not on a tile with pellet.
+     * if so, plays the sound and increases number of collected pellets and score.
+     * Also enables pacman's excitement via EatEmTimer.
+     */
+    private void updateEatPellet()
+        throws UnsupportedAudioFileException, IOException, LineUnavailableException
+    {
+        if (vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile == Tile.nType.DOT ||
+                vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile == Tile.nType.POWERDOT) {
+            if (vars.sound) {
+                playWithSoundPlayer("pacman_chomp.wav");
+            }
+            ++vars.collectedDots;
+            if (vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile == Tile.nType.DOT)
+                vars.score += GameConsts.PELLETSCORE;
+            else {
+                vars.score += GameConsts.POWERPELLETSCORE;
+                if (vars.music) {
+                    AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_powersiren.wav"));
+                    byte[] buffer1 = new byte[65536];
+                    sound.read(buffer1, 0, 65536);
+
+                    vars.musicPlayer.close();
+                    vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
+                    vars.musicPlayer.start();
+                }
+                //Pacman's excitement lasts shorter each level
+                vars.eatEmTimer = vars.player2 ? (3 * GameConsts.BASEEATEMTIMER) / 4 : GameConsts.BASEEATEMTIMER - vars.level;
+                vars.ghostsEaten = 0;
+                model.ghostUpdater.setDelay((GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) * 2);
+                model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));
+                //Return all of the ghost to normal state to be able to be eaten again later
+                for (int i = 1; i < 5; i++)
+                    vars.entities.get(i).item5.state = DefaultAI.nType.CANBEEATEN;
+            }
+
+            //Deletes pellet from the tile
+            vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile = Tile.nType.FREE;
+            vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].FreeTile(
+                    vars.bufferGraphics, new Point(vars.entities.get(0).item1 * LoadMap.TILESIZEINPXS,
+                    (vars.entities.get(0).item2 + 3) * LoadMap.TILESIZEINPXS), Color.BLACK);
+
+            if (vars.score > vars.highScore) {
+                vars.highScore = vars.score;
+                updateHud(vars.highScore, vars.highScoreBox);
+            }
+            updateHud(vars.score, vars.scoreBox);
+        }
+
+        correctPellets();
+        blink();
+    }
+
+    /**
+     * Places ghost specified by number out of ghost house and sets its start direction.
+     * Also resets timer for ghost releasing.
+     */
+    private void setGhostFree() {
+        vars.entities.set(vars.freeGhosts - 1, new Quintet<>(
+                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2, vars.entities.get(vars.freeGhosts - 1).item3,
+                Direction.directionType.LEFT, vars.entities.get(vars.freeGhosts - 1).item5));
+        vars.entities.get(vars.freeGhosts - 1).item3.setLocation(new Point(
+                vars.entities.get(vars.freeGhosts - 1).item1 * LoadMap.TILESIZEINPXS - 7,
+                vars.entities.get(vars.freeGhosts - 1).item2 * LoadMap.TILESIZEINPXS + 42));
+        vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 2) / 3
+                                        : (GameConsts.BASEGHOSTRELEASETIMER - vars.level) / 3;
+        vars.freeGhosts++;
+    }
+
+    /**
+     * Checks if distance in tiles between pacman and each entity is bigger than 1.
+     *
+     * @throws IOException
+     * @throws LineUnavailableException
+     * @throws UnsupportedAudioFileException
+     * @throws InterruptedException
+     */
+    private void checkCollision()
+        throws IOException, LineUnavailableException, UnsupportedAudioFileException, InterruptedException
+    {
+        for (int i = 1; i < GameConsts.ENTITYCOUNT; i++)
+            if ((Math.abs(vars.entities.get(i).item1 - vars.entities.get(0).item1)
+                    + Math.abs(vars.entities.get(i).item2 - vars.entities.get(0).item2)) <= 1)
+            {
+                if (vars.eatEmTimer <= 0) {
+                    killPacman();
+                    vars.killed = true;
+                    return;
+                }
+                // In case of pacman's excitemnet and if the ghost is not already eaten
+                // changes the ghost's state to eaten and increases player's score.
+                else if (vars.entities.get(i).item5.state != DefaultAI.nType.EATEN) {
+                    if (vars.sound)
+                        playWithSoundPlayer("pacman_eatghost.wav");
+                    if (vars.music) {
+                        AudioInputStream sound = AudioSystem.getAudioInputStream(
+                                new File(model.resourcesPath + "/sounds/pacman_eatensiren.wav.wav"));
+                        byte[] buffer1 = new byte[65536];
+                        sound.read(buffer1, 0, 65536);
+
+                        vars.musicPlayer.close();
+                        vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
+                        vars.musicPlayer.start();
+                    }
+                    ++vars.ghostsEaten;
+                    vars.score += GameConsts.GHOSTEATBASESCORE * vars.ghostsEaten;
+                    updateHud(vars.score, vars.scoreBox);
+                    if (vars.ghostsEaten == 4 && vars.lives < GameConsts.MAXLIVES - 1) {
+                        vars.pacLives[vars.lives - 1].setVisible(true);
+                        ++vars.lives;
+                        if (vars.sound)
+                            playWithSoundPlayer("pacman_extrapac.wav");
+                    }
+                    vars.entities.get(i).item5.state = DefaultAI.nType.EATEN;
+                }
+            }
+    }
+
+    /**
+     * Body of the update mechanism. Selectively updates entities and map.
+     *
+     * @param isPacman Boolean indicating whether to update pacman or ghosts.
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     * @throws LineUnavailableException
+     * @throws InterruptedException
+     */
+    private void updateGame(boolean isPacman)
+        throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException
+    {
+        updateMove(isPacman);
+        checkCollision();
+
+        if (vars.killed) {
+            vars.killed = false;
+            return;
+        }
+
+        if (isPacman) {
+            updateEatEmTimer();
+            updateEatPellet();
+
+            // Gives player one extra life at reaching score of BonusLifeScore.
+            if (vars.score >= GameConsts.BONUSLIFESCORE && !vars.extraLifeGiven) {
+                vars.extraLifeGiven = true;
+                if (vars.sound)
+                    playWithSoundPlayer("pacman_extrapac.wav");
+
+                vars.pacLives[vars.lives - 1].setVisible(true);
+                ++vars.lives;
+            }
+            model.mainPanel.repaint();
+            model.mainPanel.revalidate();
+        } else {
+            vars.ticks = ++vars.ticks % 6;
+            //Handles successive ghost releasing
+            if (vars.ghostRelease <= 0 && vars.freeGhosts < 4)
+                setGhostFree();
+            if (vars.ghostRelease > 0 && vars.freeGhosts < 4)
+                --vars.ghostRelease;
+        }
+    }
+
+    /**
+     * Handles periodical blinking of 1up, 2up and Power Pellets.
+     */
+    private void blink() {
+        if (vars.ticks % 3 == 0) {
+            vars.up1.setVisible(false);
+            if (vars.player2)
+                vars.up2.setVisible(false);
+        } else {
+            vars.up1.setVisible(true);
+            if (vars.player2)
+                vars.up2.setVisible(true);
+        }
+
+        for (int i = 0; i < vars.map.item5.size(); ++i)
+            if (vars.mapFresh[vars.map.item5.get(i).x][vars.map.item5.get(i).y].tile == Tile.nType.POWERDOT) {
+                if (vars.ticks % 2 == 0)
+                    vars.mapFresh[vars.map.item5.get(i).x][vars.map.item5.get(i).y].FreeTile(vars.bufferGraphics,
+                            new Point(vars.map.item5.get(i).y * LoadMap.TILESIZEINPXS,
+                                    (vars.map.item5.get(i).x + 3) * LoadMap.TILESIZEINPXS), Color.BLACK);
+                else
+                    vars.mapFresh[vars.map.item5.get(i).x][vars.map.item5.get(i).y].DrawTile(vars.bufferGraphics,
+                            new Point(vars.map.item5.get(i).y * LoadMap.TILESIZEINPXS,
+                                    (vars.map.item5.get(i).x + 3) * LoadMap.TILESIZEINPXS), Color.BLACK);
+            }
+    }
+
+    /**
+     * Handles necessary redrawing of pellets cover by ghosts.
+     */
+    private void correctPellets() {
+        for (int i = 0; i < LoadMap.RDPSIZE; i++) {
+            vars.mapFresh[vars.redrawPellets[i].x][vars.redrawPellets[i].y].DrawTile(vars.bufferGraphics,
+                    new Point(vars.redrawPellets[i].y * LoadMap.TILESIZEINPXS,
+                            (vars.redrawPellets[i].x + 3) * LoadMap.TILESIZEINPXS), Color.BLACK);
+        }
+    }
+
+    /**
+     * Checks whether the direction player intends to move in is free.
+     * Nulls or continues in countdown otherwise based on result.
+     *
+     * @param direction Direction player intends to move in.
+     * @param keyCountdown Number of tries left.
+     */
+    private void keyCountAndDir(Direction.directionType direction, Integer keyCountdown) {
+        if (direction == Direction.directionType.DIRECTION && keyCountdown != 0)
+            keyCountdown = 0;
+        else if (direction != Direction.directionType.DIRECTION && keyCountdown > 1)
+            --keyCountdown;
+        else if (direction != Direction.directionType.DIRECTION && keyCountdown == 1) {
+            direction = Direction.directionType.DIRECTION;
+            keyCountdown = 0;
+        }
+    }
+
+    /**
+     * Topmost layer of instructions executed each frame.
+     *
+     * @param isPacman Boolean indicating whether to update pacman or ghosts.
+     */
     private void gameLoop(boolean isPacman) {
         // In case that one of the players have pushed a valid key, countdown, which represents
         // the number tiles remaining until the information about the pushed button is lost, is started.
@@ -660,13 +733,15 @@ class GameplayController implements IKeyDownHandler {
             vars.keyPressed2 = false;
         }
 
-//        // Calls main Update function.
-//        UpdateGame(isPacman);
-//
-//        // Function for key countdown.
-//        KeyCountAndDir(ref NewDirection1, ref keyCountdown1);
-//        if (mfc.player2)
-//            KeyCountAndDir(ref NewDirection2, ref keyCountdown2);
+        try {
+            updateGame(isPacman);
+        }
+        catch (IOException | UnsupportedAudioFileException | LineUnavailableException | InterruptedException ignore) {
+            // TODO: Handle game exception.
+        }
+        keyCountAndDir(newDirection1, vars.keyCountdown1);
+        if (vars.player2)
+            keyCountAndDir(newDirection2, vars.keyCountdown2);
 
         // Checks if the player has already collected all the pellets.
         // In such case in relation to level and game mode, plays another level or ends the game.
@@ -687,22 +762,21 @@ class GameplayController implements IKeyDownHandler {
         model.pacUpdater.stop();
         model.ghostUpdater.stop();
         vars.musicPlayer.stop();
-//        for (int i = 0; i < 8; i++) {
-//            if (i % 2 == 0)
-//                RenderMap(MapFresh, Color.white);
-//            else
-//                RenderMap(MapFresh, MapColor);
-//
-//            bg.Render(g);
-//            await Task.Delay(500);
-//        }
-//
-//        Controls.Clear();
-//        mfc.level++;
-//        if (mfc.level < MainFrameController.MAXLEVEL && !mfc.player2)
-//            playGame(false);
-//        else
-//            endGame();
+        for (int i = 0; i < 8; i++) {
+            if (i % 2 == 0)
+                glc.renderMap(vars.mapFresh, Color.white);
+            else
+                glc.renderMap(vars.mapFresh, vars.mapColor);
+
+            model.mainPanel.repaint();
+            model.mainPanel.revalidate();
+        }
+
+        vars.level++;
+        if (vars.level < GameConsts.MAXLEVEL && !vars.player2)
+            loadGame(false);
+        else
+            endGame();
     }
 
     enum timer_types { PACMAN, GHOST, PACMAN_SMOOTH, GHOST_SMOOTH }
@@ -753,70 +827,80 @@ class GameplayController implements IKeyDownHandler {
         model.ghostSmoothTimer.stop();
         gameLoop(false);
     }
-//
-//    /// <summary>
-//    /// Handles animating of pacman's translation between old and the new tile.
-//    /// </summary>
+
+    /**
+     * Handles animating of pacman's translation between old and the new tile.
+     */
     private void pacSmoothTimer_Tick() {
-//        ++PacSmoothMoveStep;
-//        if (Entities[0].Item4 != Direction.nType.DIRECTION && !teleported[0]) {
-//            Point d = GetDeltas(0);
-//
-//            // Last part of smooth move is done at the beginning of each update cycle.
-//            if (EntitiesPixDeltas[0].X <= 1 && EntitiesPixDeltas[0].Y <= 1 && EntitiesPixDeltas[0].X >= -1 && EntitiesPixDeltas[0].Y >= -1)
-//                PacSmoothTimer.Stop();
-//            else
-//                Entities[0].Item3.Location = new Point((Entities[0].Item3.Location.X + d.X), (Entities[0].Item3.Location.Y + d.Y));
-//
-//            if (PacSmoothMoveStep % 2 == 0) {
-//                if (PacSmoothMoveStep % 4 == 0)
-//                    Entities[0].Item3.Image = Image.FromFile("../textures/PacStart.png");
-//                else
-//                    Entities[0].Item3.Image = Image.FromFile("../Textures/" + Entities[0].Item3.Name + Entities[0].Item4.ToString() + ".png");
-//            }
-//        }
+        ++pacSmoothMoveStep;
+        if (vars.entities.get(0).item4 != Direction.directionType.DIRECTION && !teleported[0]) {
+            Point d = getDeltas((byte)0);
+
+            // Last part of smooth move is done at the beginning of each update cycle.
+            if (entitiesPixDeltas[0].x <= 1 && entitiesPixDeltas[0].y <= 1
+                && entitiesPixDeltas[0].x >= -1 && entitiesPixDeltas[0].y >= -1)
+            {
+                model.pacSmoothTimer.stop();
+            }
+            else
+                vars.entities.get(0).item3.setLocation(new Point(
+                        vars.entities.get(0).item3.getLocation().x + d.x,
+                        vars.entities.get(0).item3.getLocation().y + d.y));
+
+            if (pacSmoothMoveStep % 2 == 0) {
+                if (pacSmoothMoveStep % 4 == 0)
+                    vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacStart.png"));
+                else
+                    vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/"
+                            + vars.entities.get(0).item3.getName() + vars.entities.get(0).item4.toString() + ".png"));
+            }
+        }
     }
-//
-//    /// <summary>
-//    /// Handles animating of ghosts' translation between old and the new tile.
-//    /// </summary>
-    private void ghostSmoothTimer_Tick() {
-//        ++GhostSmoothMoveStep;
-//        for (byte i = 1; i <= FreeGhost; i++)
-//            if (Entities[i].Item4 != Direction.nType.DIRECTION && !teleported[i]) {
-//                Point d = GetDeltas(i);
-//
-//                // Last part of smooth move is done at the beginning of each update cycle.
-//                if (EntitiesPixDeltas[i].X <= 1 && EntitiesPixDeltas[i].Y <= 1 && EntitiesPixDeltas[i].X >= -1 && EntitiesPixDeltas[i].Y >= -1)
-//                    GhostSmoothTimer.Stop();
-//                else
-//                    Entities[i].Item3.Location = new Point((Entities[i].Item3.Location.X + d.X), (Entities[i].Item3.Location.Y + d.Y));
-//            }
+
+    /**
+     * Handles animating of ghosts' translation between old and the new tile.
+     */
+    private void ghostSmoothTimer_Tick()
+    {
+        ++ghostSmoothMoveStep;
+        for (byte i = 1; i <= vars.freeGhosts; i++)
+            if (vars.entities.get(i).item4 != Direction.directionType.DIRECTION && !teleported[i]) {
+                Point d = getDeltas(i);
+
+                // Last part of smooth move is done at the beginning of each update cycle.
+                if (entitiesPixDeltas[i].x <= 1 && entitiesPixDeltas[i].y <= 1 && entitiesPixDeltas[i].x >= -1 && entitiesPixDeltas[i].y >= -1)
+                    model.ghostSmoothTimer.stop();
+                else
+                    vars.entities.get(i).item3.setLocation(new Point(
+                        vars.entities.get(i).item3.getLocation().x + d.x,
+                        vars.entities.get(i).item3.getLocation().y + d.y));
+            }
     }
-//
-//    /// <summary>
-//    /// Gets translation deltas for entity specified by input index.
-//    /// </summary>
-//    /// <param name="index">Input index identifying entity.</param>
-//    /// <returns>Returns point of deltas in X and Y axes.</returns>
-//    private Point GetDeltas(byte index) {
-//        int dX = 0, dY = 0;
-//        if (EntitiesPixDeltas[index].X >= 2) {
-//            dX = 2;
-//            EntitiesPixDeltas[index].X -= 2;
-//        } else if (EntitiesPixDeltas[index].X <= -2) {
-//            dX = -2;
-//            EntitiesPixDeltas[index].X += 2;
-//        } else if (EntitiesPixDeltas[index].Y >= 2) {
-//            dY = 2;
-//            EntitiesPixDeltas[index].Y -= 2;
-//        } else if (EntitiesPixDeltas[index].Y <= -2) {
-//            dY = -2;
-//            EntitiesPixDeltas[index].Y += 2;
-//        }
-//
-//        return new Point(dX, dY);
-//    }
-//
-//    //</editor-fold>
+
+    /**
+     * Gets translation deltas for entity specified by input index.
+     *
+     * @param index Input index identifying entity.
+     * @return Point of deltas in X and Y axes.
+     */
+    private Point getDeltas(byte index) {
+        int dX = 0, dY = 0;
+        if (entitiesPixDeltas[index].x >= 2) {
+            dX = 2;
+            entitiesPixDeltas[index].x -= 2;
+        } else if (entitiesPixDeltas[index].x <= -2) {
+            dX = -2;
+            entitiesPixDeltas[index].x += 2;
+        } else if (entitiesPixDeltas[index].y >= 2) {
+            dY = 2;
+            entitiesPixDeltas[index].y -= 2;
+        } else if (entitiesPixDeltas[index].y <= -2) {
+            dY = -2;
+            entitiesPixDeltas[index].y += 2;
+        }
+
+        return new Point(dX, dY);
+    }
+
+    //</editor-fold>
 }

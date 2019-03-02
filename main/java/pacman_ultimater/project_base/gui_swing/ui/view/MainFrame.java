@@ -80,7 +80,7 @@ public class MainFrame extends JFrame{
         // Main Panel
         //
         mainPanel.setLayout(null);
-        mainPanel.setBackground(SystemColor.desktop);
+        mainPanel.setBackground(SystemColor.BLACK);
         mainPanel.setFocusable(true);
         //
         // Open File Dialog

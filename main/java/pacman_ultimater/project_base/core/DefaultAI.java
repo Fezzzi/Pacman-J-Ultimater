@@ -8,7 +8,8 @@ import java.util.Random;
 /**
  * Class providing methods for AI movement and enumerable for easy programmatically recognition of entities.
  */
-public class DefaultAI {
+public class DefaultAI
+{
     /*  Instruction for adding another AI algorithm:
             1) Create Class that inherits from DefaultAI
             2) Override methods for AI's behaviour:
@@ -17,19 +18,14 @@ public class DefaultAI {
                 2.3) Eaten - entity has been eaten
     *///        2.4) CanBeEaten - entity can be eaten by pacman
 
-    private final nType State;
-    private final int fieldSizeInColumns, fieldSizeInRows;
+    public nType state;
 
     /**
      * @param state Entity's state such as Player1, Player2, Hostile....
-     * @param tsc   Tile Map Size in Columns.
-     * @param tsr   Tile Map Size in Rows.
      */
-    public DefaultAI(nType state, int tsc, int tsr)
+    public DefaultAI(nType state)
     {
-        this.State = state;
-        fieldSizeInColumns = tsc;
-        fieldSizeInRows = tsr;
+        this.state = state;
     }
 
     /**
@@ -47,13 +43,13 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    public Direction.nType NextStep(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    public Direction.directionType NextStep(IntPair position, IntPair target, Direction.directionType direction, Tile[][] map)
     {
-        if (State == nType.HOSTILERETREAT)
+        if (state == nType.HOSTILERETREAT)
             return HostileRetreat(position, target, direction, map);
-        else if (State == nType.EATEN)
+        else if (state == nType.EATEN)
             return Eaten(position, target, direction, map);
-        else if (State == nType.CANBEEATEN)
+        else if (state == nType.CANBEEATEN)
             return CanBeEaten(position, target, direction, map);
         else
             return HostileAttack(position, target, direction, map);
@@ -69,7 +65,7 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType HostileAttack(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    private Direction.directionType HostileAttack(IntPair position, IntPair target, Direction.directionType direction, Tile[][] map)
     {
         return RandomAI(position, direction, map);
     }
@@ -84,7 +80,7 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType HostileRetreat(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    private Direction.directionType HostileRetreat(IntPair position, IntPair target, Direction.directionType direction, Tile[][] map)
     {
         return RandomAI(position, direction, map);
     }
@@ -99,7 +95,7 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType Eaten(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    private Direction.directionType Eaten(IntPair position, IntPair target, Direction.directionType direction, Tile[][] map)
     {
         return RandomAI(position, direction, map);
     }
@@ -114,7 +110,7 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType CanBeEaten(IntPair position, IntPair target, Direction.nType direction, Tile[][] map)
+    private Direction.directionType CanBeEaten(IntPair position, IntPair target, Direction.directionType direction, Tile[][] map)
     {
         return RandomAI(position, direction, map);
     }
@@ -129,7 +125,7 @@ public class DefaultAI {
      * @param map       Game map in tiles.
      * @return Direction.nType
      */
-    private Direction.nType RandomAI(IntPair position, Direction.nType direction, Tile[][] map)
+    private Direction.directionType RandomAI(IntPair position, Direction.directionType direction, Tile[][] map)
     {
         Random rndm = new Random();
         ArrayList<IntPair> possibilities = new ArrayList<>();
@@ -142,16 +138,16 @@ public class DefaultAI {
                 int deltaX = (j == 0 ? i : 0);
                 int deltaY = (j == 1 ? i : 0);
                 if (position.item1 + deltaY < 0) {
-                    if (direction == Direction.nType.LEFT)
+                    if (direction == Direction.directionType.LEFT)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.item1 + deltaY >= fieldSizeInColumns) {
-                    if (direction == Direction.nType.RIGHT)
+                } else if (position.item1 + deltaY >= LoadMap.MAPWIDTHINTILES) {
+                    if (direction == Direction.directionType.RIGHT)
                         possibilities.add(new IntPair(deltaX, deltaY));
                 } else if (position.item2 + deltaX < 0) {
-                    if (direction == Direction.nType.UP)
+                    if (direction == Direction.directionType.UP)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.item2 + deltaX >= fieldSizeInRows) {
-                    if (direction == Direction.nType.DOWN)
+                } else if (position.item2 + deltaX >= LoadMap.MAPHEIGHTINTILES) {
+                    if (direction == Direction.directionType.DOWN)
                         possibilities.add(new IntPair(deltaX, deltaY));
                 } else if (CanAdd(map[position.item2 + deltaX][position.item1 + deltaY])
                         && (deltaX != back.item1 || deltaY != back.item2))
@@ -161,10 +157,10 @@ public class DefaultAI {
 
         if (possibilities.size() > 0)
             return dir.intPairToDirection(possibilities.get(rndm.nextInt(possibilities.size())));
-        else if (direction != Direction.nType.DIRECTION)
+        else if (direction != Direction.directionType.DIRECTION)
             return dir.intPairToDirection(back);
         else
-            return Direction.nType.DIRECTION;
+            return Direction.directionType.DIRECTION;
     }
 
     /**
