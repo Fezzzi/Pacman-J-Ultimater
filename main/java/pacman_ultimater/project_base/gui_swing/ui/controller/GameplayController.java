@@ -71,6 +71,9 @@ class GameplayController implements IKeyDownHandler {
      */
     void loadGame(boolean restart)
     {
+        for(int i = 0; i < GameConsts.ENTITYCOUNT; ++i)
+            entitiesPixDeltas[i] = new Point(0,0);
+
         glc.playGame(restart, timers);
     }
 
@@ -175,6 +178,8 @@ class GameplayController implements IKeyDownHandler {
     private void killPacman()
         throws LineUnavailableException, IOException, UnsupportedAudioFileException, InterruptedException
     {
+        model.ghostSmoothTimer.stop();
+        model.pacSmoothTimer.stop();
         model.pacUpdater.stop();
         model.ghostUpdater.stop();
         if (vars.music) {
@@ -245,7 +250,7 @@ class GameplayController implements IKeyDownHandler {
         Direction dir = new Direction();
         IntPair delta = dir.directionToIntPair(newDirection);
         if (isDirectionFree(delta.item1, delta.item2, entity)) {
-            entity = new Quintet<>(entity.item1, entity.item2, entity.item3, newDirection, entity.item5);
+            entity.item4 = newDirection;
             newDirection = Direction.directionType.DIRECTION;
         }
     }
@@ -275,7 +280,8 @@ class GameplayController implements IKeyDownHandler {
     private void moveEntity(int entX, int entY, int dX, int dY, byte entNum,
                             Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
     {
-        entity = new Quintet<>(entX, entY, entity.item3, entity.item4, entity.item5);
+        entity.item1 = entX;
+        entity.item2 = entY;
 
         if (entity.item5.state != DefaultAI.nType.PLAYER1 && vars.mapFresh[entity.item2][entity.item1].tile != Tile.nType.FREE) {
             vars.redrawPellets[RDPIndex] = new Point(entity.item2, entity.item1);
@@ -427,15 +433,12 @@ class GameplayController implements IKeyDownHandler {
                 if (!vars.player2 || i > 1 && (vars.entities.get(i).item4 == Direction.directionType.DIRECTION
                     || isAtCrossroad(vars.entities.get(i).item1, vars.entities.get(i).item2)))
                 {
-                    vars.entities.set(i, new Quintet<>
-                        (vars.entities.get(i).item1, vars.entities.get(i).item2, vars.entities.get(i).item3,
+                    vars.entities.get(i).item4 =
                         vars.entities.get(i).item5.NextStep(
-                            new IntPair(
-                                vars.entities.get(i).item1, vars.entities.get(i).item2),
-                                vars.entities.get(i).item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
-                                    : new IntPair(vars.entities.get(0).item1, vars.entities.get(0).item2
-                            ), vars.entities.get(i).item4, vars.map.item1),
-                        vars.entities.get(i).item5));
+                            new IntPair(vars.entities.get(i).item1, vars.entities.get(i).item2),
+                            vars.entities.get(i).item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
+                                : new IntPair(vars.entities.get(0).item1, vars.entities.get(0).item2),
+                            vars.entities.get(i).item4, vars.map.item1);
                 }
 
                 canMove(vars.entities.get(i));
@@ -555,12 +558,12 @@ class GameplayController implements IKeyDownHandler {
      * Also resets timer for ghost releasing.
      */
     private void setGhostFree() {
-        vars.entities.set(vars.freeGhosts - 1, new Quintet<>(
-                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2, vars.entities.get(vars.freeGhosts - 1).item3,
-                Direction.directionType.LEFT, vars.entities.get(vars.freeGhosts - 1).item5));
-        vars.entities.get(vars.freeGhosts - 1).item3.setLocation(new Point(
-                vars.entities.get(vars.freeGhosts - 1).item1 * LoadMap.TILESIZEINPXS - 7,
-                vars.entities.get(vars.freeGhosts - 1).item2 * LoadMap.TILESIZEINPXS + 42));
+        vars.entities.get(vars.freeGhosts + 1).item1 = vars.topGhostInTiles.item1;
+        vars.entities.get(vars.freeGhosts + 1).item2 = vars.topGhostInTiles.item2;
+        vars.entities.get(vars.freeGhosts + 1).item3.setLocation(new Point(
+                vars.topGhostInTiles.item1 * LoadMap.TILESIZEINPXS - 7,
+                vars.topGhostInTiles.item2 * LoadMap.TILESIZEINPXS + 42));
+        vars.entities.get(vars.freeGhosts + 1).item4 = Direction.directionType.LEFT;
         vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 2) / 3
                                         : (GameConsts.BASEGHOSTRELEASETIMER - vars.level) / 3;
         vars.freeGhosts++;
@@ -586,14 +589,14 @@ class GameplayController implements IKeyDownHandler {
                     vars.killed = true;
                     return;
                 }
-                // In case of pacman's excitemnet and if the ghost is not already eaten
+                // In case of pacman's excitement and if the ghost is not already eaten
                 // changes the ghost's state to eaten and increases player's score.
                 else if (vars.entities.get(i).item5.state != DefaultAI.nType.EATEN) {
                     if (vars.sound)
                         playWithSoundPlayer("pacman_eatghost.wav");
                     if (vars.music) {
                         AudioInputStream sound = AudioSystem.getAudioInputStream(
-                                new File(model.resourcesPath + "/sounds/pacman_eatensiren.wav.wav"));
+                                new File(model.resourcesPath + "/sounds/pacman_eatensiren.wav"));
                         byte[] buffer1 = new byte[65536];
                         sound.read(buffer1, 0, 65536);
 

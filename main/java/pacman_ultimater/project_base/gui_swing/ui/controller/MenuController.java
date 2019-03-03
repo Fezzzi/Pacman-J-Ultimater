@@ -43,8 +43,6 @@ public class MenuController implements IKeyDownHandler {
         initListeners();
         kb = new KeyBindings(model.mainPanel, this);
         kb.init();
-
-        model.mainPanel.requestFocus();
     }
 
     /**
@@ -313,14 +311,15 @@ public class MenuController implements IKeyDownHandler {
      */
     private void proceedToGameplay()
     {
+        model.mainPanel.requestFocus();
+        vars.level = 0;
+        vars.gameOn = true;
+        vars.map = vars.loadedMap.Map;
+        menuComponentsCount = model.mainPanel.getComponentCount();
+        for(int i = 0; i < menuComponentsCount; ++i)
+            model.mainPanel.getComponent(i).setVisible(false);
+
         try {
-            vars.level = 0;
-            vars.gameOn = true;
-            vars.map = vars.loadedMap.Map;
-            menuComponentsCount = model.mainPanel.getComponentCount();
-            System.out.print("component count menu leave: " + menuComponentsCount + '\n');
-            for(int i = 0; i < menuComponentsCount; ++i)
-                model.mainPanel.getComponent(i).setVisible(false);
             gp = new GameplayController(model, vars, new GameOverHandler());
             kb.changeHandler(gp);
             gp.loadGame(false);
@@ -337,7 +336,6 @@ public class MenuController implements IKeyDownHandler {
      * Switches key binding's handler back to MenuController's one.
      */
     private void returnToMenu(){
-        System.out.print("component count menu enter: " + menuComponentsCount + '\n');
         kb.changeHandler(this);
         gp = null;
         int componentsCount = model.mainPanel.getComponentCount();
