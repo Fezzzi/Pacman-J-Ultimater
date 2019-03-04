@@ -4,17 +4,18 @@ import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
 import pacman_ultimater.project_base.custom_utils.TimersListeners;
+import pacman_ultimater.project_base.gui_swing.model.GameConsts;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import static pacman_ultimater.project_base.gui_swing.model.GameConsts.*;
@@ -41,10 +42,8 @@ class GameLoadController {
      * @param tiles game map in 2D tile array
      * @param color tiles color
      */
-    public void renderMap(Tile[][] tiles, Color color)
+    void renderMap(Tile[][] tiles, Color color)
     {
-        vars.gameMap = new JLabel();
-        vars.gameMap.setSize(vars.size);
         Image bufferImage = model.mainPanel.createImage(vars.size.width, vars.size.height);
         vars.bufferGraphics = bufferImage.getGraphics();
         Graphics2D bg2D = (Graphics2D)vars.bufferGraphics;
@@ -61,8 +60,6 @@ class GameLoadController {
                 tiles[i][j].DrawTile(vars.bufferGraphics, new Point(j * LoadMap.TILESIZEINPXS, (i + 3) * LoadMap.TILESIZEINPXS), color);
 
         vars.gameMap.setIcon(new ImageIcon(bufferImage));
-        model.mainPanel.add(vars.gameMap);
-        vars.gameMap.setVisible(true);
     }
 
     /**
@@ -119,6 +116,39 @@ class GameLoadController {
     }
 
     /**
+     * Resets entities to their original positions and states.
+     */
+    private void resetEntities(){
+        vars.entities.get(0).item1 = LoadMap.PACMANINITIALX;
+        vars.entities.get(0).item2 = LoadMap.PACMANINITIALY;
+        vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/Textures/PacStart.png"));
+        vars.entities.get(1).item1 = vars.topGhostInTiles.item1;
+        vars.entities.get(1).item2 = vars.topGhostInTiles.item2;
+        vars.entities.get(1).item3.setIcon(new ImageIcon(model.resourcesPath + "/Textures/Entity2Left.png"));
+        vars.entities.get(2).item1 = vars.topGhostInTiles.item1 - 2;
+        vars.entities.get(2).item2 = vars.topGhostInTiles.item2 + 3;
+        vars.entities.get(3).item1 = vars.topGhostInTiles.item1;
+        vars.entities.get(3).item2 = vars.topGhostInTiles.item2 + 3;
+        vars.entities.get(4).item1 = vars.topGhostInTiles.item1 + 2;
+        vars.entities.get(4).item2 = vars.topGhostInTiles.item2 + 3;
+
+        for(int i = 0; i < GameConsts.ENTITYCOUNT; ++i) {
+            vars.entities.get(i).item3.setLocation(
+                    new Point(vars.entities.get(i).item1 * LoadMap.TILESIZEINPXS + 3,
+                            vars.entities.get(i).item2 * LoadMap.TILESIZEINPXS + 42));
+
+            if(i < 2)
+                vars.entities.get(i).item4 = Direction.directionType.LEFT;
+            else {
+                vars.entities.get(i).item4 = Direction.directionType.DIRECTION;
+                vars.entities.get(i).item3.setIcon(
+                    new ImageIcon(model.resourcesPath + "/Textures/Entity"
+                            + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")));
+            }
+        }
+    }
+
+    /**
      * Function that loads all the game entities and presets all their default settings such as position, direction, etc...
      */
     private void loadEntities()
@@ -137,19 +167,17 @@ class GameLoadController {
         };
 
         vars.entities = new ArrayList<>();
-        vars.entities.add(new Quintet<>(
-                LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY, new JLabel(), Direction.directionType.LEFT,
-                new DefaultAI(DefaultAI.nType.PLAYER1)));
-        vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2, new JLabel(), Direction.directionType.LEFT,
-                vars.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2)
-                            : vars.defaultAIs[0]));
-        vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[1]));
-        vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[2]));
-        vars.entities.add(new Quintet<>(
-                vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3, new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[3]));
+        vars.entities.add(new Quintet<>(LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY,
+                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.PLAYER1)));
+        vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2,
+                new JLabel(), Direction.directionType.LEFT, vars.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2)
+                                                                        : vars.defaultAIs[0]));
+        vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3,
+                new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[1]));
+        vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3,
+                new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[2]));
+        vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3,
+                new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[3]));
 
         //Setting entities names for easy later manipulation and automatic image selection
         for (int i = 1; i <= ENTITYCOUNT; i++)
@@ -175,10 +203,8 @@ class GameLoadController {
 
     /**
      * Function that loads score labels and pacman lives.
-     *
-     * @param hp Number of lives to be displayed.
      */
-    private void loadHud(int hp)
+    private void loadHud()
     {
         final Font hudTextFont = new Font("Arial", Font.BOLD, 18);
         final int HEARTHSIZEINPX = 32;
@@ -205,7 +231,6 @@ class GameLoadController {
             placeLabel(highScoreText, "HIGH SCORE", Color.white, new Point(17 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
             vars.highScoreBox.setVisible(true);
             highScoreText.setVisible(true);
-
         }
         else
         {
@@ -229,10 +254,23 @@ class GameLoadController {
                     new Dimension(HEARTHSIZEINPX, HEARTHSIZEINPX));
             lives++;
         }
+    }
 
-        // Sets visibility of lives depending on number of player's lives.
-        for (int i = MAXLIVES - 1; i > hp && i >= 0; i--)
-           vars.pacLives[i].setVisible(false);
+    /**
+     * Procedure serving simply for initialization of variables at the map load up and displaying loading screen.
+     */
+    private void restartInit(){
+        vars.soundTick = 0;
+        vars.keyPressed1 = false;
+        vars.keyPressed2 = false;
+        vars.ghostsEaten = 0;
+        vars.keyCountdown1 = 0;
+        vars.keyCountdown2 = 0;
+        vars.killed = false;
+        vars.ticks = 0;
+        vars.freeGhosts = 1;
+        vars.eatEmTimer = 0;
+        vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
     }
 
     /**
@@ -241,43 +279,46 @@ class GameLoadController {
      * @throws IOException Propagation from highScore loading.
      * @throws LineUnavailableException Propagation from sound players creation.
      */
-    private void loadingAndInit() throws IOException, LineUnavailableException
+    private void loadingAndInit()
+        throws IOException, LineUnavailableException, UnsupportedAudioFileException
     {
-        if (vars.level == 0)
-        {
+        if (vars.level == 0) {
             loading = new JLabel();
             levelLabel = new JLabel();
             vars.defSize = model.getMainFrameMinimumSize();
             vars.size = new Dimension((LoadMap.MAPWIDTHINTILES + 1) * LoadMap.TILESIZEINPXS,
-                                (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
+                    (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
             model.setMainFrameSize(vars.size);
             model.mainPanel.setSize(vars.size);
             model.recenterMainFrame(vars.size);
 
+            vars.gameMap = new JLabel();
+            vars.gameMap.setSize(vars.size);
+            vars.gameMap.setVisible(true);
             vars.extraLifeGiven = false;
             vars.score = 0;
             vars.score2 = 0;
             vars.soundTick = 0; // used for sound players to take turns
-            vars.soundPlayers = new Clip[SOUNDPLAYERSCOUNT];
-            for (int i = 0; i < SOUNDPLAYERSCOUNT; i++) {
-                vars.soundPlayers[i] = AudioSystem.getClip();
-            }
+            vars.initSoundPlayers(model.resourcesPath);
 
             vars.collectedDots = 0;
             vars.lives = 3;
             ++vars.level;
-        }
 
-        loading.setSize(350,60);
-        placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
-                    new Font("Ravie", Font.BOLD, 48));
-        levelLabel.setSize(300,60);
-        placeLabel(levelLabel, "- Level " + Integer.toString(vars.level) + " -", Color.red, new Point(118, 200),
-                    new Font("Ravie", Font.BOLD,30));
+            loading.setSize(350, 60);
+            placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
+                new Font("Ravie", Font.BOLD, 48));
+            levelLabel.setSize(300, 60);
+            placeLabel(levelLabel, "- Level " + Integer.toString(vars.level) + " -", Color.red, new Point(118, 200),
+                new Font("Ravie", Font.BOLD, 30));
+
+            vars.pacLives = new JLabel[MAXLIVES];
+            for (int i = 0; i < MAXLIVES; i++)
+                vars.pacLives[i] = new JLabel();
+        }
         loading.setVisible(true);
         levelLabel.setVisible(true);
         model.mainPanel.revalidate();
-
         vars.keyPressed1 = false;
         vars.keyPressed2 = false;
         vars.ghostsEaten = 0;
@@ -287,10 +328,7 @@ class GameLoadController {
         vars.ticks = 0; // Counts tick to enable power pellets flashing and ghost flashing at the end of pac's excitement.
         vars.freeGhosts = 1;
         vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
-        vars.eatEmTimer = 0; //timer for pacman's excitement
-        vars.pacLives = new JLabel[MAXLIVES];
-        for (int i = 0; i < MAXLIVES; i++)
-            vars.pacLives[i] = new JLabel();
+        vars.eatEmTimer = 0;
 
         // Yet empty fields of the array would redraw over top right corner of the map.
         // This way it draws empty tile on pacman's initial position tile which is empty by definition.
@@ -334,20 +372,101 @@ class GameLoadController {
      */
     void playGame(boolean restart, TimersListeners timers)
     {
-        PlayGameTask pgTask = new PlayGameTask(restart, timers);
-        pgTask.execute();
+        if(restart)
+        {
+            RestartGameTask rgTask = new RestartGameTask();
+            rgTask.execute();
+        }
+        else {
+            PlayGameTask pgTask = new PlayGameTask(timers);
+            pgTask.execute();
+        }
     }
 
     enum playGamePhase {PHASE1, PHASE2, PHASE3, INTERRUPTEDEXCEPTION, EXECUTIONEXCEPTION}
 
+    class RestartGameTask extends SwingWorker<Void, playGamePhase>
+    {
+        @Override
+        public Void doInBackground()
+        {
+            try {
+                publish(playGamePhase.PHASE2);
+                Thread.sleep(OPENINGTHEMELENGTH);
+
+                publish(playGamePhase.PHASE3);
+            }
+            catch (InterruptedException exception){
+                publish(playGamePhase.INTERRUPTEDEXCEPTION);
+            }
+            return null;
+        }
+
+        @Override
+        protected void process(List<playGamePhase> phases)
+        {
+            try {
+                for (playGamePhase phase : phases) {
+                    if (vars.gameOn) {
+                        switch (phase) {
+                            case PHASE2:
+                                System.out.println("Time gate 1: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+                                if (vars.music){
+                                    vars.musicPlayer.close();
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
+                                            false, 0 , 0);
+                                }
+                                restartInit();
+                                for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
+                                    vars.pacLives[i].setVisible(false);
+
+                                resetEntities();
+                                ready.setVisible(true);
+                                System.out.println("Time gate 2: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+                                renderMap(vars.mapFresh, vars.map.item4);
+                                break;
+                            case PHASE3:
+                                if (vars.music)
+                                    vars.musicPlayer.close();
+
+                                ready.setVisible(false);
+                                model.mainPanel.revalidate();
+                                // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
+                                vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
+                                        vars.entities.get(0).item3.getLocation().y));
+                                vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
+                                        vars.entities.get(1).item3.getLocation().y));
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav",
+                                            true, 0, 9100);
+
+                                model.pacUpdater.start();
+                                model.ghostUpdater.start();
+                                break;
+                            case INTERRUPTEDEXCEPTION:
+                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                MainFrameController.handleExceptions("java.lang.InterruptedException", model);
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
+                try {
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                }
+                catch(IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                MainFrameController.handleExceptions(exception.toString(), model);
+            }
+        }
+    }
+
     class PlayGameTask extends SwingWorker<Void, playGamePhase>
     {
-        boolean restart;
         TimersListeners timers;
 
-        PlayGameTask(boolean restart, TimersListeners timers)
+        PlayGameTask(TimersListeners timers)
         {
-            this.restart = restart;
             this.timers = timers;
             ready = new JLabel();
         }
@@ -384,78 +503,57 @@ class GameLoadController {
                     if (vars.gameOn) {
                         switch (phase) {
                             case PHASE1:
-
                                 loadingAndInit();
-
-                                if (!this.restart) {
-                                    if (vars.music) {
-                                        AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_intermission.wav"));
-                                        byte[] buffer1 = new byte[65536];
-                                        sound.read(buffer1, 0, 65536);
-
-                                        vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                                        vars.musicPlayer.start();
-                                    }
-                                }
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
                                 break;
                             case PHASE2:
                                 if (vars.music)
                                     vars.musicPlayer.close();
 
-                                loadHud(vars.lives - 2);
+                                loadHud();
+                                for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
+                                    vars.pacLives[i].setVisible(false);
+
                                 vars.topGhostInTiles = new IntPair(vars.map.item3.item1 - 1, vars.map.item3.item2 - 1);
                                 loadEntities();
                                 ready.setSize(150, 30);
                                 placeLabel(ready, "READY!", Color.yellow,
-                                        new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                                                (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
-                                        new Font("Ravie", Font.BOLD, 22));
-                                ready.setVisible(true);
+                                    new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
+                                            (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
+                                    new Font("Ravie", Font.BOLD, 22));
 
-                                if (!restart) {
-                                    vars.collectedDots = 0;
-                                    vars.mapFresh = deepCopy(vars.map.item1);
-                                    if (vars.level <= 13 && vars.level > 1)
-                                        model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
-                                }
+                                vars.collectedDots = 0;
+                                vars.mapFresh = deepCopy(vars.map.item1);
+                                if (vars.level <= 13 && vars.level > 1)
+                                    model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
+
                                 model.mainPanel.remove(loading);
                                 model.mainPanel.remove(levelLabel);
+
+                                ready.setVisible(true);
+                                model.mainPanel.add(vars.gameMap);
                                 model.mainPanel.repaint();
                                 model.mainPanel.revalidate();
                                 renderMap(vars.mapFresh, vars.map.item4);
 
-                                if (vars.music) {
-                                    AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_beginning.wav"));
-                                    byte[] buffer1 = new byte[65536];
-                                    sound.read(buffer1, 0, 65536);
-
-                                    vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                                    vars.musicPlayer.start();
-                                }
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav", false, 0 , 0);
                                 break;
                             case PHASE3:
                                 if (vars.music)
                                     vars.musicPlayer.close();
 
                                 ready.setVisible(false);
-                                model.mainPanel.remove(ready);
-                                ready = null;
                                 model.mainPanel.revalidate();
                                 // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
                                 vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
                                         vars.entities.get(0).item3.getLocation().y));
                                 vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
                                         vars.entities.get(1).item3.getLocation().y));
-                                if (vars.music) {
-                                    AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_siren.wav"));
-                                    byte[] buffer1 = new byte[65536];
-                                    sound.read(buffer1, 0, 65536);
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav", true, 0, 9100);
 
-                                    vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                                    vars.musicPlayer.setLoopPoints(0, 9100);
-                                    vars.musicPlayer.loop(Clip.LOOP_CONTINUOUSLY);
-                                    vars.musicPlayer.start();
-                                }
                                 // Starts updaters that provides effect of main game cycle.
                                 model.pacUpdater = new Timer(PACTIMER, timers.getPacman_timer());
                                 model.pacUpdater.setRepeats(true);

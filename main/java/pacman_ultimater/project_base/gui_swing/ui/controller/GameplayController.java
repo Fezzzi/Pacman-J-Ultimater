@@ -8,10 +8,7 @@ import pacman_ultimater.project_base.gui_swing.model.GameConsts;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -75,6 +72,8 @@ class GameplayController implements IKeyDownHandler {
             entitiesPixDeltas[i] = new Point(0,0);
 
         glc.playGame(restart, timers);
+        newDirection1 = Direction.directionType.DIRECTION;
+        newDirection2 = Direction.directionType.DIRECTION;
     }
 
     /**
@@ -178,19 +177,13 @@ class GameplayController implements IKeyDownHandler {
     private void killPacman()
         throws LineUnavailableException, IOException, UnsupportedAudioFileException, InterruptedException
     {
-        model.ghostSmoothTimer.stop();
-        model.pacSmoothTimer.stop();
         model.pacUpdater.stop();
         model.ghostUpdater.stop();
-        if (vars.music) {
-            AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_death.wav"));
-            byte[] buffer1 = new byte[65536];
-            sound.read(buffer1, 0, 65536);
+        model.ghostSmoothTimer.stop();
+        model.pacSmoothTimer.stop();
+        if (vars.music)
+            vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_death.wav", false, 0 , 0);
 
-            vars.musicPlayer.close();
-            vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-            vars.musicPlayer.start();
-        }
         if (vars.player2)
             vars.score2 += GameConsts.P2SCOREFORKILL;
         vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacStart.png"));
@@ -207,6 +200,8 @@ class GameplayController implements IKeyDownHandler {
             loadGame(true);
         else
             endGame();
+        model.mainPanel.repaint();
+        model.mainPanel.revalidate();
     }
 
     /**
@@ -448,28 +443,6 @@ class GameplayController implements IKeyDownHandler {
     }
 
     /**
-     * Players sound specified as parameter with current sound player and moves to another one.
-     *
-     * @param file Sound's name.
-     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
-     * @throws IOException Exception is to be handled by caller.
-     * @throws LineUnavailableException Exception is to be handled by caller.
-     */
-    private void playWithSoundPlayer(String file)
-        throws UnsupportedAudioFileException, IOException, LineUnavailableException
-    {
-        AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/" + file));
-        byte[] buffer1 = new byte[65536];
-        sound.read(buffer1, 0, 65536);
-
-        vars.soundPlayers[vars.soundTick].close();
-        vars.soundPlayers[vars.soundTick].open(sound.getFormat(), buffer1, 0, 65536);
-        vars.soundPlayers[vars.soundTick].start();
-
-        vars.soundTick = vars.soundTick++ % GameConsts.SOUNDPLAYERSCOUNT;
-    }
-
-    /**
      * Provides timer for pacman's excitement and changes all of the ghost back to normal at the end.
      */
     private void updateEatEmTimer()
@@ -479,13 +452,7 @@ class GameplayController implements IKeyDownHandler {
             --vars.eatEmTimer;
         else if (vars.eatEmTimer == 1) {
             if (vars.music) {
-                AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_siren.wav"));
-                byte[] buffer1 = new byte[65536];
-                sound.read(buffer1, 0, 65536);
-
-                vars.musicPlayer.close();
-                vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                vars.musicPlayer.start();
+                vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav", true, 0, 9100);
             }
             if (vars.ghostsEaten != 0) {
                 for (int i = 1; i < 5; i++)
@@ -510,22 +477,18 @@ class GameplayController implements IKeyDownHandler {
         if (vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile == Tile.nType.DOT ||
                 vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile == Tile.nType.POWERDOT) {
             if (vars.sound) {
-                playWithSoundPlayer("pacman_chomp.wav");
+                vars.playWithSoundPlayer(0);
+                vars.soundTick = (vars.soundTick + 1) % GameConsts.SOUNDPLAYERSCOUNT;
             }
+
             ++vars.collectedDots;
             if (vars.mapFresh[vars.entities.get(0).item2][vars.entities.get(0).item1].tile == Tile.nType.DOT)
                 vars.score += GameConsts.PELLETSCORE;
             else {
                 vars.score += GameConsts.POWERPELLETSCORE;
-                if (vars.music) {
-                    AudioInputStream sound = AudioSystem.getAudioInputStream(new File(model.resourcesPath + "/sounds/pacman_powersiren.wav"));
-                    byte[] buffer1 = new byte[65536];
-                    sound.read(buffer1, 0, 65536);
+                if (vars.music)
+                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_powersiren.wav", true, 0 , 26320);
 
-                    vars.musicPlayer.close();
-                    vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                    vars.musicPlayer.start();
-                }
                 //Pacman's excitement lasts shorter each level
                 vars.eatEmTimer = vars.player2 ? (3 * GameConsts.BASEEATEMTIMER) / 4 : GameConsts.BASEEATEMTIMER - vars.level;
                 vars.ghostsEaten = 0;
@@ -593,16 +556,9 @@ class GameplayController implements IKeyDownHandler {
                 // changes the ghost's state to eaten and increases player's score.
                 else if (vars.entities.get(i).item5.state != DefaultAI.nType.EATEN) {
                     if (vars.sound)
-                        playWithSoundPlayer("pacman_eatghost.wav");
+                        vars.playWithSoundPlayer(GameConsts.EATGHOSTSOUNDPLAYERID);
                     if (vars.music) {
-                        AudioInputStream sound = AudioSystem.getAudioInputStream(
-                                new File(model.resourcesPath + "/sounds/pacman_eatensiren.wav"));
-                        byte[] buffer1 = new byte[65536];
-                        sound.read(buffer1, 0, 65536);
-
-                        vars.musicPlayer.close();
-                        vars.musicPlayer.open(sound.getFormat(), buffer1, 0, 65536);
-                        vars.musicPlayer.start();
+                        vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_eatensiren.wav", true, 0, 17800);
                     }
                     ++vars.ghostsEaten;
                     vars.score += GameConsts.GHOSTEATBASESCORE * vars.ghostsEaten;
@@ -611,7 +567,7 @@ class GameplayController implements IKeyDownHandler {
                         vars.pacLives[vars.lives - 1].setVisible(true);
                         ++vars.lives;
                         if (vars.sound)
-                            playWithSoundPlayer("pacman_extrapac.wav");
+                            vars.playWithSoundPlayer(GameConsts.EXTRAPACSOUNDPLAYERID);
                     }
                     vars.entities.get(i).item5.state = DefaultAI.nType.EATEN;
                 }
@@ -633,10 +589,8 @@ class GameplayController implements IKeyDownHandler {
         updateMove(isPacman);
         checkCollision();
 
-        if (vars.killed) {
-            vars.killed = false;
+        if (vars.killed)
             return;
-        }
 
         if (isPacman) {
             updateEatEmTimer();
@@ -646,7 +600,7 @@ class GameplayController implements IKeyDownHandler {
             if (vars.score >= GameConsts.BONUSLIFESCORE && !vars.extraLifeGiven) {
                 vars.extraLifeGiven = true;
                 if (vars.sound)
-                    playWithSoundPlayer("pacman_extrapac.wav");
+                    vars.playWithSoundPlayer(GameConsts.EXTRAPACSOUNDPLAYERID);
 
                 vars.pacLives[vars.lives - 1].setVisible(true);
                 ++vars.lives;
@@ -742,23 +696,24 @@ class GameplayController implements IKeyDownHandler {
         catch (IOException | UnsupportedAudioFileException | LineUnavailableException | InterruptedException ignore) {
             // TODO: Handle game exception.
         }
-        keyCountAndDir(newDirection1, vars.keyCountdown1);
-        if (vars.player2)
-            keyCountAndDir(newDirection2, vars.keyCountdown2);
+        if(!vars.killed) {
+            keyCountAndDir(newDirection1, vars.keyCountdown1);
+            if (vars.player2)
+                keyCountAndDir(newDirection2, vars.keyCountdown2);
 
-        // Checks if the player has already collected all the pellets.
-        // In such case in relation to level and game mode, plays another level or ends the game.
-        if (vars.collectedDots >= vars.map.item2)
-            endLevel();
+            // Checks if the player has already collected all the pellets.
+            // In such case in relation to level and game mode, plays another level or ends the game.
+            if (vars.collectedDots >= vars.map.item2)
+                endLevel();
 
-        if (isPacman) {
-            model.pacSmoothTimer.start();
-            pacSmoothMoveStep = 0;
-        } else {
-            model.ghostSmoothTimer.start();
-            ghostSmoothMoveStep = 0;
+            if (isPacman) {
+                model.pacSmoothTimer.start();
+                pacSmoothMoveStep = 0;
+            } else {
+                model.ghostSmoothTimer.start();
+                ghostSmoothMoveStep = 0;
+            }
         }
-
     }
 
     private void endLevel() {

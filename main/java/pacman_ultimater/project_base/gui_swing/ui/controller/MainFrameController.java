@@ -5,6 +5,8 @@ import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
+import javax.sound.sampled.Clip;
+import javax.swing.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -65,6 +67,15 @@ public class MainFrameController {
         @Override
         public void windowClosing(WindowEvent e)
         {
+            vars.gameOn = false;
+            for (Timer timer: new Timer[]{model.pacUpdater, model.ghostUpdater, model.pacSmoothTimer, model.ghostSmoothTimer})
+                if (timer != null)
+                    timer.stop();
+
+            vars.musicPlayer.close();
+            for (Clip soundplayer: vars.soundPlayers)
+                soundplayer.close();
+
             try{
                 HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
