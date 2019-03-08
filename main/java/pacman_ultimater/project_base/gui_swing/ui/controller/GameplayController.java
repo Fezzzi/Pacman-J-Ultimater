@@ -17,7 +17,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
-class GameplayController implements IKeyDownHandler {
+class GameplayController implements IKeyDownHandler
+{
 
     //<editor-fold desc="- VARIABLES Block -">
 
@@ -28,19 +29,11 @@ class GameplayController implements IKeyDownHandler {
     private Point[] entitiesPixDeltas = new Point[GameConsts.ENTITYCOUNT];
     private byte RDPIndex = 0;
     private byte pacSmoothMoveStep;
-    private byte ghostSmoothMoveStep;
     private TimersListeners timers;
     private GameLoadController glc;
     private MainFrameModel model;
     private GameModel vars;
     private IGameOverHandler gameOverHandler;
-
-//        const
-//    byte GhostAccLimLevel = 30;
-//        const
-//    byte ghostMaxSpeed = 3;    // The smaller the number the faster the ghosts.
-//        const
-//    int ghostBaseSpeed = (GhostAccLimLevel / 2) + ghostMaxSpeed + 1;
 
     //</editor-fold>
 
@@ -62,16 +55,37 @@ class GameplayController implements IKeyDownHandler {
     }
 
     /**
-     * Handles game loading and reloading.
-     *
-     * @param restart Distinguishes between restarting level / loading new level
+     * Wraps public access around start game request on GameLoadController.
      */
-    void loadGame(boolean restart)
+    void loadGame()
+    {
+        sendGameLoadRequest(loadGameType.START);
+    }
+
+    private enum loadGameType {START, RESTART, NEXT}
+
+    /**
+     * Handles communication with GameLoadController.
+     *
+     * @param type Distinguishes between first game loading / restarting level / loading new level
+     */
+    private void sendGameLoadRequest(loadGameType type)
     {
         for(int i = 0; i < GameConsts.ENTITYCOUNT; ++i)
             entitiesPixDeltas[i] = new Point(0,0);
 
-        glc.playGame(restart, timers);
+        switch(type){
+            case NEXT:
+                glc.loadNextLevel();
+                break;
+            case START:
+                glc.loadGame(timers);
+                break;
+            case RESTART:
+                glc.reloadLevel();
+                break;
+        }
+
         newDirection1 = Direction.directionType.DIRECTION;
         newDirection2 = Direction.directionType.DIRECTION;
     }
@@ -81,7 +95,8 @@ class GameplayController implements IKeyDownHandler {
      *
      * @param keyCode Identifies pressed key.
      */
-    public void handleKey(int keyCode) {
+    public void handleKey(int keyCode)
+    {
         //Two booleans keyPressed[1|2] are used to distinguish which of the players has pressed the key during VS play.
         if (vars.player2) {
             if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_S)
@@ -132,7 +147,8 @@ class GameplayController implements IKeyDownHandler {
      * Saves new highscore in case of beating the previous one by the player.
      * Generally destroys all of the forms's controls and loads them again with their default settings.
      */
-    private void endGame() {
+    private void endGame()
+    {
         glc = null;
         vars.gameOn = false;
         if(model.pacUpdater != null)
@@ -170,9 +186,9 @@ class GameplayController implements IKeyDownHandler {
     /**
      * Handles the event raised by unexcited pacman's contact with one of the ghosts.
      *
-     * @throws LineUnavailableException
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
+     * @throws LineUnavailableException Exception is to be handled by caller.
+     * @throws IOException Exception is to be handled by caller.
+     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
      */
     private void killPacman()
         throws LineUnavailableException, IOException, UnsupportedAudioFileException, InterruptedException
@@ -197,7 +213,7 @@ class GameplayController implements IKeyDownHandler {
         vars.lives--;
 
         if (vars.lives > 0)
-            loadGame(true);
+            sendGameLoadRequest(loadGameType.RESTART);
         else
             endGame();
         model.mainPanel.repaint();
@@ -210,7 +226,8 @@ class GameplayController implements IKeyDownHandler {
      * @param score New Value to be set.
      * @param label Label whose value is to be set.
      */
-    private void updateHud(int score, JLabel label) {
+    private void updateHud(int score, JLabel label)
+    {
         label.setText(Integer.toString(score));
     }
 
@@ -255,7 +272,8 @@ class GameplayController implements IKeyDownHandler {
      *
      * @param entity The updated entity.
      */
-    private void canMove(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity) {
+    private void canMove(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
         Direction dir = new Direction();
         IntPair delta = dir.directionToIntPair(entity.item4);
         if (!isDirectionFree(delta.item1, delta.item2, entity))
@@ -294,7 +312,8 @@ class GameplayController implements IKeyDownHandler {
      * @param entity The updated entity.
      * @param entNum The updated entity's id (number).
      */
-    private void moveIt(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity, byte entNum) {
+    private void moveIt(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity, byte entNum)
+    {
         switch (entity.item4) {
             case LEFT:
                 if (entity.item1 > 0) {
@@ -348,7 +367,8 @@ class GameplayController implements IKeyDownHandler {
      * @param y Y-axis position.
      * @return Boolean indicating crossroad.
      */
-    private boolean isAtCrossroad(int x, int y) {
+    private boolean isAtCrossroad(int x, int y)
+    {
         int turns = 0;
         for (int j = 0; j < 2; j++) {
             for (int i = -1; i < 2; i += 2) {
@@ -370,7 +390,8 @@ class GameplayController implements IKeyDownHandler {
      *
      * @param entity The updated entity.
      */
-    private void updatePicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity) {
+    private void updatePicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
         // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
         if (vars.eatEmTimer <= 0 || entity.item5.state == DefaultAI.nType.PLAYER1
             || (entity.item5.state != DefaultAI.nType.EATEN && (vars.ticks % 3 == 0)
@@ -391,7 +412,8 @@ class GameplayController implements IKeyDownHandler {
      *
      * @param entity Entity whose picture is to be corrected.
      */
-    private void correctPicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity) {
+    private void correctPicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
         entity.item3.setLocation(new Point(entity.item1 * LoadMap.TILESIZEINPXS - 6, entity.item2 * LoadMap.TILESIZEINPXS + 42));
         if (entity.item4 != Direction.directionType.DIRECTION)
             updatePicture(entity);
@@ -402,7 +424,8 @@ class GameplayController implements IKeyDownHandler {
      *
      * @param isPacman Boolean indicating whether to update pacman or ghosts.
      */
-    private void updateMove(boolean isPacman) {
+    private void updateMove(boolean isPacman)
+    {
         // Direction of entities controlled by players are updated via newDirection variables.
         // Direction of UI entities is set through AI algorithms.
         if (isPacman) {
@@ -444,6 +467,10 @@ class GameplayController implements IKeyDownHandler {
 
     /**
      * Provides timer for pacman's excitement and changes all of the ghost back to normal at the end.
+     *
+     * @throws IOException Exception is to be handled by caller.
+     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
+     * @throws LineUnavailableException Exception is to be handled by caller.
      */
     private void updateEatEmTimer()
         throws IOException, UnsupportedAudioFileException, LineUnavailableException
@@ -470,6 +497,10 @@ class GameplayController implements IKeyDownHandler {
      * Checks whether pacman is not on a tile with pellet.
      * if so, plays the sound and increases number of collected pellets and score.
      * Also enables pacman's excitement via EatEmTimer.
+     *
+     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
+     * @throws IOException Exception is to be handled by caller.
+     * @throws LineUnavailableException Exception is to be handled by caller.
      */
     private void updateEatPellet()
         throws UnsupportedAudioFileException, IOException, LineUnavailableException
@@ -520,7 +551,8 @@ class GameplayController implements IKeyDownHandler {
      * Places ghost specified by number out of ghost house and sets its start direction.
      * Also resets timer for ghost releasing.
      */
-    private void setGhostFree() {
+    private void setGhostFree()
+    {
         vars.entities.get(vars.freeGhosts + 1).item1 = vars.topGhostInTiles.item1;
         vars.entities.get(vars.freeGhosts + 1).item2 = vars.topGhostInTiles.item2;
         vars.entities.get(vars.freeGhosts + 1).item3.setLocation(new Point(
@@ -535,10 +567,10 @@ class GameplayController implements IKeyDownHandler {
     /**
      * Checks if distance in tiles between pacman and each entity is bigger than 1.
      *
-     * @throws IOException
-     * @throws LineUnavailableException
-     * @throws UnsupportedAudioFileException
-     * @throws InterruptedException
+     * @throws IOException Exception is to be handled by caller.
+     * @throws LineUnavailableException Exception is to be handled by caller.
+     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
+     * @throws InterruptedException Exception is to be handled by caller.
      */
     private void checkCollision()
         throws IOException, LineUnavailableException, UnsupportedAudioFileException, InterruptedException
@@ -578,10 +610,10 @@ class GameplayController implements IKeyDownHandler {
      * Body of the update mechanism. Selectively updates entities and map.
      *
      * @param isPacman Boolean indicating whether to update pacman or ghosts.
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
-     * @throws LineUnavailableException
-     * @throws InterruptedException
+     * @throws IOException Exception is to be handled by caller.
+     * @throws UnsupportedAudioFileException Exception is to be handled by caller.
+     * @throws LineUnavailableException Exception is to be handled by caller.
+     * @throws InterruptedException Exception is to be handled by caller.
      */
     private void updateGame(boolean isPacman)
         throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException
@@ -620,7 +652,8 @@ class GameplayController implements IKeyDownHandler {
     /**
      * Handles periodical blinking of 1up, 2up and Power Pellets.
      */
-    private void blink() {
+    private void blink()
+    {
         if (vars.ticks % 3 == 0) {
             vars.up1.setVisible(false);
             if (vars.player2)
@@ -647,7 +680,8 @@ class GameplayController implements IKeyDownHandler {
     /**
      * Handles necessary redrawing of pellets cover by ghosts.
      */
-    private void correctPellets() {
+    private void correctPellets()
+    {
         for (int i = 0; i < LoadMap.RDPSIZE; i++) {
             vars.mapFresh[vars.redrawPellets[i].x][vars.redrawPellets[i].y].DrawTile(vars.bufferGraphics,
                     new Point(vars.redrawPellets[i].y * LoadMap.TILESIZEINPXS,
@@ -662,7 +696,8 @@ class GameplayController implements IKeyDownHandler {
      * @param direction Direction player intends to move in.
      * @param keyCountdown Number of tries left.
      */
-    private void keyCountAndDir(Direction.directionType direction, Integer keyCountdown) {
+    private void keyCountAndDir(Direction.directionType direction, Integer keyCountdown)
+    {
         if (direction == Direction.directionType.DIRECTION && keyCountdown != 0)
             keyCountdown = 0;
         else if (direction != Direction.directionType.DIRECTION && keyCountdown > 1)
@@ -678,7 +713,8 @@ class GameplayController implements IKeyDownHandler {
      *
      * @param isPacman Boolean indicating whether to update pacman or ghosts.
      */
-    private void gameLoop(boolean isPacman) {
+    private void gameLoop(boolean isPacman)
+    {
         // In case that one of the players have pushed a valid key, countdown, which represents
         // the number tiles remaining until the information about the pushed button is lost, is started.
         if (vars.keyPressed1) {
@@ -709,14 +745,13 @@ class GameplayController implements IKeyDownHandler {
             if (isPacman) {
                 model.pacSmoothTimer.start();
                 pacSmoothMoveStep = 0;
-            } else {
+            } else
                 model.ghostSmoothTimer.start();
-                ghostSmoothMoveStep = 0;
-            }
         }
     }
 
-    private void endLevel() {
+    private void endLevel()
+    {
         model.pacUpdater.stop();
         model.ghostUpdater.stop();
         vars.musicPlayer.stop();
@@ -732,7 +767,7 @@ class GameplayController implements IKeyDownHandler {
 
         vars.level++;
         if (vars.level < GameConsts.MAXLEVEL && !vars.player2)
-            loadGame(false);
+            sendGameLoadRequest(loadGameType.NEXT);
         else
             endGame();
     }
@@ -742,7 +777,8 @@ class GameplayController implements IKeyDownHandler {
     /**
      * Handles events raised by timers and distributes them to appropriate functions.
      */
-    private class TimerListener implements ActionListener{
+    private class TimerListener implements ActionListener
+    {
         timer_types timer_type;
 
         private TimerListener(timer_types type){
@@ -750,7 +786,8 @@ class GameplayController implements IKeyDownHandler {
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             switch(timer_type) {
                 case PACMAN:
                     pacUpdater_Tick();
@@ -772,7 +809,8 @@ class GameplayController implements IKeyDownHandler {
      * Creates illusion of game loop.
      * Handles event raised by pacman's timer's periodical ticks.
      */
-    private void pacUpdater_Tick() {
+    private void pacUpdater_Tick()
+    {
         model.pacSmoothTimer.stop();
         gameLoop(true);
     }
@@ -781,7 +819,8 @@ class GameplayController implements IKeyDownHandler {
      * Creates illusion of game loop.
      * Handles event raised by ghosts' timer's periodical ticks.
      */
-    private void ghostUpdater_Tick() {
+    private void ghostUpdater_Tick()
+    {
         model.ghostSmoothTimer.stop();
         gameLoop(false);
     }
@@ -789,7 +828,8 @@ class GameplayController implements IKeyDownHandler {
     /**
      * Handles animating of pacman's translation between old and the new tile.
      */
-    private void pacSmoothTimer_Tick() {
+    private void pacSmoothTimer_Tick()
+    {
         ++pacSmoothMoveStep;
         if (vars.entities.get(0).item4 != Direction.directionType.DIRECTION && !teleported[0]) {
             Point d = getDeltas((byte)0);
@@ -820,7 +860,6 @@ class GameplayController implements IKeyDownHandler {
      */
     private void ghostSmoothTimer_Tick()
     {
-        ++ghostSmoothMoveStep;
         for (byte i = 1; i <= vars.freeGhosts; i++)
             if (vars.entities.get(i).item4 != Direction.directionType.DIRECTION && !teleported[i]) {
                 Point d = getDeltas(i);
@@ -841,7 +880,8 @@ class GameplayController implements IKeyDownHandler {
      * @param index Input index identifying entity.
      * @return Point of deltas in X and Y axes.
      */
-    private Point getDeltas(byte index) {
+    private Point getDeltas(byte index)
+    {
         int dX = 0, dY = 0;
         if (entitiesPixDeltas[index].x >= 2) {
             dX = 2;

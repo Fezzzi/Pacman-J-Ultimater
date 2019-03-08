@@ -118,7 +118,8 @@ class GameLoadController {
     /**
      * Resets entities to their original positions and states.
      */
-    private void resetEntities(){
+    private void resetEntities()
+    {
         vars.entities.get(0).item1 = LoadMap.PACMANINITIALX;
         vars.entities.get(0).item2 = LoadMap.PACMANINITIALY;
         vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/Textures/PacStart.png"));
@@ -259,7 +260,8 @@ class GameLoadController {
     /**
      * Procedure serving simply for initialization of variables at the map load up and displaying loading screen.
      */
-    private void restartInit(){
+    private void restartInit()
+    {
         vars.soundTick = 0;
         vars.keyPressed1 = false;
         vars.keyPressed2 = false;
@@ -365,27 +367,113 @@ class GameLoadController {
     }
 
     /**
+     * Provides next level loading in already loaded game.
+     */
+    void loadNextLevel()
+    {
+        LoadNextLevelTask lngTask = new LoadNextLevelTask();
+        lngTask.execute();
+    }
+
+    /**
+     * Provides already loaded level reloading.
+     */
+    void reloadLevel()
+    {
+        RestartLevelTask rgTask = new RestartLevelTask();
+        rgTask.execute();
+    }
+
+    /**
      * Provides loading and general preparing of the game at the level start-up.
      *
-     * @param restart Indicates whether is method triggered by level's restart or finish.
      * @param timers Class implementing timers' handling.
      */
-    void playGame(boolean restart, TimersListeners timers)
+    void loadGame(TimersListeners timers)
     {
-        if(restart)
-        {
-            RestartGameTask rgTask = new RestartGameTask();
-            rgTask.execute();
-        }
-        else {
-            PlayGameTask pgTask = new PlayGameTask(timers);
-            pgTask.execute();
-        }
+        PlayGameTask pgTask = new PlayGameTask(timers);
+        pgTask.execute();
     }
 
     enum playGamePhase {PHASE1, PHASE2, PHASE3, INTERRUPTEDEXCEPTION, EXECUTIONEXCEPTION}
 
-    class RestartGameTask extends SwingWorker<Void, playGamePhase>
+    class LoadNextLevelTask extends SwingWorker<Void, playGamePhase>
+    {
+        @Override
+        public Void doInBackground()
+        {
+            try {
+                publish(playGamePhase.PHASE2);
+                Thread.sleep(OPENINGTHEMELENGTH);
+
+                publish(playGamePhase.PHASE3);
+            }
+            catch (InterruptedException exception){
+                publish(playGamePhase.INTERRUPTEDEXCEPTION);
+            }
+            return null;
+        }
+
+        @Override
+        protected void process(List<playGamePhase> phases)
+        {
+            try {
+                for (playGamePhase phase : phases) {
+                    if (vars.gameOn) {
+                        switch (phase) {
+                            case PHASE2:
+                                System.out.println("Time gate 1: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+                                if (vars.music){
+                                    vars.musicPlayer.close();
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
+                                            false, 0 , 0);
+                                }
+                                restartInit();
+                                for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
+                                    vars.pacLives[i].setVisible(false);
+
+                                resetEntities();
+                                ready.setVisible(true);
+                                System.out.println("Time gate 2: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+                                renderMap(vars.mapFresh, vars.map.item4);
+                                break;
+                            case PHASE3:
+                                if (vars.music)
+                                    vars.musicPlayer.close();
+
+                                ready.setVisible(false);
+                                model.mainPanel.revalidate();
+                                // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
+                                vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
+                                        vars.entities.get(0).item3.getLocation().y));
+                                vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
+                                        vars.entities.get(1).item3.getLocation().y));
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav",
+                                            true, 0, 9100);
+
+                                model.pacUpdater.start();
+                                model.ghostUpdater.start();
+                                break;
+                            case INTERRUPTEDEXCEPTION:
+                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                MainFrameController.handleExceptions("java.lang.InterruptedException", model);
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
+                try {
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                }
+                catch(IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                MainFrameController.handleExceptions(exception.toString(), model);
+            }
+        }
+    }
+
+    class RestartLevelTask extends SwingWorker<Void, playGamePhase>
     {
         @Override
         public Void doInBackground()

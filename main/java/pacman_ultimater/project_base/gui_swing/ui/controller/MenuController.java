@@ -87,7 +87,8 @@ public class MenuController implements IKeyDownHandler {
      * @throws IllegalAccessException should be handled once in parent method.
      * @throws InvocationTargetException should be handled once in parent method.
      */
-    private void menu(Method menu_Func) throws IllegalAccessException, InvocationTargetException
+    private void menu(Method menu_Func)
+            throws IllegalAccessException, InvocationTargetException
     {
         for (JLabel label : activeElements)
             label.setVisible(false);
@@ -222,6 +223,9 @@ public class MenuController implements IKeyDownHandler {
 
     /**
      * Loads predefined original map and calls proceedToGameplay() to proceed to gameplay.
+     *
+     * @throws InvocationTargetException Exception si to be handled by caller.
+     * @throws IllegalAccessException Exception si to be handled by caller.
      */
     private void orgGame_Click()
             throws InvocationTargetException, IllegalAccessException
@@ -322,7 +326,7 @@ public class MenuController implements IKeyDownHandler {
         try {
             gp = new GameplayController(model, vars, new GameOverHandler());
             kb.changeHandler(gp);
-            gp.loadGame(false);
+            gp.loadGame();
         }
         catch(LineUnavailableException e)
         {
@@ -335,7 +339,8 @@ public class MenuController implements IKeyDownHandler {
      * Function that provides bridge from gameplay to menu.
      * Switches key binding's handler back to MenuController's one.
      */
-    private void returnToMenu(){
+    private void returnToMenu()
+    {
         kb.changeHandler(this);
         gp = null;
         int componentsCount = model.mainPanel.getComponentCount();
@@ -657,8 +662,8 @@ public class MenuController implements IKeyDownHandler {
 
     private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
 
-    private class labelListener extends MouseAdapter {
-
+    private class labelListener extends MouseAdapter
+    {
         private JLabel label;
         private mouseAdapterType mat;
         private MainFrameModel model;
