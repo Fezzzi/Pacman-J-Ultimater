@@ -14,8 +14,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-public class MenuController implements IKeyDownHandler {
-
+public class MenuController implements IKeyDownHandler
+{
     //<editor-fold desc="- VARIABLES Block -">
 
     private ArrayList<JLabel> activeElements = new ArrayList<>();
@@ -316,7 +316,7 @@ public class MenuController implements IKeyDownHandler {
     private void proceedToGameplay()
     {
         model.mainPanel.requestFocus();
-        vars.level = 0;
+        vars.level = 1;
         vars.gameOn = true;
         vars.map = vars.loadedMap.Map;
         menuComponentsCount = model.mainPanel.getComponentCount();
@@ -546,10 +546,11 @@ public class MenuController implements IKeyDownHandler {
         }
         catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception)
         {
-            try {
-                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+            if (vars.score > vars.highScore) {
+                try {
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
             }
-            catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
             MainFrameController.handleExceptions(exception.toString(), model);
         }
 
@@ -557,7 +558,7 @@ public class MenuController implements IKeyDownHandler {
     }
 
     /**
-     * Function that switches active labels by dehighlighting the old one and highlighting the new one.
+     * Function that switches active labels by unhighlighting the old one and highlighting the new one.
      *
      * @param prevLabel Previous active label.
      * @param newLabel New active label.
@@ -701,10 +702,11 @@ public class MenuController implements IKeyDownHandler {
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception)
             {
-                try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                if (vars.score > vars.highScore) {
+                    try {
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
-                catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
                 MainFrameController.handleExceptions(exception.getMessage(), model);
             }
         }

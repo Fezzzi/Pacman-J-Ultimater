@@ -19,20 +19,53 @@ import java.util.concurrent.ExecutionException;
 
 import static pacman_ultimater.project_base.gui_swing.model.GameConsts.*;
 
-class GameLoadController {
-
+class GameLoadController
+{
     private MainFrameModel model;
     private GameModel vars;
     private JLabel loading, levelLabel, ready;
     private int[] animLabelsIds = new int[5];
-
-    //<editor-fold desc="- STARTGAME Block -">
 
     GameLoadController(MainFrameModel model, GameModel vars) throws LineUnavailableException
     {
         this.model = model;
         this.vars = vars;
         vars.musicPlayer = AudioSystem.getClip();
+        vars.topGhostInTiles = new IntPair(vars.map.item3.item1 - 1, vars.map.item3.item2 - 1);
+
+        initLabels();
+    }
+
+    //<editor-fold desc="- HELPER FUNCTIONS Block -">
+
+    /**
+     * Initializes loading, level and ready labels.
+     */
+    private void initLabels()
+    {
+        ready = new JLabel();
+        ready.setSize(150, 30);
+        ready.setVisible(false);
+        placeLabel(ready, "READY!", Color.yellow,
+                new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
+                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
+                new Font("Ravie", Font.BOLD, 22));
+
+        loading = new JLabel();
+        loading.setSize(350, 60);
+        loading.setVisible(false);
+        placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
+                new Font("Ravie", Font.BOLD, 48));
+
+        levelLabel = new JLabel();
+        levelLabel.setSize(300, 60);
+        levelLabel.setVisible(false);
+        placeLabel(levelLabel, "", Color.red, new Point(118, 200),
+                new Font("Ravie", Font.BOLD, 30));
+
+        vars.pacLives = new JLabel[MAXLIVES];
+        for (int i = 0; i < MAXLIVES; i++)
+            vars.pacLives[i] = new JLabel();
     }
 
     /**
@@ -257,10 +290,69 @@ class GameLoadController {
     }
 
     /**
-     * Procedure serving simply for initialization of variables at the map load up and displaying loading screen.
+     * Initializes pacman's and ghosts' timers.
+     *
+     * @param timers Structure holding listeners for each initialized timer.
      */
-    private void restartInit()
+    private void initTimers(TimersListeners timers)
     {
+        model.pacUpdater = new Timer(PACTIMER, timers.getPacman_timer());
+        model.pacUpdater.setRepeats(true);
+        model.ghostUpdater = new Timer(
+                !vars.player2 ? (PACTIMER + 40 - (vars.level > 13 ? 65
+                        : vars.level * 5))
+                        : model.pacUpdater.getDelay() + 10,
+                timers.getGhost_timer());
+        model.ghostUpdater.setRepeats(true);
+        model.pacSmoothTimer = new Timer(
+                model.pacUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
+                timers.getPacman_smooth_timer());
+        model.pacSmoothTimer.setRepeats(true);
+        model.ghostSmoothTimer = new Timer(
+                model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
+                timers.getGhost_smooth_timer());
+        model.ghostSmoothTimer.setRepeats(true);
+    }
+
+    /**
+     * Procedure serving for initialization of variables at the game load up.
+     *
+     * @throws IOException Propagation from highScore loading.
+     * @throws LineUnavailableException Propagation from sound players creation.
+     */
+    private void varsInit()
+        throws IOException, LineUnavailableException, UnsupportedAudioFileException
+    {
+        vars.defSize = model.getMainFrameMinimumSize();
+        vars.size = new Dimension((LoadMap.MAPWIDTHINTILES + 1) * LoadMap.TILESIZEINPXS,
+                                (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
+        model.setMainFrameSize(vars.size);
+        model.mainPanel.setSize(vars.size);
+        model.recenterMainFrame(vars.size);
+
+        vars.gameMap = new JLabel();
+        vars.gameMap.setSize(vars.size);
+        vars.extraLifeGiven = false;
+        vars.score = 0;
+        vars.score2 = 0;
+        vars.initSoundPlayers(model.resourcesPath);
+        vars.lives = 3;
+
+        if (vars.highScore == -1)
+            vars.highScore = HighScoreClass.loadHighScore(model.resourcesPath);
+
+        // Yet empty fields of the array would redraw over top right corner of the map.
+        // This way it draws empty tile on pacman's initial position tile which is empty by definition.
+        for (int i = 0; i < LoadMap.RDPSIZE; i++)
+            vars.redrawPellets[i] = new Point(LoadMap.PACMANINITIALY, LoadMap.PACMANINITIALX);
+    }
+
+    /**
+     * Procedure serving for variables resetting at the map load up.
+     *
+     * @param nextLevel Reset Variables for new level load-up?
+     */
+    private void varsReset(boolean nextLevel){
         vars.soundTick = 0;
         vars.keyPressed1 = false;
         vars.keyPressed2 = false;
@@ -272,72 +364,11 @@ class GameLoadController {
         vars.freeGhosts = 1;
         vars.eatEmTimer = 0;
         vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
-    }
 
-    /**
-     * Procedure serving simply for initialization of variables at the map load up and displaying loading screen.
-     *
-     * @throws IOException Propagation from highScore loading.
-     * @throws LineUnavailableException Propagation from sound players creation.
-     */
-    private void loadingAndInit()
-        throws IOException, LineUnavailableException, UnsupportedAudioFileException
-    {
-        if (vars.level == 0) {
-            loading = new JLabel();
-            levelLabel = new JLabel();
-            vars.defSize = model.getMainFrameMinimumSize();
-            vars.size = new Dimension((LoadMap.MAPWIDTHINTILES + 1) * LoadMap.TILESIZEINPXS,
-                    (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
-            model.setMainFrameSize(vars.size);
-            model.mainPanel.setSize(vars.size);
-            model.recenterMainFrame(vars.size);
-
-            vars.gameMap = new JLabel();
-            vars.gameMap.setSize(vars.size);
-            vars.gameMap.setVisible(true);
-            vars.extraLifeGiven = false;
-            vars.score = 0;
-            vars.score2 = 0;
-            vars.soundTick = 0; // used for sound players to take turns
-            vars.initSoundPlayers(model.resourcesPath);
-
-            vars.lives = 3;
-            ++vars.level;
-
-            loading.setSize(350, 60);
-            placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
-                new Font("Ravie", Font.BOLD, 48));
-            levelLabel.setSize(300, 60);
-            placeLabel(levelLabel, "- Level " + Integer.toString(vars.level) + " -", Color.red, new Point(118, 200),
-                new Font("Ravie", Font.BOLD, 30));
-
-            vars.pacLives = new JLabel[MAXLIVES];
-            for (int i = 0; i < MAXLIVES; i++)
-                vars.pacLives[i] = new JLabel();
+        if(nextLevel){
+            vars.collectedDots = 0;
+            vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
         }
-        vars.collectedDots = 0;
-        loading.setVisible(true);
-        levelLabel.setVisible(true);
-        model.mainPanel.revalidate();
-        vars.keyPressed1 = false;
-        vars.keyPressed2 = false;
-        vars.ghostsEaten = 0;
-        vars.keyCountdown1 = 0;
-        vars.keyCountdown2 = 0;
-        vars.killed = false;
-        vars.ticks = 0; // Counts tick to enable power pellets flashing and ghost flashing at the end of pac's excitement.
-        vars.freeGhosts = 1;
-        vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
-        vars.eatEmTimer = 0;
-
-        // Yet empty fields of the array would redraw over top right corner of the map.
-        // This way it draws empty tile on pacman's initial position tile which is empty by definition.
-        for (int i = 0; i < LoadMap.RDPSIZE; i++)
-            vars.redrawPellets[i] = new Point(LoadMap.PACMANINITIALY, LoadMap.PACMANINITIALX);
-
-        if (vars.highScore == -1)
-            vars.highScore = HighScoreClass.loadHighScore(model.resourcesPath);
     }
 
     /**
@@ -365,16 +396,36 @@ class GameLoadController {
         }
     }
 
-    private void toggleComponentsVisibility(boolean visible){
-        for(int i = 0; i < vars.entities.size(); ++i)
-            vars.entities.get(i).item3.setVisible(visible);
-
-        vars.gameMap.setVisible(visible);
-
-        // levelLabel and loading are visible when gameMap and entities are not.
-        levelLabel.setVisible(!visible);
-        loading.setVisible(!visible);
+    /**
+     * Corrects start positions of pacman and first ghost as they are located between the tiles at first.
+     */
+    private void correctStartPositions()
+    {
+        vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
+                vars.entities.get(0).item3.getLocation().y));
+        vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
+                vars.entities.get(1).item3.getLocation().y));
     }
+
+    /**
+     * Sets visibility for components based on given intro/game boolean.
+     *
+     * @param gameComponents Indicates whether to set visible components for the intro or for the game.
+     */
+    private void toggleComponentsVisibility (boolean gameComponents)
+    {
+        vars.gameMap.setVisible(gameComponents);
+        ready.setVisible(gameComponents);
+        for(int i = 0; i < vars.entities.size(); ++i)
+            vars.entities.get(i).item3.setVisible(gameComponents);
+
+        levelLabel.setVisible(!gameComponents);
+        loading.setVisible(!gameComponents);
+    }
+
+    //</editor-fold>
+
+    //<editor-fold desc="- PUBLIC API Block -">
 
     /**
      * Provides next level loading in already loaded game.
@@ -405,10 +456,19 @@ class GameLoadController {
         pgTask.execute();
     }
 
-    enum playGamePhase {PHASE1, PHASE2, PHASE3, INTERRUPTEDEXCEPTION, EXECUTIONEXCEPTION}
+    //</editor-fold>
 
-    class LoadNextLevelTask extends SwingWorker<Void, playGamePhase>
+    //<editor-fold desc="- LOADING TASKS Block -">
+
+    private enum playGamePhase {PHASE1, PHASE2, PHASE3, INTERRUPTEDEXCEPTION, EXECUTIONEXCEPTION}
+
+    class LoadNextLevelTask extends GameLoadSwingWorker
     {
+        LoadNextLevelTask()
+        {
+            super(true);
+        }
+
         @Override
         public Void doInBackground()
         {
@@ -441,30 +501,30 @@ class GameLoadController {
                     if (vars.gameOn) {
                         switch (phase) {
                             case PHASE1:
-                                loadingAndInit();
+                                varsReset(true);
                                 levelLabel.setText("- Level " + Integer.toString(vars.level) + " -");
                                 toggleComponentsVisibility(false);
                                 if (vars.music)
                                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
                                 break;
                             case PHASE2:
-                                if (vars.music){
-                                    vars.musicPlayer.close();
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
-                                            false, 0 , 0);
-                                }
-                                restartInit();
+                                if (vars.music)
+                                    vars.musicPlayer.stop();
+
                                 for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
                                     vars.pacLives[i].setVisible(false);
 
                                 resetEntities();
                                 vars.mapFresh = deepCopy(vars.map.item1);
-                                if (vars.level <= 13 && vars.level > 1)
-                                    model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
+                                model.ghostUpdater.setDelay((GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) * 2);
+                                model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));
 
-                                ready.setVisible(true);
                                 renderMap(vars.mapFresh, vars.map.item4);
                                 toggleComponentsVisibility(true);
+
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
+                                            false, 0, 0);
                                 break;
                             case PHASE3:
                                 if (vars.music)
@@ -472,11 +532,7 @@ class GameLoadController {
 
                                 ready.setVisible(false);
                                 model.mainPanel.revalidate();
-                                // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
-                                vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
-                                        vars.entities.get(0).item3.getLocation().y));
-                                vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
-                                        vars.entities.get(1).item3.getLocation().y));
+                                correctStartPositions();
                                 if (vars.music)
                                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav",
                                             true, 0, 9100);
@@ -485,7 +541,9 @@ class GameLoadController {
                                 model.ghostUpdater.start();
                                 break;
                             case INTERRUPTEDEXCEPTION:
-                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                if (vars.score > vars.highScore) {
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
                         }
@@ -493,30 +551,21 @@ class GameLoadController {
                 }
             }
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
-                try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                if (vars.score > vars.highScore) {
+                    try {
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
-                catch(IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 MainFrameController.handleExceptions(exception.toString(), model);
             }
         }
     }
 
-    class RestartLevelTask extends SwingWorker<Void, playGamePhase>
+    class RestartLevelTask extends GameLoadSwingWorker
     {
-        @Override
-        public Void doInBackground()
+        RestartLevelTask()
         {
-            try {
-                publish(playGamePhase.PHASE2);
-                Thread.sleep(OPENINGTHEMELENGTH);
-
-                publish(playGamePhase.PHASE3);
-            }
-            catch (InterruptedException exception){
-                publish(playGamePhase.INTERRUPTEDEXCEPTION);
-            }
-            return null;
+            super(false);
         }
 
         @Override
@@ -527,12 +576,12 @@ class GameLoadController {
                     if (vars.gameOn) {
                         switch (phase) {
                             case PHASE2:
-                                if (vars.music){
-                                    vars.musicPlayer.close();
+                                if (vars.music) {
+                                    vars.musicPlayer.stop();
                                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
-                                            false, 0 , 0);
+                                            false, 0, 0);
                                 }
-                                restartInit();
+                                varsReset(false);
                                 for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
                                     vars.pacLives[i].setVisible(false);
 
@@ -545,21 +594,19 @@ class GameLoadController {
                                     vars.musicPlayer.close();
 
                                 ready.setVisible(false);
-                                model.mainPanel.revalidate();
-                                // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
-                                vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
-                                        vars.entities.get(0).item3.getLocation().y));
-                                vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
-                                        vars.entities.get(1).item3.getLocation().y));
+                                correctStartPositions();
                                 if (vars.music)
                                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav",
                                             true, 0, 9100);
 
                                 model.pacUpdater.start();
                                 model.ghostUpdater.start();
+                                model.mainPanel.revalidate();
                                 break;
                             case INTERRUPTEDEXCEPTION:
-                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                if (vars.score > vars.highScore) {
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
                         }
@@ -567,34 +614,122 @@ class GameLoadController {
                 }
             }
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
-                try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                if (vars.score > vars.highScore) {
+                    try {
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
-                catch(IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 MainFrameController.handleExceptions(exception.toString(), model);
             }
         }
     }
 
-    class PlayGameTask extends SwingWorker<Void, playGamePhase>
+    class PlayGameTask extends GameLoadSwingWorker
     {
         TimersListeners timers;
 
         PlayGameTask(TimersListeners timers)
         {
+            super(true);
             this.timers = timers;
-            ready = new JLabel();
+        }
+
+        @Override
+        protected void process(List<playGamePhase> phases)
+        {
+            try {
+                for (playGamePhase phase : phases) {
+                    if (vars.gameOn) {
+                        switch (phase) {
+                            case PHASE1:
+                                varsInit();
+                                varsReset(true);
+                                initTimers(timers);
+                                levelLabel.setText("- Level " + Integer.toString(vars.level) + " -");
+                                loading.setVisible(true);
+                                levelLabel.setVisible(true);
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
+                                break;
+
+                            case PHASE2:
+                                if (vars.music)
+                                    vars.musicPlayer.close();
+
+                                loadHud();
+                                for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
+                                    vars.pacLives[i].setVisible(false);
+
+                                loadEntities();
+                                if (vars.level <= 13 && vars.level > 1)
+                                    model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
+
+                                vars.mapFresh = deepCopy(vars.map.item1);
+                                model.mainPanel.add(vars.gameMap);
+                                toggleComponentsVisibility(true);
+                                renderMap(vars.mapFresh, vars.map.item4);
+
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav", false, 0 , 0);
+                                break;
+                            case PHASE3:
+                                if (vars.music)
+                                    vars.musicPlayer.close();
+
+                                ready.setVisible(false);
+                                correctStartPositions();
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav", true, 0, 9100);
+
+                                model.pacUpdater.start();
+                                model.ghostUpdater.start();
+                                model.mainPanel.revalidate();
+                                break;
+                            case EXECUTIONEXCEPTION:
+                                if (vars.score > vars.highScore) {
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                }
+                                MainFrameController.handleExceptions("java.util.concurrent.ExecutionException", model);
+                                break;
+                            case INTERRUPTEDEXCEPTION:
+                                if (vars.score > vars.highScore) {
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                }
+                                MainFrameController.handleExceptions("java.lang.InterruptedException", model);
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
+                if (vars.score > vars.highScore) {
+                    try {
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                }
+                MainFrameController.handleExceptions(exception.toString(), model);
+            }
+        }
+    }
+
+    abstract class GameLoadSwingWorker extends SwingWorker<Void, playGamePhase>
+    {
+        boolean withAnimation;
+
+        GameLoadSwingWorker(boolean withAnimation){
+            this.withAnimation = withAnimation;
         }
 
         @Override
         public Void doInBackground()
         {
             try {
-                publish(playGamePhase.PHASE1);
-                AnimationTask animTask = new AnimationTask();
-                animTask.execute();
-                animTask.get();
-                vars.musicPlayer.stop();
+                if(withAnimation) {
+                    publish(playGamePhase.PHASE1);
+                    AnimationTask animTask = new AnimationTask();
+                    animTask.execute();
+                    animTask.get();
+                }
 
                 publish(playGamePhase.PHASE2);
                 Thread.sleep(OPENINGTHEMELENGTH);
@@ -609,105 +744,11 @@ class GameLoadController {
             }
             return null;
         }
-
-        @Override
-        protected void process(List<playGamePhase> phases)
-        {
-            try {
-                for (playGamePhase phase : phases) {
-                    if (vars.gameOn) {
-                        switch (phase) {
-                            case PHASE1:
-                                loadingAndInit();
-                                if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
-                                break;
-                            case PHASE2:
-                                if (vars.music)
-                                    vars.musicPlayer.close();
-
-                                loadHud();
-                                for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
-                                    vars.pacLives[i].setVisible(false);
-
-                                vars.topGhostInTiles = new IntPair(vars.map.item3.item1 - 1, vars.map.item3.item2 - 1);
-                                loadEntities();
-                                ready.setSize(150, 30);
-                                placeLabel(ready, "READY!", Color.yellow,
-                                    new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                                            (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
-                                    new Font("Ravie", Font.BOLD, 22));
-
-                                vars.mapFresh = deepCopy(vars.map.item1);
-                                if (vars.level <= 13 && vars.level > 1)
-                                    model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
-
-                                loading.setVisible(false);
-                                levelLabel.setVisible(false);
-                                ready.setVisible(true);
-                                model.mainPanel.add(vars.gameMap);
-                                model.mainPanel.repaint();
-                                model.mainPanel.revalidate();
-                                renderMap(vars.mapFresh, vars.map.item4);
-
-                                if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav", false, 0 , 0);
-                                break;
-                            case PHASE3:
-                                if (vars.music)
-                                    vars.musicPlayer.close();
-
-                                ready.setVisible(false);
-                                model.mainPanel.revalidate();
-                                // Corrects start positions of pacman and first ghost as they are located between the tiles at first.
-                                vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
-                                        vars.entities.get(0).item3.getLocation().y));
-                                vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
-                                        vars.entities.get(1).item3.getLocation().y));
-                                if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav", true, 0, 9100);
-
-                                // Starts updaters that provides effect of main game cycle.
-                                model.pacUpdater = new Timer(PACTIMER, timers.getPacman_timer());
-                                model.pacUpdater.setRepeats(true);
-                                model.ghostUpdater = new Timer(
-                                        !vars.player2 ? (PACTIMER + 40 - (vars.level > 13 ? 65
-                                                : vars.level * 5))
-                                                : model.pacUpdater.getDelay() + 10,
-                                        timers.getGhost_timer());
-                                model.ghostUpdater.setRepeats(true);
-                                model.pacSmoothTimer = new Timer(
-                                        model.pacUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
-                                        timers.getPacman_smooth_timer());
-                                model.pacSmoothTimer.setRepeats(true);
-                                model.ghostSmoothTimer = new Timer(
-                                        model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
-                                        timers.getGhost_smooth_timer());
-                                model.ghostSmoothTimer.setRepeats(true);
-                                model.pacUpdater.start();
-                                model.ghostUpdater.start();
-                                break;
-                            case EXECUTIONEXCEPTION:
-                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
-                                MainFrameController.handleExceptions("java.util.concurrent.ExecutionException", model);
-                                break;
-                            case INTERRUPTEDEXCEPTION:
-                                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
-                                MainFrameController.handleExceptions("java.lang.InterruptedException", model);
-                                break;
-                        }
-                    }
-                }
-            }
-            catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
-                try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
-                }
-                catch(IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
-                MainFrameController.handleExceptions(exception.toString(), model);
-            }
-        }
     }
+
+    //</editor-fold>
+
+    //<editor-fold desc="- ANIMATION TASKS Block -">
 
     /**
      * Represents single frame of loading animation

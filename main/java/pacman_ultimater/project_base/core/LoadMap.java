@@ -339,7 +339,7 @@ public class LoadMap {
                                     switch (k)
                                     {
                                         case 1:
-                                            if (map[position.item1 + k][position.item2 + l] == symbols[3] && (l != 0 || l != 1))
+                                            if (map[position.item1 + k][position.item2 + l] == symbols[3] && l != 0 && l != 1)
                                                 ghostHouse++;
                                             break;
                                         case 5:

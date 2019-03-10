@@ -14,17 +14,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.IOException;
 
 class GameplayController implements IKeyDownHandler
 {
-
     //<editor-fold desc="- VARIABLES Block -">
 
     private int keyTicks = 5;
-    boolean killNextTick = false;
-    boolean[] teleported = new boolean[GameConsts.ENTITYCOUNT];
+    private boolean killNextTick = false;
+    private boolean[] teleported = new boolean[GameConsts.ENTITYCOUNT];
     private Direction.directionType newDirection1;
     private Direction.directionType newDirection2;
     private Point[] entitiesPixDeltas = new Point[GameConsts.ENTITYCOUNT];
@@ -166,7 +164,7 @@ class GameplayController implements IKeyDownHandler
         model.pacSmoothTimer = null;
         model.ghostSmoothTimer = null;
         vars.mapFresh = null;
-        if (vars.score >= vars.highScore) {
+        if (vars.score > vars.highScore) {
             try {
                 HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
             }
@@ -205,11 +203,9 @@ class GameplayController implements IKeyDownHandler
             vars.score2 += GameConsts.P2SCOREFORKILL;
         vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacStart.png"));
         model.mainPanel.repaint();
-        model.mainPanel.revalidate();
         Thread.sleep(GameConsts.PAUSEBEFOREDEATH);
         vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacExplode.png"));
         model.mainPanel.repaint();
-        model.mainPanel.revalidate();
         Thread.sleep(GameConsts.EXPLODINGTIME);
         vars.lives--;
 
@@ -522,7 +518,8 @@ class GameplayController implements IKeyDownHandler
                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_powersiren.wav", true, 0 , 26320);
 
                 //Pacman's excitement lasts shorter each level
-                vars.eatEmTimer = vars.player2 ? (3 * GameConsts.BASEEATEMTIMER) / 4 : GameConsts.BASEEATEMTIMER - vars.level;
+                vars.eatEmTimer = vars.player2 ? (3 * GameConsts.BASEEATEMTIMER) / 4
+                                               : (vars.level > 12 ? 35 : (GameConsts.BASEEATEMTIMER - vars.level * 5));
                 vars.ghostsEaten = 0;
                 model.ghostUpdater.setDelay((GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) * 2);
                 model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));

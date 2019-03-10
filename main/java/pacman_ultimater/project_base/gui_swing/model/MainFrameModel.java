@@ -9,7 +9,7 @@ public class MainFrameModel {
 
     public String resourcesPath;
 
-    public MainFrame mainFrame;
+    private MainFrame mainFrame;
     public JPanel mainPanel;
     public JFileChooser openFileDialog1;
     public Timer pacUpdater;

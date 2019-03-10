@@ -52,10 +52,11 @@ public class MainFrameController {
                 mc.openMenu();
             }
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
-                try{
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                if (vars.score > vars.highScore) {
+                    try {
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
-                catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
                 MainFrameController.handleExceptions(exception.getMessage(), model);
             }
         }
@@ -76,10 +77,11 @@ public class MainFrameController {
             for (Clip soundplayer: vars.soundPlayers)
                 soundplayer.close();
 
-            try{
-                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+            if (vars.score > vars.highScore) {
+                try {
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
             }
-            catch(IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
             model.disposeMainFrame();
         }
 
@@ -88,12 +90,12 @@ public class MainFrameController {
          * @param e WindowEvent
          */
         @Override
-        public void windowClosed(WindowEvent e)
-        {
-            try {
-                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+        public void windowClosed(WindowEvent e) {
+            if (vars.score > vars.highScore) {
+                try {
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
             }
-            catch (IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
         }
 
         /**
