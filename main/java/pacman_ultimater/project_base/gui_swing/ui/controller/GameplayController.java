@@ -23,6 +23,7 @@ class GameplayController implements IKeyDownHandler
     //<editor-fold desc="- VARIABLES Block -">
 
     private int keyTicks = 5;
+    boolean killNextTick = false;
     boolean[] teleported = new boolean[GameConsts.ENTITYCOUNT];
     private Direction.directionType newDirection1;
     private Direction.directionType newDirection2;
@@ -580,9 +581,14 @@ class GameplayController implements IKeyDownHandler
                     + Math.abs(vars.entities.get(i).item2 - vars.entities.get(0).item2)) <= 1)
             {
                 if (vars.eatEmTimer <= 0) {
-                    killPacman();
-                    vars.killed = true;
-                    return;
+                    if (killNextTick) {
+                        killNextTick = false;
+                        killPacman();
+                        vars.killed = true;
+                        return;
+                    }
+                    else
+                        killNextTick = true;
                 }
                 // In case of pacman's excitement and if the ghost is not already eaten
                 // changes the ghost's state to eaten and increases player's score.

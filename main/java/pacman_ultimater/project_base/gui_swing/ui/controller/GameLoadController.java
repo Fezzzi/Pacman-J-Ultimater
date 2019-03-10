@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -303,7 +302,6 @@ class GameLoadController {
             vars.soundTick = 0; // used for sound players to take turns
             vars.initSoundPlayers(model.resourcesPath);
 
-            vars.collectedDots = 0;
             vars.lives = 3;
             ++vars.level;
 
@@ -318,6 +316,7 @@ class GameLoadController {
             for (int i = 0; i < MAXLIVES; i++)
                 vars.pacLives[i] = new JLabel();
         }
+        vars.collectedDots = 0;
         loading.setVisible(true);
         levelLabel.setVisible(true);
         model.mainPanel.revalidate();
@@ -366,6 +365,17 @@ class GameLoadController {
         }
     }
 
+    private void toggleComponentsVisibility(boolean visible){
+        for(int i = 0; i < vars.entities.size(); ++i)
+            vars.entities.get(i).item3.setVisible(visible);
+
+        vars.gameMap.setVisible(visible);
+
+        // levelLabel and loading are visible when gameMap and entities are not.
+        levelLabel.setVisible(!visible);
+        loading.setVisible(!visible);
+    }
+
     /**
      * Provides next level loading in already loaded game.
      */
@@ -403,6 +413,12 @@ class GameLoadController {
         public Void doInBackground()
         {
             try {
+                publish(playGamePhase.PHASE1);
+                AnimationTask animTask = new AnimationTask();
+                animTask.execute();
+                animTask.get();
+                vars.musicPlayer.stop();
+
                 publish(playGamePhase.PHASE2);
                 Thread.sleep(OPENINGTHEMELENGTH);
 
@@ -410,6 +426,9 @@ class GameLoadController {
             }
             catch (InterruptedException exception){
                 publish(playGamePhase.INTERRUPTEDEXCEPTION);
+            }
+            catch (ExecutionException exception){
+                publish(playGamePhase.EXECUTIONEXCEPTION);
             }
             return null;
         }
@@ -421,8 +440,14 @@ class GameLoadController {
                 for (playGamePhase phase : phases) {
                     if (vars.gameOn) {
                         switch (phase) {
+                            case PHASE1:
+                                loadingAndInit();
+                                levelLabel.setText("- Level " + Integer.toString(vars.level) + " -");
+                                toggleComponentsVisibility(false);
+                                if (vars.music)
+                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
+                                break;
                             case PHASE2:
-                                System.out.println("Time gate 1: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
                                 if (vars.music){
                                     vars.musicPlayer.close();
                                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
@@ -433,9 +458,13 @@ class GameLoadController {
                                     vars.pacLives[i].setVisible(false);
 
                                 resetEntities();
+                                vars.mapFresh = deepCopy(vars.map.item1);
+                                if (vars.level <= 13 && vars.level > 1)
+                                    model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
+
                                 ready.setVisible(true);
-                                System.out.println("Time gate 2: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
                                 renderMap(vars.mapFresh, vars.map.item4);
+                                toggleComponentsVisibility(true);
                                 break;
                             case PHASE3:
                                 if (vars.music)
@@ -498,7 +527,6 @@ class GameLoadController {
                     if (vars.gameOn) {
                         switch (phase) {
                             case PHASE2:
-                                System.out.println("Time gate 1: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
                                 if (vars.music){
                                     vars.musicPlayer.close();
                                     vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
@@ -510,7 +538,6 @@ class GameLoadController {
 
                                 resetEntities();
                                 ready.setVisible(true);
-                                System.out.println("Time gate 2: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
                                 renderMap(vars.mapFresh, vars.map.item4);
                                 break;
                             case PHASE3:
@@ -611,14 +638,12 @@ class GameLoadController {
                                             (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
                                     new Font("Ravie", Font.BOLD, 22));
 
-                                vars.collectedDots = 0;
                                 vars.mapFresh = deepCopy(vars.map.item1);
                                 if (vars.level <= 13 && vars.level > 1)
                                     model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
 
-                                model.mainPanel.remove(loading);
-                                model.mainPanel.remove(levelLabel);
-
+                                loading.setVisible(false);
+                                levelLabel.setVisible(false);
                                 ready.setVisible(true);
                                 model.mainPanel.add(vars.gameMap);
                                 model.mainPanel.repaint();
