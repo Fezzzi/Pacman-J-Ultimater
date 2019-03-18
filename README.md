@@ -17,9 +17,9 @@ Are you bored of playing the same level over and over? Great! Now, you can load 
 Your text file even doesn't have to use any specific symbol alphabet. You can specify symbols mapping during map loading.
 
 <p>
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/Screen0.png" height="auto" width="250px">
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/Screen1.png" height="auto" width="250px">
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/Screen2.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman-Jultimator/blob/master/screen0.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/screen1.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/screen2.png" height="auto" width="250px">
 </p>
 
 ### Two players multiplayer
