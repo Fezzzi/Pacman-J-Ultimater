@@ -278,6 +278,7 @@ public class MenuController implements IKeyDownHandler
     private void selectMap_Click()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
+        model.openFileDialog1.requestFocus();
         if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;

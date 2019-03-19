@@ -73,9 +73,12 @@ public class MainFrameController {
                 if (timer != null)
                     timer.stop();
 
-            vars.musicPlayer.close();
-            for (Clip soundplayer: vars.soundPlayers)
-                soundplayer.close();
+            if(vars.musicPlayer != null)
+                vars.musicPlayer.close();
+
+            if(vars.soundPlayers != null)
+                for (Clip soundplayer: vars.soundPlayers)
+                    soundplayer.close();
 
             if (vars.score > vars.highScore) {
                 try {
@@ -86,17 +89,10 @@ public class MainFrameController {
         }
 
         /**
-         * Method handling score saving in case of from code exit (pressing esc/exception)
          * @param e WindowEvent
          */
         @Override
-        public void windowClosed(WindowEvent e) {
-            if (vars.score > vars.highScore) {
-                try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
-                } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
-            }
-        }
+        public void windowClosed(WindowEvent e) {}
 
         /**
          * Method handling timers and music pausing on window minimisation.
