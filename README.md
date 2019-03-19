@@ -1,5 +1,5 @@
-# Pacman_Jultimater
-Pacman Jultimater is a java implementation of classic arcade game Pac Man.
+# Pacman J-Ultimater
+Pacman J-Ultimater is a java implementation of classic arcade game Pac Man.
 
 It was used as final project of java programming course at mff UK.
 
@@ -17,9 +17,9 @@ Are you bored of playing the same level over and over? Great! Now, you can load 
 Your text file even doesn't have to use any specific symbol alphabet. You can specify symbols mapping during map loading.
 
 <p>
-  <img src="https://github.com/Fezzzi/Pacman-Jultimator/blob/master/screen0.png" height="auto" width="250px">
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/screen1.png" height="auto" width="250px">
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/screen2.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman-J-Ultimater/blob/master/screen0.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman-J-Ultimater/blob/master/screen1.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman-J-Ultimater/blob/master/screen2.png" height="auto" width="250px">
 </p>
 
 ### Two players multiplayer
