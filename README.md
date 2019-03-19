@@ -1,5 +1,5 @@
-# Pacman_Jultimater
-Pacman Jultimater is a java implementation of classic arcade game Pac Man.
+# Pacman-Jultimator
+Pacman Jultimator is a java implementation of classic arcade game Pac Man.
 
 It was used as final project of java programming course at mff UK.
 
@@ -18,8 +18,8 @@ Your text file even doesn't have to use any specific symbol alphabet. You can sp
 
 <p>
   <img src="https://github.com/Fezzzi/Pacman-Jultimator/blob/master/screen0.png" height="auto" width="250px">
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/screen1.png" height="auto" width="250px">
-  <img src="https://github.com/Fezzzi/Pacman_Jultimater/blob/master/screen2.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman-Jultimator/blob/master/screen1.png" height="auto" width="250px">
+  <img src="https://github.com/Fezzzi/Pacman-Jultimator/blob/master/screen2.png" height="auto" width="250px">
 </p>
 
 ### Two players multiplayer
