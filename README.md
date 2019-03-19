@@ -1,5 +1,5 @@
-# Pacman-Jultimator
-Pacman Jultimator is a java implementation of classic arcade game Pac Man.
+# Pacman J-Ultimater
+Pacman J-Ultimater is a java implementation of classic arcade game Pac Man.
 
 It was used as final project of java programming course at mff UK.
 
