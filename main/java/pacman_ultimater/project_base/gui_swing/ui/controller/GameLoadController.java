@@ -585,6 +585,9 @@ class GameLoadController
                                 for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
                                     vars.pacLives[i].setVisible(false);
 
+                                if (vars.player2)
+                                   vars.score2Box.setText(Integer.toString(vars.score2));
+
                                 resetEntities();
                                 ready.setVisible(true);
                                 renderMap(vars.mapFresh, vars.map.item4);

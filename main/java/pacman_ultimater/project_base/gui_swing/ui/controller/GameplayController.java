@@ -108,7 +108,7 @@ class GameplayController implements IKeyDownHandler
         if (keyCode == KeyEvent.VK_ESCAPE) {
             endGame();
         }
-        else if (vars.player2) {
+        else if (vars.keyPressed2) {
             switch(keyCode){
                 case KeyEvent.VK_LEFT:
                     newDirection2 = Direction.directionType.LEFT;
@@ -123,7 +123,6 @@ class GameplayController implements IKeyDownHandler
                     newDirection2 = Direction.directionType.DOWN;
                     break;
                 default:
-                    vars.keyPressed1 = false;
                     vars.keyPressed2 = false;
             }
         }
