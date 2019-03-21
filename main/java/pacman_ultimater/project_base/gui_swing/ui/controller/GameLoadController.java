@@ -48,7 +48,7 @@ class GameLoadController
         ready.setVisible(false);
         placeLabel(ready, "READY!", Color.yellow,
                 new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
+                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 44),
                 new Font("Ravie", Font.BOLD, 22));
 
         loading = new JLabel();

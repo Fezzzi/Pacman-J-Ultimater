@@ -141,7 +141,7 @@ public class MainFrame extends JFrame{
         //
         orgGameLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         orgGameLbl.setForeground(Color.white);
-        orgGameLbl.setBounds(100,51,241,45);
+        orgGameLbl.setBounds(100,51,300,45);
         orgGameLbl.setName("OrgGame");
         orgGameLbl.setText("Original Game");
         orgGameLbl.setVisible(false);
@@ -151,7 +151,7 @@ public class MainFrame extends JFrame{
         //
         selectMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         selectMapLbl.setForeground(Color.white);
-        selectMapLbl.setBounds(128,118,190,45);
+        selectMapLbl.setBounds(128,118,250,45);
         selectMapLbl.setName("SelectMap");
         selectMapLbl.setText("Select Map");
         selectMapLbl.setVisible(false);
@@ -161,7 +161,7 @@ public class MainFrame extends JFrame{
         //
         settingsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         settingsLbl.setForeground(Color.white);
-        settingsLbl.setBounds(151,186,143,45);
+        settingsLbl.setBounds(151,186,180,45);
         settingsLbl.setName("Settings");
         settingsLbl.setText("Settings");
         settingsLbl.setVisible(false);
