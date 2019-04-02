@@ -1,5 +1,8 @@
 package pacman_ultimater.project_base.custom_utils;
 
+/*
+ * Tuple consisting of four generic items.
+ */
 public class Quartet<T1, T2, T3, T4> {
         public T1 item1;
         public T2 item2;

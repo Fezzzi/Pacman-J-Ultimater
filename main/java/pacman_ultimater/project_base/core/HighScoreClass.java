@@ -3,6 +3,9 @@ package pacman_ultimater.project_base.core;
 import java.io.*;
 import java.util.Random;
 
+/**
+ * Class provides high score loading and saving from/to encoded formate in congif file.
+ */
 public class HighScoreClass
 {
     private static int ImportantLine = 10;
@@ -12,6 +15,7 @@ public class HighScoreClass
      * Function for HighScore loading.
      *
      * @param resourcesPath Path to the resources files.
+     * @throws IOException To be handled by caller.
      * @return int
      */
     public static int loadHighScore(String resourcesPath)
@@ -55,6 +59,7 @@ public class HighScoreClass
      *
      * @param newHighScore New HighScore to be saved to config file.
      * @param resourcesPath Path to the resources files.
+     * @throws IOException To be handled by caller.
      */
     private static void saveHighScore(int newHighScore, String resourcesPath)
             throws IOException

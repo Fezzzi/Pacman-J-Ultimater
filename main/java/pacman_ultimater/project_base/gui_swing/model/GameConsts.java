@@ -1,5 +1,9 @@
 package pacman_ultimater.project_base.gui_swing.model;
 
+/**
+ * Class used as configuration for game.
+ * Holds majority of the game constants.
+ */
 public class GameConsts
 {
     public static final int SOUNDPLAYERSCOUNT = 1;

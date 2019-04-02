@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Structure holding together all game variables that may be accessible from all of the code.
+ */
 public class GameModel {
 
     public int score, score2, lives, highScore, soundTick, collectedDots, ghostsEaten, ghostRelease,
@@ -50,6 +53,7 @@ public class GameModel {
     /**
      * Initializes sound players.
      *
+     * @param resourcePath Path to root folder of resources.
      * @throws LineUnavailableException Exception is to be handled by caller;
      * @throws IOException Exception is to be handled by caller;
      * @throws UnsupportedAudioFileException Exception is to be handled by caller;

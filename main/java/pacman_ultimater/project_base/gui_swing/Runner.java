@@ -4,6 +4,10 @@ import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
 import pacman_ultimater.project_base.gui_swing.ui.controller.MainFrameController;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
+/**
+ * Program's entry point.
+ * Instantiates MainFrameController with instances of model and view and passes control over program to controller.
+ */
 class Runner {
 
     public static void main(String[] args) {

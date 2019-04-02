@@ -5,6 +5,11 @@ import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Class acting as application's model.
+ * Holds together all of application's original labels.
+ * Provides several methods for controllers' usage.
+ */
 public class MainFrameModel {
 
     public String resourcesPath;

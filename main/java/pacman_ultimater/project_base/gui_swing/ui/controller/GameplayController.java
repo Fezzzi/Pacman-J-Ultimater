@@ -16,6 +16,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
+/**
+ * Controlls gameplay itself. Handles game loading via GameLoadController.
+ */
 class GameplayController implements IKeyDownHandler
 {
     //<editor-fold desc="- VARIABLES Block -">
@@ -774,7 +777,26 @@ class GameplayController implements IKeyDownHandler
             endGame();
     }
 
-    enum timer_types { PACMAN, GHOST, PACMAN_SMOOTH, GHOST_SMOOTH }
+    /**
+     * Enumeration for identifying timers.
+     */
+    enum timer_types {
+        /*
+         * Timer of pacman's from tile to tile movement.
+         */
+        PACMAN,
+        /*
+         * Timer of ghosts' from tile to tile movement.
+         */
+        GHOST,
+        /*
+         * Timer for simulating pacman's smooth movement between tiles.
+         */
+        PACMAN_SMOOTH,
+        /*
+         * Timer for simulating ghosts' smooth movement between tiles.
+         */
+        GHOST_SMOOTH }
 
     /**
      * Handles events raised by timers and distributes them to appropriate functions.

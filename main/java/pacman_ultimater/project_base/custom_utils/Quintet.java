@@ -1,6 +1,10 @@
 package pacman_ultimater.project_base.custom_utils;
 
-public class Quintet<T1, T2, T3, T4, T5> {
+/*
+ * Tuple consisting of five generic items.
+ */
+public class Quintet<T1, T2, T3, T4, T5>
+{
     public T1 item1;
     public T2 item2;
     public T3 item3;

@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+/*
+ * Class handling bindings of all the usefull keys.
+ * Creates keyMap and inputMap for given panel using given keyDown handler.
+ */
 public class KeyBindings {
 
     private JPanel panel;

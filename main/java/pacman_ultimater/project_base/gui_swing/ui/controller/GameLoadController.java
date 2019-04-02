@@ -19,6 +19,10 @@ import java.util.concurrent.ExecutionException;
 
 import static pacman_ultimater.project_base.gui_swing.model.GameConsts.*;
 
+/**
+ * Controlls game loading.
+ * Destinguishes between first load, restart level load and next level load.
+ */
 class GameLoadController
 {
     private MainFrameModel model;

@@ -1,6 +1,10 @@
 package pacman_ultimater.project_base.custom_utils;
 
-public class IntPair {
+/**
+ * Basic tuple consisting of two int items.
+ */
+public class IntPair
+{
     public int item1, item2;
 
     public IntPair(int item1, int item2) {

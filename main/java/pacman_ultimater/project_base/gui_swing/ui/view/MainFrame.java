@@ -5,6 +5,10 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
 
+/**
+ * Application's view.
+ * Creates application's window and fills it with labels used for menu orientation.
+ */
 public class MainFrame extends JFrame{
 
     //<editor-fold desc="- FRAME COMPONENTS Block -">

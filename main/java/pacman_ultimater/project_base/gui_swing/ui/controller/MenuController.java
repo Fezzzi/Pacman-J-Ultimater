@@ -14,6 +14,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+/**
+ * Controlls menu state of the game.
+ * If game play is initiated, instantiates and passes controll to gamePlayController.
+ */
 public class MenuController implements IKeyDownHandler
 {
     //<editor-fold desc="- VARIABLES Block -">

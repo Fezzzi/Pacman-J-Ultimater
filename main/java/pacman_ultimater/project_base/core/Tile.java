@@ -12,7 +12,7 @@ public class Tile
 
     /**
      * Enumerable for possible tile states.
-     * HTBDTILE = Horizontal To Be Decided Tile (VTBDTILE <=> Vertical....).
+     * HTBDTILE = Horizontal To Be Decided Tile, VTBDTILE = Vertical, etc..
      */
     public enum nType { DOT, POWERDOT, FREE, GATE, LWALLDOUBLE, RWALLDOUBLE,
         TWALLDOUBLE, BWALLDOUBLE, LWALLSINGLE, RWALLSINGLE, TWALLSINGLE,

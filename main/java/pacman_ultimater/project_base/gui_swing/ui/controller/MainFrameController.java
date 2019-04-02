@@ -12,6 +12,10 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * Controlls lowest level of program such as window closing or iconifying.
+ * Provides handling of all exceptions that weren't individually handled by upper methods.
+ */
 public class MainFrameController {
 
     private MainFrameModel model;
@@ -132,6 +136,7 @@ public class MainFrameController {
     /**
      * Handles occurred exception by displaying apology and exception message
      * @param message Exception message.
+     * @param model game's model.
      */
     static void handleExceptions(String message, MainFrameModel model)
     {
@@ -140,7 +145,7 @@ public class MainFrameController {
                 "<b>WE ARE SORRY</b><br />" +
                 "<h1>something broke</h1><br /><h2 style='color: red'>"
                 + message + "<br /><br /><br />" +
-                "</h2><h1>The game will save current score and close.</h1></div></html>");
+                "</h2><h1>The game will try to save current score and close.</h1></div></html>");
         model.errorInfoLbl.setVisible(true);
         model.mainPanel.add(model.errorInfoLbl);
         model.mainPanel.repaint();
