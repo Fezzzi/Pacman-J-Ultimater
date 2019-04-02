@@ -1,6 +1,6 @@
 package pacman_ultimater.project_base.custom_utils;
 
-/*
+/**
  * Tuple consisting of two generic items.
  */
 public class Pair<T1, T2>

@@ -32,28 +32,28 @@ public class DefaultAI
      * Enumerable that characterizes all the possible entity's states.
      */
     public enum nType {
-        /*
-        No AI, movement is computed via keyboard input.
+        /**
+         * No AI, movement is computed via keyboard input.
          */
         PLAYER1,
-        /*
-        No AI, movement is computed via keyboard input.
+        /**
+         * No AI, movement is computed via keyboard input.
          */
         PLAYER2,
-        /*
-        AI that should actively attempt to get to pacman.
+        /**
+         * AI that should actively attempt to get to pacman.
          */
         HOSTILEATTACK,
-        /*
+        /**
         AI that should aims for one of four corners.
          */
         HOSTILERETREAT,
-        /*
-        AI for situation when ghost are blue.
+        /**
+         * AI for situation when ghost are blue.
          */
         CANBEEATEN,
-        /*
-        AI for eaten ghosts, should aim for ghost house.
+        /**
+         * AI for eaten ghosts, should aim for ghost house.
          */
         EATEN }
 

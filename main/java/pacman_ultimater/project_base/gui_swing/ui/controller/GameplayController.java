@@ -781,19 +781,19 @@ class GameplayController implements IKeyDownHandler
      * Enumeration for identifying timers.
      */
     enum timer_types {
-        /*
+        /**
          * Timer of pacman's from tile to tile movement.
          */
         PACMAN,
-        /*
+        /**
          * Timer of ghosts' from tile to tile movement.
          */
         GHOST,
-        /*
+        /**
          * Timer for simulating pacman's smooth movement between tiles.
          */
         PACMAN_SMOOTH,
-        /*
+        /**
          * Timer for simulating ghosts' smooth movement between tiles.
          */
         GHOST_SMOOTH }
