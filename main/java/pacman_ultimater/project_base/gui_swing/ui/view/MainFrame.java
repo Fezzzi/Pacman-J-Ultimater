@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Application's view.
@@ -13,7 +14,7 @@ public class MainFrame extends JFrame{
 
     //<editor-fold desc="- FRAME COMPONENTS Block -">
 
-    private String resourcesPath;
+    private String resourcesPath = null;
     private JPanel mainPanel;
     private JFileChooser openFileDialog1;
 
@@ -55,8 +56,6 @@ public class MainFrame extends JFrame{
 
     public MainFrame()
     {
-        resourcesPath = new File("src/main/resources").getAbsolutePath();
-
         setLocationRelativeTo(null);
         setIconImage(new ImageIcon(resourcesPath + "\\PacManJUltimater.png").getImage());
         setMinimumSize(new Dimension(464, 529));
@@ -538,8 +537,103 @@ public class MainFrame extends JFrame{
     public JFileChooser getOpenFileDialog1() {
         return openFileDialog1;
     }
+
     public String getResourcesPath() {
+        if(resourcesPath == null) {
+            resourcesPath = getResourcePath();
+            this.setIconImage(new ImageIcon(resourcesPath + "\\PacManJUltimater.png").getImage());
+        }
+
         return resourcesPath;
+    }
+
+    /**
+     * All resource files the application uses
+     */
+    private static final String[] resourceFiles = new String[]{
+            "\\config.bin","\\OriginalMap.txt",
+            "\\sounds\\pacman_beginning.wav","\\sounds\\pacman_chomp.wav","\\sounds\\pacman_death.wav",
+            "\\sounds\\pacman_eatensiren.wav","\\sounds\\pacman_eatghost.wav","\\sounds\\pacman_extrapac.wav",
+            "\\sounds\\pacman_intermission.wav","\\sounds\\pacman_powersiren.wav","\\sounds\\pacman_siren.wav",
+            "\\textures\\CanBeEaten.png","\\textures\\Entity1RightBig.png","\\textures\\Life.png","\\textures\\PacExplode.png",
+            "\\textures\\PacStart.png","\\textures\\PacStartBig.png",
+            "\\textures\\Entity1Down.png","\\textures\\Entity1Left.png","\\textures\\Entity1Right.png","\\textures\\Entity1Up.png",
+            "\\textures\\Entity2Down.png","\\textures\\Entity2Left.png","\\textures\\Entity2Right.png","\\textures\\Entity2Up.png",
+            "\\textures\\Entity3Down.png","\\textures\\Entity3Left.png","\\textures\\Entity3Right.png","\\textures\\Entity3Up.png",
+            "\\textures\\Entity4Down.png","\\textures\\Entity4Left.png","\\textures\\Entity4Right.png","\\textures\\Entity4Up.png",
+            "\\textures\\Entity5Down.png","\\textures\\Entity5Left.png","\\textures\\Entity5Right.png","\\textures\\Entity5Up.png",
+            "\\textures\\EyesDown.png","\\textures\\EyesLeft.png","\\textures\\EyesRight.png","\\textures\\EyesUp.png",
+    };
+
+    /**
+     * Checks existance of resources directory on preset places.
+     * If not found, asks user to specify path to this directory.
+     * @return String representing absolute path to resource directory.
+     */
+    private String getResourcePath(){
+        String resources = new File("src\\main\\resources").getAbsolutePath();
+        String[] errors = checkResources(resources);
+        if(errors.length != 0){
+            resources = new File("resources").getAbsolutePath();
+            errors = checkResources(resources);
+            if(errors.length != 0){
+                JOptionPane.showMessageDialog(mainPanel, "NO RESOURCES DIRECTORY FOUND, PLEASE PROVIDE IT.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                JFileChooser locateResources = new JFileChooser();
+                locateResources.setDialogTitle("Locate Resources");
+                locateResources.setAcceptAllFileFilterUsed(false);
+                locateResources.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                mainPanel.add(locateResources);
+                locateResources.setVisible(true);
+                boolean valid = false;
+                while (!valid) {
+                    if (locateResources.showOpenDialog(mainPanel) == JFileChooser.APPROVE_OPTION){
+                        resources = locateResources.getSelectedFile().getAbsolutePath();
+                        errors = checkResources(resources);
+                        if(errors.length == 0)
+                            valid = true;
+                        else{
+                            StringBuilder message = new StringBuilder("");
+                            int counter = 10;
+                            for(String error: errors){
+                                if(counter > 0) {
+                                    message.append(error + '\n');
+                                    --counter;
+                                }
+                            }
+                            if(errors.length > 10)
+                                message.append("AND " + Integer.toString(errors.length - 10) + " MORE...");
+                            JOptionPane.showMessageDialog(mainPanel, message.toString(),
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    else{
+                        valid = true;
+                        return null;
+                    }
+                }
+                mainPanel.remove(locateResources);
+            }
+            return resources;
+        }
+        return resources;
+    }
+
+    /**
+     * Checks whether given resource directory contains all requested files.
+     * @param resources Absolute path to resources directory.
+     * @return String array of errors - missing files.
+     */
+    private String[] checkResources(String resources){
+        if(new File(resources).exists()){
+            ArrayList<String> errors = new ArrayList<>();
+            for(String resourceFile: resourceFiles){
+                if(!(new File(resources + resourceFile).exists()))
+                    errors.add("resources" + resourceFile + " not found");
+            }
+            return errors.toArray(new String[0]);
+        }
+        return new String[]{"resources directory not found"};
     }
 
     //</editor-fold>

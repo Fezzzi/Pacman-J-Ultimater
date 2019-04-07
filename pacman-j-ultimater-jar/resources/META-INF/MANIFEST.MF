@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: pacman_ultimater.project_base.gui_swing.Runner
+

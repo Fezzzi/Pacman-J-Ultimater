@@ -40,6 +40,8 @@ public class MenuController implements IKeyDownHandler
     {
         this.model = model;
         this.vars = vars;
+        if(model.resourcesPath == null)
+            model.disposeMainFrame();
 
         menuLayer = MenuController.mn.start;
         menuSelected = new Pair<>(MenuController.mn.game, model.orgGameLbl);
