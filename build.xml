@@ -134,27 +134,13 @@
   <property name="project.jdk.home" value="${jdk.home.11}"/>
   <property name="project.jdk.bin" value="${jdk.bin.11}"/>
   <property name="project.jdk.classpath" value="jdk.classpath.11"/>
-  <!-- Register Custom Compiler Taskdefs -->
-  <property name="javac2.home" value="${idea.home}/lib"/>
-  <path id="javac2.classpath">
-    <fileset dir="${javac2.home}">
-      <include name="javac2.jar"/>
-      <include name="jdom.jar"/>
-      <include name="asm-all*.jar"/>
-      <include name="forms-*.jar"/>
-    </fileset>
-  </path>
-  <target name="register.custom.compilers">
-    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
-    <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
-  </target>
   
   <!-- Modules -->
   
   
   <!-- Module pacman_ultimater -->
   
-  <dirname property="module.pacman_ultimater.basedir" file="/src/build.xml"/>
+  <dirname property="module.pacman_ultimater.basedir" file="${ant.file}"/>
   
   
   <property name="module.jdk.home.pacman_ultimater" value="${project.jdk.home}"/>
@@ -163,8 +149,8 @@
   
   <property name="compiler.args.pacman_ultimater" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
   
-  <property name="pacman_ultimater.output.dir" value="${module.pacman_ultimater.basedir}/target/classes"/>
-  <property name="pacman_ultimater.testoutput.dir" value="${module.pacman_ultimater.basedir}/target/test-classes"/>
+  <property name="pacman_ultimater.output.dir" value="${module.pacman_ultimater.basedir}/out/production/pacman_ultimater"/>
+  <property name="pacman_ultimater.testoutput.dir" value="${module.pacman_ultimater.basedir}/out/test/pacman_ultimater"/>
   
   <path id="pacman_ultimater.module.bootclasspath">
     <!-- Paths to be included in compilation bootclasspath -->
@@ -198,55 +184,50 @@
   </patternset>
   
   <path id="pacman_ultimater.module.sourcepath">
-    <dirset dir="/">
+    <dirset dir="${module.pacman_ultimater.basedir}">
       <include name="src/main/java"/>
     </dirset>
   </path>
   
   <path id="pacman_ultimater.module.test.sourcepath">
-    <dirset dir="/">
+    <dirset dir="${module.pacman_ultimater.basedir}">
       <include name="src/test/java"/>
-      <include name="src/main/resources"/>
     </dirset>
   </path>
   
   
   <target name="compile.module.pacman_ultimater" depends="compile.module.pacman_ultimater.production,compile.module.pacman_ultimater.tests" description="Compile module pacman_ultimater"/>
   
-  <target name="compile.module.pacman_ultimater.production" depends="register.custom.compilers" description="Compile module pacman_ultimater; production classes">
+  <target name="compile.module.pacman_ultimater.production" description="Compile module pacman_ultimater; production classes">
     <mkdir dir="${pacman_ultimater.output.dir}"/>
-    <javac2 destdir="${pacman_ultimater.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.pacman_ultimater}/javac">
+    <javac destdir="${pacman_ultimater.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.pacman_ultimater}/javac">
       <compilerarg line="${compiler.args.pacman_ultimater}"/>
       <bootclasspath refid="pacman_ultimater.module.bootclasspath"/>
       <classpath refid="pacman_ultimater.module.production.classpath"/>
       <src refid="pacman_ultimater.module.sourcepath"/>
       <patternset refid="excluded.from.compilation.pacman_ultimater"/>
-    </javac2>
+    </javac>
     
     <copy todir="${pacman_ultimater.output.dir}">
-      <fileset dir="/">
+      <fileset dir="${module.pacman_ultimater.basedir}/src/main/java">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
       </fileset>
     </copy>
   </target>
   
-  <target name="compile.module.pacman_ultimater.tests" depends="register.custom.compilers,compile.module.pacman_ultimater.production" description="compile module pacman_ultimater; test classes" unless="skip.tests">
+  <target name="compile.module.pacman_ultimater.tests" depends="compile.module.pacman_ultimater.production" description="compile module pacman_ultimater; test classes" unless="skip.tests">
     <mkdir dir="${pacman_ultimater.testoutput.dir}"/>
-    <javac2 destdir="${pacman_ultimater.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.pacman_ultimater}/javac">
+    <javac destdir="${pacman_ultimater.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.pacman_ultimater}/javac">
       <compilerarg line="${compiler.args.pacman_ultimater}"/>
       <bootclasspath refid="pacman_ultimater.module.bootclasspath"/>
       <classpath refid="pacman_ultimater.module.classpath"/>
       <src refid="pacman_ultimater.module.test.sourcepath"/>
       <patternset refid="excluded.from.compilation.pacman_ultimater"/>
-    </javac2>
+    </javac>
     
     <copy todir="${pacman_ultimater.testoutput.dir}">
-      <fileset dir="/">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-      <fileset dir="/">
+      <fileset dir="${module.pacman_ultimater.basedir}/src/test/java">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
       </fileset>
@@ -276,11 +257,24 @@
   <target name="artifact.pacman_ultimater:jar" depends="init.artifacts, compile.module.pacman_ultimater" description="Build &#39;pacman_ultimater:jar&#39; artifact">
     <property name="artifact.temp.output.pacman_ultimater:jar" value="${artifacts.temp.dir}/pacman_ultimater_jar"/>
     <mkdir dir="${artifact.temp.output.pacman_ultimater:jar}"/>
-    <jar destfile="${temp.jar.path.pacman_ultimater.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
-      <zipfileset file="/META-INF/MANIFEST.MF" prefix="META-INF"/>
+    <jar destfile="${temp.jar.path.pacman_ultimater.jar}" duplicate="preserve" filesetmanifest="merge">
       <zipfileset dir="${pacman_ultimater.output.dir}"/>
+      <zipfileset file="${basedir}/src/main/resources/META-INF/MANIFEST.MF" prefix="META-INF"/>
     </jar>
     <copy file="${temp.jar.path.pacman_ultimater.jar}" tofile="${artifact.temp.output.pacman_ultimater:jar}/pacman_ultimater.jar"/>
+    <copy todir="${artifact.output.pacman_ultimater:jar}\resources\sounds">
+      <fileset dir="${basedir}/src/main/resources/sounds/" />
+    </copy>
+    <copy todir="${artifact.output.pacman_ultimater:jar}\resources\textures">
+      <fileset dir="${basedir}/src/main/resources/textures/" />
+    </copy>
+    <copy todir="${artifact.output.pacman_ultimater:jar}\resources">
+      <fileset dir="${basedir}/src/main/resources/">
+        <exclude name="sounds/**" />
+        <exclude name="textures/**" />
+        <exclude name="META-INF/**" />
+      </fileset>
+    </copy>
   </target>
   
   <target name="build.all.artifacts" depends="artifact.pacman_ultimater:jar" description="Build all artifacts">
