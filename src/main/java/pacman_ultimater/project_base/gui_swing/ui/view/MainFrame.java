@@ -108,7 +108,7 @@ public class MainFrame extends JFrame{
         //
         // Pacman
         //
-        pacmanLbl.setFont(new Font("Ravie", Font.BOLD, 54));
+        pacmanLbl.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 54));
         pacmanLbl.setForeground(Color.YELLOW);
         pacmanLbl.setBounds(55, 50,380,75);
         pacmanLbl.setName("pacman");
@@ -118,7 +118,7 @@ public class MainFrame extends JFrame{
         //
         // J-Ultimater
         //
-        ultimateLbl.setFont(new Font("Ravie", Font.BOLD, 32));
+        ultimateLbl.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 32));
         ultimateLbl.setForeground(Color.red);
         ultimateLbl.setBounds(43, 115,380,50);
         ultimateLbl.setName("jultimater");

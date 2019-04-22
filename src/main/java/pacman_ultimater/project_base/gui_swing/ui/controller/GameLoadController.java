@@ -54,19 +54,19 @@ class GameLoadController
         placeLabel(ready, "READY!", Color.yellow,
                 new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
                         (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 44),
-                new Font("Ravie", Font.BOLD, 22));
+                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 22));
 
         loading = new JLabel();
         loading.setSize(350, 60);
         loading.setVisible(false);
         placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
-                new Font("Ravie", Font.BOLD, 48));
+                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 48));
 
         levelLabel = new JLabel();
         levelLabel.setSize(300, 60);
         levelLabel.setVisible(false);
         placeLabel(levelLabel, "", Color.red, new Point(118, 200),
-                new Font("Ravie", Font.BOLD, 30));
+                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 30));
 
         vars.pacLives = new JLabel[MAXLIVES];
         for (int i = 0; i < MAXLIVES; i++)

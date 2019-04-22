@@ -54,6 +54,7 @@
     <include name="**/*.png"/>
     <include name="**/*.wav"/>
     <include name="**/*.txt"/>
+    <include name="**/*.ttf"/>
   </patternset>
   
   <!-- JDK definitions -->
