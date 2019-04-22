@@ -129,7 +129,7 @@ public class MainFrame extends JFrame{
         // copyright
         //
         copyrightLbl.setForeground(Color.yellow);
-        copyrightLbl.setBounds(270, 460, 179,17);
+        copyrightLbl.setBounds(250, 440, 200,17);
         copyrightLbl.setName("copyright");
         copyrightLbl.setText("© Copyright Filip Horký 2019");
         copyrightLbl.setVisible(false);
