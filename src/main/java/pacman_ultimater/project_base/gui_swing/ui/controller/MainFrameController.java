@@ -58,7 +58,7 @@ public class MainFrameController {
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                     } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
                 MainFrameController.handleExceptions(exception.getMessage(), model);
@@ -86,7 +86,7 @@ public class MainFrameController {
 
             if (vars.score > vars.highScore) {
                 try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                 } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
             }
             model.disposeMainFrame();
@@ -144,7 +144,7 @@ public class MainFrameController {
         model.errorInfoLbl.setText("<html><div style='width: 100%; text-align: center; display: block;'>" +
                 "<b>WE ARE SORRY</b><br />" +
                 "<h1>something broke</h1><br /><h2 style='color: red'>"
-                + message + "<br /><br /><br />" +
+                + message.replaceAll("(.{20,35}\\.)","$1<br>") + "<br /><br /><br />" +
                 "</h2><h1>The game will try to save current score and close.</h1></div></html>");
         model.errorInfoLbl.setVisible(true);
         model.mainPanel.add(model.errorInfoLbl);

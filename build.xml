@@ -50,6 +50,10 @@
     <exclude name="**/?*.kt"/>
     <exclude name="**/?*.clj"/>
     <exclude name="**/?*.aj"/>
+    <include name="**/*.bin"/>
+    <include name="**/*.png"/>
+    <include name="**/*.wav"/>
+    <include name="**/*.txt"/>
   </patternset>
   
   <!-- JDK definitions -->
@@ -147,10 +151,10 @@
   <property name="module.jdk.bin.pacman_ultimater" value="${project.jdk.bin}"/>
   <property name="module.jdk.classpath.pacman_ultimater" value="${project.jdk.classpath}"/>
   
-  <property name="compiler.args.pacman_ultimater" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  <property name="compiler.args.pacman_ultimater" value="-encoding UTF-8 -source 9 -target 9 ${compiler.args}"/>
   
-  <property name="pacman_ultimater.output.dir" value="${module.pacman_ultimater.basedir}/out/production/pacman_ultimater"/>
-  <property name="pacman_ultimater.testoutput.dir" value="${module.pacman_ultimater.basedir}/out/test/pacman_ultimater"/>
+  <property name="pacman_ultimater.output.dir" value="${module.pacman_ultimater.basedir}/target/classes"/>
+  <property name="pacman_ultimater.testoutput.dir" value="${module.pacman_ultimater.basedir}/target/test-classes"/>
   
   <path id="pacman_ultimater.module.bootclasspath">
     <!-- Paths to be included in compilation bootclasspath -->
@@ -186,6 +190,7 @@
   <path id="pacman_ultimater.module.sourcepath">
     <dirset dir="${module.pacman_ultimater.basedir}">
       <include name="src/main/java"/>
+      <include name="src/main/java/pacman_ultimater/resources"/>
     </dirset>
   </path>
   
@@ -210,6 +215,10 @@
     
     <copy todir="${pacman_ultimater.output.dir}">
       <fileset dir="${module.pacman_ultimater.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.pacman_ultimater.basedir}/src/main/java/pacman_ultimater/resources">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
       </fileset>
@@ -262,19 +271,6 @@
       <zipfileset file="${basedir}/src/main/resources/META-INF/MANIFEST.MF" prefix="META-INF"/>
     </jar>
     <copy file="${temp.jar.path.pacman_ultimater.jar}" tofile="${artifact.temp.output.pacman_ultimater:jar}/pacman_ultimater.jar"/>
-    <copy todir="${artifact.output.pacman_ultimater:jar}\resources\sounds">
-      <fileset dir="${basedir}/src/main/resources/sounds/" />
-    </copy>
-    <copy todir="${artifact.output.pacman_ultimater:jar}\resources\textures">
-      <fileset dir="${basedir}/src/main/resources/textures/" />
-    </copy>
-    <copy todir="${artifact.output.pacman_ultimater:jar}\resources">
-      <fileset dir="${basedir}/src/main/resources/">
-        <exclude name="sounds/**" />
-        <exclude name="textures/**" />
-        <exclude name="META-INF/**" />
-      </fileset>
-    </copy>
   </target>
   
   <target name="build.all.artifacts" depends="artifact.pacman_ultimater:jar" description="Build all artifacts">

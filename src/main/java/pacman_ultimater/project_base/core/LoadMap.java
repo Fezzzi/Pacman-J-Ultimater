@@ -3,6 +3,7 @@ package pacman_ultimater.project_base.core;
 import pacman_ultimater.project_base.custom_utils.*;
 import java.awt.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -25,36 +26,36 @@ public class LoadMap {
     /**
      * Calls loading function with default symbols.
      *
-     * @param path Path to the map file that is to be loaded.
+     * @param mapStream InputStream of the map that is to be loaded.
      */
-    public LoadMap(String path)
+    public LoadMap(InputStream mapStream)
     {
-        Map = LdMap(path, new Character[] {' ','.','o','x','X'});
+        Map = LdMap(mapStream, new Character[] {' ','.','o','x','X'});
     }
 
     /**
      * Calls loading function with given symbols.
      *
-     * @param path Path to the map file that is to be loaded.
+     * @param mapStream InputStream of the map that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      */
-    public LoadMap(String path, Character[] symbols)
+    public LoadMap(InputStream mapStream, Character[] symbols)
     {
-        Map = LdMap(path, symbols);
+        Map = LdMap(mapStream, symbols);
     }
 
     /**
      * Handles function calling to ensure map's loading and testing of its playability.
      *
-     * @param path Path to the map file that is to be loaded.
+     * @param mapStream InputStream of the map that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Return array of loaded tiles, translated to game's language (null in case of failure).
      */
-    private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> LdMap(String path, Character[] symbols)
+    private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> LdMap(InputStream mapStream, Character[] symbols)
     {
         try
         {
-            Quartet<char[][], Integer, Color, ArrayList<Point>> map = LoadIt(path, symbols);
+            Quartet<char[][], Integer, Color, ArrayList<Point>> map = LoadIt(mapStream, symbols);
             if (map != null)
             {
                 // if LoadIt ended successfully preforms test of map's playability.
@@ -73,11 +74,11 @@ public class LoadMap {
     /**
      * Function that loads map from text file and creates Tile map if possible. Returns null otherwise.
      *
-     * @param path Path to the map file that is to be loaded.
+     * @param mapStream InputStream of the map that is to be loaded.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Returns Tile map if possible, null otherwise.
      */
-    private Quartet<char[][], Integer, Color, ArrayList<Point>> LoadIt(String path, Character[] symbols)
+    private Quartet<char[][], Integer, Color, ArrayList<Point>> LoadIt(InputStream mapStream, Character[] symbols)
             throws IOException
     {
         // Map is created bigger so it is possible to automatically call transform to tiles with indexes
@@ -87,7 +88,7 @@ public class LoadMap {
         this.tileMap = new Tile[MAPHEIGHTINTILES][];
         ArrayList<Point> pPArr = new ArrayList<>();
         int lineNum = 1,column = 0;
-        CustomReader cr = new CustomReader(path);
+        CustomReader cr = new CustomReader(mapStream);
         map[0] = new char[MAPWIDTHINTILES + 2];
         map[1] = new char[MAPWIDTHINTILES + 2];
         tileMap[0] = new Tile[MAPWIDTHINTILES];

@@ -3,12 +3,13 @@ package pacman_ultimater.project_base.gui_swing.model;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
+import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -53,19 +54,18 @@ public class GameModel {
     /**
      * Initializes sound players.
      *
-     * @param resourcePath Path to root folder of resources.
      * @throws LineUnavailableException Exception is to be handled by caller;
      * @throws IOException Exception is to be handled by caller;
      * @throws UnsupportedAudioFileException Exception is to be handled by caller;
      */
-    public void initSoundPlayers(String resourcePath)
+    public void initSoundPlayers()
         throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
         soundPlayers = new Clip[GameConsts.SOUNDPLAYERSCOUNT + 2];
 
         for (int i = 0; i < GameConsts.SOUNDPLAYERSCOUNT; i++) {
             soundPlayers[i] = AudioSystem.getClip();
-            AudioInputStream ChompSound = AudioSystem.getAudioInputStream(new File(resourcePath + "/sounds/pacman_chomp.wav"));
+            AudioInputStream ChompSound = AudioSystem.getAudioInputStream(ClasspathFileReader.getPACMAN_CHOMP());
             byte[] ChompSoundBuffer = new byte[65536];
             ChompSound.read(ChompSoundBuffer, 0, 65536);
 
@@ -73,13 +73,13 @@ public class GameModel {
         }
 
         soundPlayers[GameConsts.EXTRAPACSOUNDPLAYERID] = AudioSystem.getClip();
-        AudioInputStream ExtraPacSound = AudioSystem.getAudioInputStream(new File(resourcePath + "/sounds/pacman_extrapac.wav"));
+        AudioInputStream ExtraPacSound = AudioSystem.getAudioInputStream(ClasspathFileReader.getPACMAN_EXTRAPAC());
         byte[] ExtraPacSoundBuffer = new byte[65536];
         ExtraPacSound.read(ExtraPacSoundBuffer, 0, 65536);
         soundPlayers[GameConsts.EXTRAPACSOUNDPLAYERID].open(ExtraPacSound.getFormat(), ExtraPacSoundBuffer, 0, 65536);
 
         soundPlayers[GameConsts.EATGHOSTSOUNDPLAYERID] = AudioSystem.getClip();
-        AudioInputStream EatGhostSound = AudioSystem.getAudioInputStream(new File(resourcePath + "/sounds/pacman_eatghost.wav"));
+        AudioInputStream EatGhostSound = AudioSystem.getAudioInputStream(ClasspathFileReader.getPACMAN_EATGHOST());
         byte[] EatGhostsoundBuffer = new byte[65536];
         EatGhostSound.read(EatGhostsoundBuffer, 0, 65536);
         soundPlayers[GameConsts.EATGHOSTSOUNDPLAYERID].open(EatGhostSound.getFormat(), EatGhostsoundBuffer, 0, 65536);
@@ -99,7 +99,7 @@ public class GameModel {
     /**
      * Plays music specified as parameter with current music player with conditional loop effect.
      *
-     * @param fileName File to be played, absolute path
+     * @param stream Input stream to be played.
      * @param loop Loop file or play just once?
      * @param startLoopPoint Starting sample of the loop play.
      * @param endLoopPoint Ending sample of the loop pay.
@@ -107,10 +107,10 @@ public class GameModel {
      * @throws IOException Exception is to be handled by caller.
      * @throws UnsupportedAudioFileException Exception is to be handled by caller.
      */
-    public void playWithMusicPLayer(String fileName, boolean loop, int startLoopPoint, int endLoopPoint)
+    public void playWithMusicPLayer(InputStream stream, boolean loop, int startLoopPoint, int endLoopPoint)
             throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
-        AudioInputStream sound = AudioSystem.getAudioInputStream(new File(fileName));
+        AudioInputStream sound = AudioSystem.getAudioInputStream(stream);
         byte[] buffer1 = new byte[65536];
         sound.read(buffer1, 0, 65536);
 

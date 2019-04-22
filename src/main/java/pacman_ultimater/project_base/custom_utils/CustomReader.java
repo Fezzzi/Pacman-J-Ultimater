@@ -1,8 +1,6 @@
 package pacman_ultimater.project_base.custom_utils;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Wrapper around bufferedReader implementing peek method.
@@ -11,9 +9,10 @@ public class CustomReader
 {
     private BufferedReader br;
 
-    public CustomReader(String path) throws IOException{
-        FileReader fr = new FileReader(path);
-        this.br = new BufferedReader(fr);
+    public CustomReader(InputStream mapStream)
+    {
+        InputStreamReader isr = new InputStreamReader(mapStream);
+        this.br = new BufferedReader(isr);
     }
 
     public int read()

@@ -7,6 +7,7 @@ import pacman_ultimater.project_base.custom_utils.TimersListeners;
 import pacman_ultimater.project_base.gui_swing.model.GameConsts;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
+import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -15,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Controlls gameplay itself. Handles game loading via GameLoadController.
@@ -166,9 +168,9 @@ class GameplayController implements IKeyDownHandler
         model.pacSmoothTimer = null;
         model.ghostSmoothTimer = null;
         vars.mapFresh = null;
-        if (vars.score > vars.highScore) {
+        if (vars.score >= vars.highScore) {
             try {
-                HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                HighScoreClass.tryToSaveScore(vars.player2, vars.score);
             }
             catch (IOException ignore){ /* TODO: Notify user score weren't saved due to exception message */ }
         }
@@ -199,14 +201,14 @@ class GameplayController implements IKeyDownHandler
         model.ghostSmoothTimer.stop();
         model.pacSmoothTimer.stop();
         if (vars.music)
-            vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_death.wav", false, 0 , 0);
+            vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_DEATH(), false, 0 , 0);
 
         if (vars.player2)
             vars.score2 += GameConsts.P2SCOREFORKILL;
-        vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacStart.png"));
+        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()));
         model.mainPanel.repaint();
         Thread.sleep(GameConsts.PAUSEBEFOREDEATH);
-        vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacExplode.png"));
+        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACEXPLODE().readAllBytes()));
         model.mainPanel.repaint();
         Thread.sleep(GameConsts.EXPLODINGTIME);
         vars.lives--;
@@ -388,21 +390,25 @@ class GameplayController implements IKeyDownHandler
      * Loads right image depending on the game situation and direction.
      *
      * @param entity The updated entity.
+     * @throws IOException To be handled by caller.
      */
     private void updatePicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+        throws IOException
     {
         // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
         if (vars.eatEmTimer <= 0 || entity.item5.state == DefaultAI.nType.PLAYER1
             || (entity.item5.state != DefaultAI.nType.EATEN && (vars.ticks % 3 == 0)
             && vars.eatEmTimer < GameConsts.GHOSTFLASHINGSTART))
         {
-            entity.item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/"
-                    + entity.item3.getName() + entity.item4.toString() + ".png"));
+            InputStream stream = ClasspathFileReader.getEntityFile(entity.item3.getName(), entity.item4.toString());
+            entity.item3.setIcon(new ImageIcon(stream.readAllBytes()));
+        } else if (entity.item5.state == DefaultAI.nType.EATEN) {
+            InputStream stream = ClasspathFileReader.getEntityFile("Eyes", entity.item4.toString());
+            entity.item3.setIcon(new ImageIcon(stream.readAllBytes()));
+        } else {
+            InputStream stream = ClasspathFileReader.getCANBEEATEN();
+            entity.item3.setIcon(new ImageIcon(stream.readAllBytes()));
         }
-        else if (entity.item5.state == DefaultAI.nType.EATEN)
-            entity.item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/Eyes" + entity.item4.toString() + ".png"));
-        else
-            entity.item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/CanBeEaten.png"));
     }
 
     /**
@@ -410,8 +416,10 @@ class GameplayController implements IKeyDownHandler
      * Finishes one cycle of smooth move and enables start of another cycle.
      *
      * @param entity Entity whose picture is to be corrected.
+     * @throws IOException To be handled by caller.
      */
     private void correctPicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+        throws IOException
     {
         entity.item3.setLocation(new Point(entity.item1 * LoadMap.TILESIZEINPXS - 6, entity.item2 * LoadMap.TILESIZEINPXS + 42));
         if (entity.item4 != Direction.directionType.DIRECTION)
@@ -422,8 +430,10 @@ class GameplayController implements IKeyDownHandler
      * Function that moves all of the entities and checks whether the pacman and a ghost have met.
      *
      * @param isPacman Boolean indicating whether to update pacman or ghosts.
+     * @throws IOException To be handled by caller.
      */
     private void updateMove(boolean isPacman)
+        throws IOException
     {
         // Direction of entities controlled by players are updated via newDirection variables.
         // Direction of UI entities is set through AI algorithms.
@@ -478,7 +488,7 @@ class GameplayController implements IKeyDownHandler
             --vars.eatEmTimer;
         else if (vars.eatEmTimer == 1) {
             if (vars.music) {
-                vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav", true, 0, 9100);
+                vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_SIREN(), true, 0, 9100);
             }
             if (vars.ghostsEaten != 0) {
                 for (int i = 1; i < 5; i++)
@@ -517,7 +527,7 @@ class GameplayController implements IKeyDownHandler
             else {
                 vars.score += GameConsts.POWERPELLETSCORE;
                 if (vars.music)
-                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_powersiren.wav", true, 0 , 26320);
+                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_POWERSIREN(), true, 0 , 26320);
 
                 //Pacman's excitement lasts shorter each level
                 vars.eatEmTimer = vars.player2 ? (3 * GameConsts.BASEEATEMTIMER) / 4
@@ -595,7 +605,7 @@ class GameplayController implements IKeyDownHandler
                     if (vars.sound)
                         vars.playWithSoundPlayer(GameConsts.EATGHOSTSOUNDPLAYERID);
                     if (vars.music) {
-                        vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_eatensiren.wav", true, 0, 17800);
+                        vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_EATENSIREN(), true, 0, 17800);
                     }
                     ++vars.ghostsEaten;
                     vars.score += GameConsts.GHOSTEATBASESCORE * vars.ghostsEaten;
@@ -869,12 +879,19 @@ class GameplayController implements IKeyDownHandler
                         vars.entities.get(0).item3.getLocation().x + d.x,
                         vars.entities.get(0).item3.getLocation().y + d.y));
 
-            if (pacSmoothMoveStep % 2 == 0) {
-                if (pacSmoothMoveStep % 4 == 0)
-                    vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/PacStart.png"));
-                else
-                    vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/textures/"
-                            + vars.entities.get(0).item3.getName() + vars.entities.get(0).item4.toString() + ".png"));
+            try {
+                if (pacSmoothMoveStep % 2 == 0) {
+                    if (pacSmoothMoveStep % 4 == 0) {
+                        vars.entities.get(0).item3.setIcon(new ImageIcon(
+                                ClasspathFileReader.getPACSTART().readAllBytes()));
+                    } else {
+                        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getEntityFile(
+                                vars.entities.get(0).item3.getName(), vars.entities.get(0).item4.toString()).readAllBytes()));
+                    }
+                }
+            }
+            catch (IOException ignore) {
+                // TODO: Handle game exception.
             }
         }
     }
@@ -889,7 +906,8 @@ class GameplayController implements IKeyDownHandler
                 Point d = getDeltas(i);
 
                 // Last part of smooth move is done at the beginning of each update cycle.
-                if (entitiesPixDeltas[i].x <= 1 && entitiesPixDeltas[i].y <= 1 && entitiesPixDeltas[i].x >= -1 && entitiesPixDeltas[i].y >= -1)
+                if (entitiesPixDeltas[i].x <= 1 && entitiesPixDeltas[i].y <= 1
+                && entitiesPixDeltas[i].x >= -1 && entitiesPixDeltas[i].y >= -1)
                     model.ghostSmoothTimer.stop();
                 else
                     vars.entities.get(i).item3.setLocation(new Point(

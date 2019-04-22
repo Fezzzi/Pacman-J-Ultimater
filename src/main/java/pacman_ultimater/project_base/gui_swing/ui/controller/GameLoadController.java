@@ -7,6 +7,7 @@ import pacman_ultimater.project_base.custom_utils.TimersListeners;
 import pacman_ultimater.project_base.gui_swing.model.GameConsts;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
+import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -153,15 +154,18 @@ class GameLoadController
 
     /**
      * Resets entities to their original positions and states.
+     *
+     * @throws IOException To be handled by caller.
      */
     private void resetEntities()
+        throws IOException
     {
         vars.entities.get(0).item1 = LoadMap.PACMANINITIALX;
         vars.entities.get(0).item2 = LoadMap.PACMANINITIALY;
-        vars.entities.get(0).item3.setIcon(new ImageIcon(model.resourcesPath + "/Textures/PacStart.png"));
+        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()));
         vars.entities.get(1).item1 = vars.topGhostInTiles.item1;
         vars.entities.get(1).item2 = vars.topGhostInTiles.item2;
-        vars.entities.get(1).item3.setIcon(new ImageIcon(model.resourcesPath + "/Textures/Entity2Left.png"));
+        vars.entities.get(1).item3.setIcon(new ImageIcon(ClasspathFileReader.getENTITY2LEFT().readAllBytes()));
         vars.entities.get(2).item1 = vars.topGhostInTiles.item1 - 2;
         vars.entities.get(2).item2 = vars.topGhostInTiles.item2 + 3;
         vars.entities.get(3).item1 = vars.topGhostInTiles.item1;
@@ -178,17 +182,20 @@ class GameLoadController
                 vars.entities.get(i).item4 = Direction.directionType.LEFT;
             else {
                 vars.entities.get(i).item4 = Direction.directionType.DIRECTION;
-                vars.entities.get(i).item3.setIcon(
-                    new ImageIcon(model.resourcesPath + "/Textures/Entity"
-                            + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")));
+                vars.entities.get(i).item3.setIcon(new ImageIcon(
+                    ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i + 1),
+                                                        i % 2 == 0 ? "UP" : "DOWN").readAllBytes()));
             }
         }
     }
 
     /**
      * Function that loads all the game entities and presets all their default settings such as position, direction, etc...
+     *
+     * @throws IOException To be handled by caller.
      */
     private void loadEntities()
+        throws IOException
     {
         //Entity's Data structure consists of:
         //  - Two numbers - x and y position on the map in Tiles.
@@ -222,26 +229,30 @@ class GameLoadController
 
         // All those magic numbers are X and Y axes correction for entities' pictures to be correctly placed.
         placePicture(vars.entities.get(0).item3,
-            new ImageIcon(model.resourcesPath + "/Textures/PacStart.png"),
+            new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()),
             new Point(vars.entities.get(0).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(0).item2 * LoadMap.TILESIZEINPXS + 42),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
         placePicture(vars.entities.get(1).item3,
-            new ImageIcon(model.resourcesPath + "/Textures/Entity2Left.png"),
+            new ImageIcon(ClasspathFileReader.getENTITY2LEFT().readAllBytes()),
             new Point(vars.entities.get(1).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(1).item2 * LoadMap.TILESIZEINPXS + 42),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
         for (int i = 2; i < ENTITYCOUNT; i++)
             placePicture(vars.entities.get(i).item3,
-                new ImageIcon(model.resourcesPath + "/Textures/Entity" + Integer.toString(i + 1) + (i % 2 == 0 ? "Up.png" : "Down.png")),
+                new ImageIcon(ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i + 1),
+                                                                i % 2 == 0 ? "UP" : "DOWN").readAllBytes()),
                 new Point(vars.entities.get(i).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(i).item2 * LoadMap.TILESIZEINPXS + 42),
                 new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
     }
 
     /**
      * Function that loads score labels and pacman lives.
+     *
+     * @throws IOException To be handled by caller.
      */
     private void loadHud()
+        throws IOException
     {
         final Font hudTextFont = new Font("Arial", Font.BOLD, 18);
         final int HEARTHSIZEINPX = 32;
@@ -286,7 +297,7 @@ class GameLoadController
         for (JLabel item : vars.pacLives)
         {
             item.setSize(50,50);
-            placePicture(item, new ImageIcon(model.resourcesPath + "/textures/Life.png"),
+            placePicture(item, new ImageIcon(ClasspathFileReader.getLIFE().readAllBytes()),
                     new Point(lives * HEARTHSIZEINPX + LoadMap.TILESIZEINPXS, ((LoadMap.MAPHEIGHTINTILES + 3) * LoadMap.TILESIZEINPXS) + 4),
                     new Dimension(HEARTHSIZEINPX, HEARTHSIZEINPX));
             lives++;
@@ -339,11 +350,11 @@ class GameLoadController
         vars.extraLifeGiven = false;
         vars.score = 0;
         vars.score2 = 0;
-        vars.initSoundPlayers(model.resourcesPath);
+        vars.initSoundPlayers();
         vars.lives = 3;
 
         if (vars.highScore == -1)
-            vars.highScore = HighScoreClass.loadHighScore(model.resourcesPath);
+            vars.highScore = HighScoreClass.loadHighScore();
 
         // Yet empty fields of the array would redraw over top right corner of the map.
         // This way it draws empty tile on pacman's initial position tile which is empty by definition.
@@ -509,7 +520,8 @@ class GameLoadController
                                 levelLabel.setText("- Level " + Integer.toString(vars.level) + " -");
                                 toggleComponentsVisibility(false);
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_INTERMISSION(),
+                                            false, 0, 0);
                                 break;
                             case PHASE2:
                                 if (vars.music)
@@ -527,7 +539,7 @@ class GameLoadController
                                 toggleComponentsVisibility(true);
 
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_BEGINNING(),
                                             false, 0, 0);
                                 break;
                             case PHASE3:
@@ -538,7 +550,7 @@ class GameLoadController
                                 model.mainPanel.revalidate();
                                 correctStartPositions();
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav",
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_SIREN(),
                                             true, 0, 9100);
 
                                 model.pacUpdater.start();
@@ -546,7 +558,7 @@ class GameLoadController
                                 break;
                             case INTERRUPTEDEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
@@ -557,7 +569,7 @@ class GameLoadController
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                     } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
                 MainFrameController.handleExceptions(exception.toString(), model);
@@ -582,7 +594,7 @@ class GameLoadController
                             case PHASE2:
                                 if (vars.music) {
                                     vars.musicPlayer.stop();
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav",
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_BEGINNING(),
                                             false, 0, 0);
                                 }
                                 varsReset(false);
@@ -603,7 +615,7 @@ class GameLoadController
                                 ready.setVisible(false);
                                 correctStartPositions();
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav",
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_SIREN(),
                                             true, 0, 9100);
 
                                 model.pacUpdater.start();
@@ -612,7 +624,7 @@ class GameLoadController
                                 break;
                             case INTERRUPTEDEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
@@ -623,7 +635,7 @@ class GameLoadController
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                     } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
                 MainFrameController.handleExceptions(exception.toString(), model);
@@ -656,7 +668,8 @@ class GameLoadController
                                 loading.setVisible(true);
                                 levelLabel.setVisible(true);
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_intermission.wav", false, 0, 0);
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_INTERMISSION(),
+                                            false, 0, 0);
                                 break;
 
                             case PHASE2:
@@ -677,7 +690,8 @@ class GameLoadController
                                 renderMap(vars.mapFresh, vars.map.item4);
 
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_beginning.wav", false, 0 , 0);
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_BEGINNING(),
+                                            false, 0 , 0);
                                 break;
                             case PHASE3:
                                 if (vars.music)
@@ -686,7 +700,8 @@ class GameLoadController
                                 ready.setVisible(false);
                                 correctStartPositions();
                                 if (vars.music)
-                                    vars.playWithMusicPLayer(model.resourcesPath + "/sounds/pacman_siren.wav", true, 0, 9100);
+                                    vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_SIREN(),
+                                            true, 0, 9100);
 
                                 model.pacUpdater.start();
                                 model.ghostUpdater.start();
@@ -694,13 +709,13 @@ class GameLoadController
                                 break;
                             case EXECUTIONEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.util.concurrent.ExecutionException", model);
                                 break;
                             case INTERRUPTEDEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
@@ -711,7 +726,7 @@ class GameLoadController
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                     } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
                 MainFrameController.handleExceptions(exception.toString(), model);
@@ -785,7 +800,7 @@ class GameLoadController
     {
         @Override
         public Void doInBackground()
-                throws InterruptedException
+                throws InterruptedException, IOException
         {
             Random rndm = new Random();
             int elemCount = rndm.nextInt(5) + 1;
@@ -797,7 +812,8 @@ class GameLoadController
             for (int i = 1; i <= elemCount && vars.gameOn; i++)
             {
                 elements[i-1] = new JLabel();
-                elements[i-1].setIcon(new ImageIcon(model.resourcesPath + "/textures/Entity" + Integer.toString(i) + "Left.png"));
+                elements[i-1].setIcon(new ImageIcon(
+                        ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i),"LEFT").readAllBytes()));
                 elements[i-1].setLocation(new Point(startX + (i == 0 ? 0 : (i + 4) * (2 * LoadMap.TILESIZEINPXS)),
                                                     (LoadMap.MAPHEIGHTINTILES / 2 + 6) * LoadMap.TILESIZEINPXS));
                 elements[i-1].setSize(new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
@@ -806,7 +822,7 @@ class GameLoadController
             Thread.sleep(24);
 
             Point[] locations = new Point[elemCount];
-            ImageIcon pacmanImage = new ImageIcon(model.resourcesPath + "/Textures/PacStart.png");
+            ImageIcon pacmanImage = new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes());
             for (int j = startX; j > -300 && vars.gameOn; j -= 4)
             {
                 ++pacCount;
@@ -816,9 +832,9 @@ class GameLoadController
                                             (LoadMap.MAPHEIGHTINTILES / 2 + 6) * LoadMap.TILESIZEINPXS);
                     if (i == 0 && pacCount % 4 == 0)
                         if (pacCount % 8 == 0)
-                            pacmanImage = new ImageIcon(model.resourcesPath + "/Textures/PacStart.png");
+                            pacmanImage = new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes());
                         else
-                            pacmanImage = new ImageIcon(model.resourcesPath + "/textures/Entity1Left.png");
+                            pacmanImage = new ImageIcon(ClasspathFileReader.getENTITY1LEFT().readAllBytes());
                 }
 
                 publish(new AnimationFrame(false, false, pacmanImage, elements, locations));
@@ -829,10 +845,11 @@ class GameLoadController
             if(vars.level % 5 == 0 && vars.gameOn){
                 elements[0].setSize(new Dimension(ENTITIESSIZEINPXS * 2, ENTITIESSIZEINPXS * 2));
                 elements[0].setLocation(new Point(elements[0].getLocation().x, elements[0].getLocation().y - ENTITIESSIZEINPXS));
-                elements[0].setIcon(new ImageIcon(model.resourcesPath + "/textures/Entity1RightBig.png"));
+                elements[0].setIcon(new ImageIcon(ClasspathFileReader.getENTITY1RIGHTBIG().readAllBytes()));
                 locations[0] = elements[0].getLocation();
                 for (int i = 2; i <= elemCount; i++)
-                    elements[i-1].setIcon(new ImageIcon(model.resourcesPath + "/textures/Entity" + Integer.toString(i) + "Right.png"));
+                    elements[i-1].setIcon(new ImageIcon(
+                            ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i),"RIGHT").readAllBytes()));
 
                 Thread.sleep(250);
                 pacCount = 0;
@@ -844,9 +861,9 @@ class GameLoadController
                         locations[i] = new Point(locations[i].x + 4, locations[i].y);
                         if (i == 0 && pacCount % 4 == 0)
                             if (pacCount % 8 == 0)
-                                pacmanImage = new ImageIcon(model.resourcesPath + "/Textures/PacStartBig.png");
+                                pacmanImage = new ImageIcon(ClasspathFileReader.getPACSTARTBIG().readAllBytes());
                             else
-                                pacmanImage = new ImageIcon(model.resourcesPath + "/textures/Entity1RightBig.png");
+                                pacmanImage = new ImageIcon(ClasspathFileReader.getENTITY1RIGHTBIG().readAllBytes());
                     }
 
                     publish(new AnimationFrame(false, false, pacmanImage, elements, locations));

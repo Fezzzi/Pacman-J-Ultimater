@@ -4,11 +4,14 @@ import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
+import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,9 +43,6 @@ public class MenuController implements IKeyDownHandler
     {
         this.model = model;
         this.vars = vars;
-        if(model.resourcesPath == null)
-            model.disposeMainFrame();
-
         menuLayer = MenuController.mn.start;
         menuSelected = new Pair<>(MenuController.mn.game, model.orgGameLbl);
 
@@ -153,7 +153,7 @@ public class MenuController implements IKeyDownHandler
         if (vars.highScore == -1)
         {
             //In case the HighScore is not loaded yet (value is -1) do so
-            vars.highScore = HighScoreClass.loadHighScore(model.resourcesPath);
+            vars.highScore = HighScoreClass.loadHighScore();
         }
         model.highScoreLabelLbl.setText("Highest Score");
         model.highScoreLabelLbl.setForeground(Color.yellow);
@@ -236,7 +236,7 @@ public class MenuController implements IKeyDownHandler
     private void orgGame_Click()
             throws InvocationTargetException, IllegalAccessException
     {
-        vars.loadedMap = new LoadMap(model.resourcesPath + "\\OriginalMap.txt");
+        vars.loadedMap = new LoadMap(ClasspathFileReader.getORIGINAL_MAP());
         if (vars.loadedMap.Map != null) {
             menu(null);
             proceedToGameplay();
@@ -264,9 +264,10 @@ public class MenuController implements IKeyDownHandler
      * @throws NoSuchMethodException To be handled by calling procedure.
      * @throws IllegalAccessException To be handled by calling procedure.
      * @throws InvocationTargetException To be handled by calling procedure.
+     * @throws FileNotFoundException To be handled by calling procedure.
      */
     private void vs_Click()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
     {
         selectMap_Click();
         vars.player2 = vars.gameOn;
@@ -280,9 +281,10 @@ public class MenuController implements IKeyDownHandler
      * @throws NoSuchMethodException To be handled by calling procedure.
      * @throws IllegalAccessException To be handled by calling procedure.
      * @throws InvocationTargetException To be handled by calling procedure.
+     * @throws FileNotFoundException To be handled by calling procedure.
      */
     private void selectMap_Click()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
     {
         model.openFileDialog1.setVisible(true);
         model.openFileDialog1.requestFocus();
@@ -292,11 +294,11 @@ public class MenuController implements IKeyDownHandler
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
             String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
             if (symbols.size() == 0)
-                vars.loadedMap = new LoadMap(path);
+                vars.loadedMap = new LoadMap(new FileInputStream(path));
             else
             {
                 Character[] chars = symbols.toArray(new Character[0]);
-                vars.loadedMap = new LoadMap(path, chars);
+                vars.loadedMap = new LoadMap(new FileInputStream(path), chars);
                 symbols = new ArrayList<>();
             }
             if (vars.loadedMap.Map != null) {
@@ -552,11 +554,11 @@ public class MenuController implements IKeyDownHandler
                     }
             }
         }
-        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception)
+        catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException | FileNotFoundException exception)
         {
             if (vars.score > vars.highScore) {
                 try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                 } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
             }
             MainFrameController.handleExceptions(exception.toString(), model);
@@ -708,11 +710,11 @@ public class MenuController implements IKeyDownHandler
                         break;
                 }
             }
-            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception)
+            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException | FileNotFoundException exception)
             {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score, model.resourcesPath);
+                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
                     } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
                 }
                 MainFrameController.handleExceptions(exception.getMessage(), model);
@@ -798,7 +800,7 @@ public class MenuController implements IKeyDownHandler
         public void componentShown(ComponentEvent e)
         {
             try {
-                Thread.sleep(2500);
+                Thread.sleep(5000);
             }
             catch(InterruptedException ignore){ }
             model.disposeMainFrame();

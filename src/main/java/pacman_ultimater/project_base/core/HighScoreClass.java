@@ -14,18 +14,17 @@ public class HighScoreClass
     /**
      * Function for HighScore loading.
      *
-     * @param resourcesPath Path to the resources files.
      * @throws IOException To be handled by caller.
      * @return int
      */
-    public static int loadHighScore(String resourcesPath)
+    public static int loadHighScore()
             throws IOException
     {
         // The actual highscore is saved at the 10th line of the config file.
         // It is necessary to just convert it from binary to decimal number.
 
         String scoreLine = "";
-        BufferedReader br = new BufferedReader(new FileReader(resourcesPath + "\\config.bin"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(ClasspathFileReader.getCONFIG()));
         for (int i = 0; i <= ImportantLine; i++)
         {
             scoreLine = br.readLine();
@@ -44,31 +43,36 @@ public class HighScoreClass
      *
      * @param player2 Score is not saved after vs mode.
      * @param score Player's score.
-     * @param resourcesPath Path to the resources folder.
      * @throws IOException To be handled by calling procedure.
      */
-    public static void tryToSaveScore(boolean player2, int score, String resourcesPath)
+    public static void tryToSaveScore(boolean player2, int score)
             throws IOException
     {
         if(!player2 && score > 0)
-            HighScoreClass.saveHighScore(score, resourcesPath);
+            HighScoreClass.saveHighScore(score);
     }
 
     /**
      * Function for HighScore Saving.
      *
      * @param newHighScore New HighScore to be saved to config file.
-     * @param resourcesPath Path to the resources files.
      * @throws IOException To be handled by caller.
      */
-    private static void saveHighScore(int newHighScore, String resourcesPath)
+    private static void saveHighScore(int newHighScore)
             throws IOException
     {
         // Function generates 9 lines of random binary numbers of approximately same length as highscore.
         // After that the actual highscore is converted to binary number and saved at 10th line.
         // Another 4 lines of random binary data are generated and saved at the end of the file.
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter(resourcesPath + "\\config.bin"));
+        File user_config = new File(ClasspathFileReader.USER_CONFIG);
+        if (!user_config.exists()){
+            File user_config_parent = user_config.getParentFile();
+            if (!user_config_parent.exists() && !user_config_parent.mkdirs()) {
+                throw new IOException();
+            }
+        }
+        BufferedWriter bw = new BufferedWriter(new FileWriter(user_config));
         Random rndm = new Random();
         String binaryScore = Integer.toBinaryString(newHighScore);
         for (int i = 0; i < LinesInFile; i++)

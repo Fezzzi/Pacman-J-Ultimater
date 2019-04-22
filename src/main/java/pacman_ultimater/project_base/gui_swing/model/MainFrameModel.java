@@ -10,10 +10,8 @@ import java.awt.*;
  * Holds together all of application's original labels.
  * Provides several methods for controllers' usage.
  */
-public class MainFrameModel {
-
-    public String resourcesPath;
-
+public class MainFrameModel
+{
     private MainFrame mainFrame;
     public JPanel mainPanel;
     public JFileChooser openFileDialog1;
@@ -52,7 +50,6 @@ public class MainFrameModel {
     {
         mainFrame = view;
         mainPanel = view.getMainPanel();
-        resourcesPath = view.getResourcesPath();
         openFileDialog1 = view.getOpenFileDialog1();
         ghostUpdater = view.getGhostUpdater();
         ghostSmoothTimer = view.getGhostSmoothTimer();
