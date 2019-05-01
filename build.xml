@@ -3,10 +3,7 @@
   
   
   <property file="build.properties"/>
-  <!-- Uncomment the following property if no tests compilation is needed -->
-  <!-- 
   <property name="skip.tests" value="true"/>
-   -->
   
   <!-- Compiler options -->
   
@@ -215,10 +212,6 @@
     </javac>
     
     <copy todir="${pacman_ultimater.output.dir}">
-      <fileset dir="${module.pacman_ultimater.basedir}/src/main/java">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
       <fileset dir="${module.pacman_ultimater.basedir}/src/main/java/pacman_ultimater/resources">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
