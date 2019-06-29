@@ -53,7 +53,7 @@ class GameLoadController
         ready.setVisible(false);
         placeLabel(ready, "READY!", Color.yellow,
                 new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 44),
+                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
                 ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 22));
 
         loading = new JLabel();
@@ -84,7 +84,7 @@ class GameLoadController
         Image bufferImage = model.mainPanel.createImage(vars.size.width, vars.size.height);
         vars.bufferGraphics = bufferImage.getGraphics();
         Graphics2D bg2D = (Graphics2D)vars.bufferGraphics;
-        bg2D.setStroke(new BasicStroke(3));
+        bg2D.setStroke(new BasicStroke(2));
         vars.bufferGraphics.setColor(Color.BLACK);
         vars.bufferGraphics.fillRect(0,0, vars.size.width, vars.size.height);
 
