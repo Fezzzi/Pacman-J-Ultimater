@@ -34,6 +34,7 @@ public class MenuController implements IKeyDownHandler
     private GameModel vars;
     private GameplayController gp;
     private KeyBindings kb;
+    private Editor editor;
 
     //</editor-fold>
 
@@ -56,7 +57,10 @@ public class MenuController implements IKeyDownHandler
      */
     private void initListeners()
     {
-        JLabel[] labels = {model.vsLbl, model.orgGameLbl, model.selectMapLbl, model.settingsLbl, model.highScrLbl};
+        JLabel[] labels = {
+            model.multiplayerLbl, model.orgGameLbl, model.selectMapLbl, model.settingsLbl, model.highScrLbl,
+            model.editorLbl, model.howToLbl
+        };
         for(JLabel label : labels)
             label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu, model));
 
@@ -65,6 +69,8 @@ public class MenuController implements IKeyDownHandler
         model.pressEnterLbl.addMouseListener(new labelListener(model.pressEnterLbl, mouseAdapterType.clickToEnter, model));
         model.musicButtonLbl.addMouseListener(new labelListener(model.musicButtonLbl, mouseAdapterType.highlight_settings, model));
         model.soundsButtonLbl.addMouseListener(new labelListener(model.soundsButtonLbl, mouseAdapterType.highlight_settings, model));
+        model.editExistingButLbl.addMouseListener(new labelListener(model.editExistingButLbl, mouseAdapterType.highlight_editor, model));
+        model.createNewButLbl.addMouseListener(new labelListener(model.createNewButLbl, mouseAdapterType.highlight_editor, model));
         model.tryAgainButLbl.addMouseListener(new labelListener(model.tryAgainButLbl, mouseAdapterType.tryAgainBtn, model));
         model.advancedLdButLbl.addMouseListener(new labelListener(model.advancedLdButLbl, mouseAdapterType.advancedLdBtn, model));
     }
@@ -122,7 +128,9 @@ public class MenuController implements IKeyDownHandler
         activeElements.add(model.settingsLbl);
         activeElements.add(model.escLabelLbl);
         activeElements.add(model.highScrLbl);
-        activeElements.add(model.vsLbl);
+        activeElements.add(model.multiplayerLbl);
+        activeElements.add(model.editorLbl);
+        activeElements.add(model.howToLbl);
     }
 
     private void menu_SelectMap()
@@ -209,6 +217,19 @@ public class MenuController implements IKeyDownHandler
         vars.player2 = false;
     }
 
+    private void menu_Editor()
+    {
+        activeElements.add(model.escLabelLbl);
+        activeElements.add(model.editExistingButLbl);
+        activeElements.add(model.createNewButLbl);
+        model.createBtnSelectorLbl.setVisible(true);
+    }
+
+    private void menu_HowTo()
+    {
+        activeElements.add(model.escLabelLbl);
+    }
+
     private void menu_Settings()
     {
         activeElements.add(model.musicButtonLbl);
@@ -266,7 +287,7 @@ public class MenuController implements IKeyDownHandler
      * @throws InvocationTargetException To be handled by calling procedure.
      * @throws FileNotFoundException To be handled by calling procedure.
      */
-    private void vs_Click()
+    private void multiplayer_Click()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
     {
         selectMap_Click();
@@ -286,8 +307,6 @@ public class MenuController implements IKeyDownHandler
     private void selectMap_Click()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
     {
-        model.openFileDialog1.setVisible(true);
-        model.openFileDialog1.requestFocus();
         if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;
@@ -410,10 +429,57 @@ public class MenuController implements IKeyDownHandler
         }
     }
 
+    /**
+     * Opens file selector for editor.
+     */
+    private void editButton_Click()
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
+    {
+        if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION) {
+            String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
+            LoadMap map = new LoadMap(new FileInputStream(path));
+            if (map.Map != null) {
+                model.editBtnSelectorLbl.setVisible(false);
+                model.createBtnSelectorLbl.setVisible(false);
+                model.editExistingButLbl.setVisible(false);
+                model.createNewButLbl.setVisible(false);
+                editor = new Editor(model.mainPanel, map.Map);
+                editor.show();
+            } else {
+                JOptionPane.showMessageDialog(model.mainPanel, "Not a playable map");
+            }
+        }
+    }
+
+    /**
+     * Opens editor with empty template.
+     */
+    private void createButton_Click()
+    {
+        model.editBtnSelectorLbl.setVisible(false);
+        model.createBtnSelectorLbl.setVisible(false);
+        model.editExistingButLbl.setVisible(false);
+        model.createNewButLbl.setVisible(false);
+        editor = new Editor(model.mainPanel);
+        editor.show();
+    }
+
     private void settings_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
         menu(this.getClass().getDeclaredMethod("menu_Settings"));
+    }
+
+    private void editor_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        menuLayer = mn.submenu;
+        menu(this.getClass().getDeclaredMethod("menu_Editor"));
+    }
+
+    private void howTo_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        menuLayer = mn.submenu;
+        menu(this.getClass().getDeclaredMethod("menu_HowTo"));
     }
 
     private void highScr_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
@@ -449,7 +515,7 @@ public class MenuController implements IKeyDownHandler
      */
     private void moveInMenu(int delta)
     {
-        final byte menuSize = 5;
+        final byte menuSize = 7;
 
         JLabel newLabel = enumToLabel(mn.values()[((menuSelected.item1.ordinal() + delta + menuSize) % menuSize)]);
         highlightSelected(menuSelected.item2, newLabel);
@@ -468,6 +534,18 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
+     * Changes selected element in editor
+     */
+    private void moveInEditor()
+    {
+        if (model.editBtnSelectorLbl.isVisible()) {
+            createButton_MouseEnter();
+        } else {
+            editButton_MouseEnter();
+        }
+    }
+
+    /**
      * Selects SoundsButton when mouse cursor enters its domain.
      */
     private void soundsButton_MouseEnter()
@@ -483,6 +561,24 @@ public class MenuController implements IKeyDownHandler
     {
         model.soundsBtnSelectorLbl.setVisible(false);
         model.musicBtnSelectorLbl.setVisible(true);
+    }
+
+    /**
+     * Selects CreateButton when mouse cursor enters its domain.
+     */
+    private void createButton_MouseEnter()
+    {
+        model.editBtnSelectorLbl.setVisible(false);
+        model.createBtnSelectorLbl.setVisible(true);
+    }
+
+    /**
+     * Selects EditButton when mouse cursor enters its domain.
+     */
+    private void editButton_MouseEnter()
+    {
+        model.createBtnSelectorLbl.setVisible(false);
+        model.editBtnSelectorLbl.setVisible(true);
     }
 
     /**
@@ -510,6 +606,17 @@ public class MenuController implements IKeyDownHandler
                         if (menuSelected.item1 == mn.settings) {
                             model.musicBtnSelectorLbl.setVisible(false);
                             model.soundsBtnSelectorLbl.setVisible(false);
+                        } else if (menuSelected.item1 == mn.editor) {
+                            model.editBtnSelectorLbl.setVisible(false);
+                            model.createBtnSelectorLbl.setVisible(false);
+                            if (editor != null && editor.opened) {
+                                if (!editor.close()) {
+                                    return;
+                                }
+
+                                editor = null;
+                                model.mainPanel.repaint();
+                            }
                         }
                         menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                         menuLayer = mn.game;
@@ -531,16 +638,12 @@ public class MenuController implements IKeyDownHandler
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
+                } else if (menuSelected.item1 == mn.editor && editor != null && editor.opened) {
+                    editor.handleKey(keyCode);
                 } else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
-                    if (menuLayer == mn.submenu && menuSelected.item1 == mn.settings)
-                        moveInSettings();
-                    else if (menuLayer == mn.game)
-                        moveInMenu(-1);
+                    handleKeyWS(-1);
                 } else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
-                    if (menuLayer == mn.submenu && menuSelected.item1 == mn.settings)
-                        moveInSettings();
-                    else if (menuLayer == mn.game)
-                        moveInMenu(+1);
+                    handleKeyWS(1);
                 } else if (keyCode == KeyEvent.VK_ENTER)
                     if (menuLayer == mn.game) {
                         Method action = enumToAction(menuSelected.item1);
@@ -551,6 +654,11 @@ public class MenuController implements IKeyDownHandler
                             musicButton_Click();
                         else
                             soundsButton_Click();
+                    } else if (menuSelected.item1 == mn.editor) {
+                        if (model.editBtnSelectorLbl.isVisible())
+                            editButton_Click();
+                        else
+                            createButton_Click();
                     }
             }
         }
@@ -568,6 +676,23 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
+     * Handles W, S, up, down key resolving
+     *
+     * @param delta movement in menu
+     */
+    private void handleKeyWS(int delta)
+    {
+        if (menuLayer == mn.submenu) {
+            if (menuSelected.item1 == mn.settings) {
+                moveInSettings();
+            } else if (menuSelected.item1 == mn.editor) {
+                moveInEditor();
+            }
+        } else if (menuLayer == mn.game)
+            moveInMenu(delta);
+    }
+
+    /**
      * Function that switches active labels by unhighlighting the old one and highlighting the new one.
      *
      * @param prevLabel Previous active label.
@@ -577,11 +702,9 @@ public class MenuController implements IKeyDownHandler
     {
         if(prevLabel != null) {
             prevLabel.setForeground(Color.white);
-            prevLabel.setFont(new Font(prevLabel.getFont().getFontName(), Font.BOLD, 34));
         }
         if(newLabel != null) {
             newLabel.setForeground(Color.yellow);
-            newLabel.setFont(new Font(newLabel.getFont().getFontName(), Font.BOLD, 36));
         }
     }
 
@@ -592,7 +715,7 @@ public class MenuController implements IKeyDownHandler
     /**
      * Enumeration for identifying menu states.
      */
-    enum mn { game, selectmap, settings, vs, highscore, start, submenu, none }
+    enum mn { game, selectmap, multiplayer, settings, editor, howTo, highscore, start, submenu, none }
 
     /**
      * Function that associates selected labels to menu states.
@@ -607,12 +730,16 @@ public class MenuController implements IKeyDownHandler
                 return mn.game;
             case "SelectMap":
                 return mn.selectmap;
-            case "Vs":
-                return mn.vs;
+            case "Multiplayer":
+                return mn.multiplayer;
             case "HighScr":
                 return mn.highscore;
             case "Settings":
                 return mn.settings;
+            case "Editor":
+                return mn.editor;
+            case "HowTo":
+                return mn.howTo;
             default:
                 return mn.start;
         }
@@ -631,12 +758,16 @@ public class MenuController implements IKeyDownHandler
                 return model.orgGameLbl;
             case selectmap:
                 return model.selectMapLbl;
-            case vs:
-                return model.vsLbl;
+            case multiplayer:
+                return model.multiplayerLbl;
             case highscore:
                 return model.highScrLbl;
             case settings:
                 return model.settingsLbl;
+            case editor:
+                return model.editorLbl;
+            case howTo:
+                return model.howToLbl;
             default:
                 return model.orgGameLbl;
         }
@@ -656,12 +787,16 @@ public class MenuController implements IKeyDownHandler
                 return this.getClass().getDeclaredMethod("orgGame_Click");
             case selectmap:
                 return this.getClass().getDeclaredMethod("selectMap_Click");
-            case vs:
-                return this.getClass().getDeclaredMethod("vs_Click");
+            case multiplayer:
+                return this.getClass().getDeclaredMethod("multiplayer_Click");
             case highscore:
                 return this.getClass().getDeclaredMethod("highScr_Click");
             case settings:
                 return this.getClass().getDeclaredMethod("settings_Click");
+            case editor:
+                return this.getClass().getDeclaredMethod("editor_Click");
+            case howTo:
+                return this.getClass().getDeclaredMethod("howTo_Click");
             default:
                 return null;
         }
@@ -671,7 +806,9 @@ public class MenuController implements IKeyDownHandler
 
     //<editor-fold desc="- LISTENERS Block -">
 
-    private enum mouseAdapterType { highlight_menu, highlight_settings, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn }
+    private enum mouseAdapterType {
+        highlight_menu, highlight_settings, highlight_editor, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn
+    }
 
     private class labelListener extends MouseAdapter
     {
@@ -710,7 +847,7 @@ public class MenuController implements IKeyDownHandler
                         break;
                 }
             }
-            catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException | FileNotFoundException exception)
+            catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | FileNotFoundException exception)
             {
                 if (vars.score > vars.highScore) {
                     try {
@@ -729,12 +866,18 @@ public class MenuController implements IKeyDownHandler
         @Override
         public void mouseEntered(MouseEvent e)
         {
-            switch(mat){
+            switch (mat){
                 case highlight_settings:
-                    if(label.getName().equals("MusicButton"))
+                    if (label.getName().equals("MusicButton"))
                         musicButton_MouseEnter();
                     else
                         soundsButton_MouseEnter();
+                    break;
+                case highlight_editor:
+                    if (label.getName().equals("EditExistingBut"))
+                        editButton_MouseEnter();
+                    else
+                        createButton_MouseEnter();
                     break;
                 case clickToEscape:
                     label.setForeground(Color.white);

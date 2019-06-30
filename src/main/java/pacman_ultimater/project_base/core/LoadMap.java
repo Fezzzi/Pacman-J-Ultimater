@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -328,7 +329,7 @@ public class LoadMap {
 
                     if (map[position.item1 + 1][position.item2] == symbols[4] && map[position.item1 + 1][position.item2 + 1] == symbols[4])
                     {
-                        //If the algorithm has reached gate Tiles searches tiles underneath to find out if the contain ghost House
+                        //If the algorithm has reached gate Tiles searches tiles underneath to find out if they contain ghost House
                         //The algorithm knows how the ghost house should look and tests each tile if it contains what it should
                         //the algorithm increases ghostHouse for each successful comparison
                         if (map[position.item1][position.item2] == symbols[0] && map[position.item1][position.item2 + 1] == symbols[0])
@@ -491,5 +492,30 @@ public class LoadMap {
         else if (tile == symbols[4])
             return new Tile("X");
         else return null;
+    }
+
+    /**
+     * Returns random color by fixing one channel to max, another to min and the last one chooses randomly.
+     *
+     * @return Color
+     */
+    public static Color chooseRandomColor()
+    {
+        Random rndm = new Random();
+        switch (rndm.nextInt(6))
+        {
+            case 0:
+                return new Color(0, 255, rndm.nextInt(256));
+            case 1:
+                return new Color(0, rndm.nextInt(256), 255);
+            case 2:
+                return new Color(255, 0, rndm.nextInt(256));
+            case 3:
+                return new Color(255, rndm.nextInt(256), 0);
+            case 4:
+                return new Color(rndm.nextInt(256), 0, 255);
+            default:
+                return new Color(rndm.nextInt(256), 255, 0);
+        }
     }
 }

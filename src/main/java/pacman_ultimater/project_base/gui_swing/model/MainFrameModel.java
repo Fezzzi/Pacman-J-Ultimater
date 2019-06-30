@@ -28,7 +28,7 @@ public class MainFrameModel
     public JLabel settingsLbl;
     public JLabel escLabelLbl;
     public JLabel highScrLbl;
-    public JLabel vsLbl;
+    public JLabel multiplayerLbl;
     public JLabel highScoreLabelLbl;
     public JLabel scoreLabelLbl;
     public JLabel highScoreNumLbl;
@@ -45,6 +45,12 @@ public class MainFrameModel
     public JLabel typeSymbolsLbl;
     public JLabel typedSymbolsLbl;
     public JLabel typeHintLbl;
+    public JLabel editorLbl;
+    public JLabel howToLbl;
+    public JLabel editExistingButLbl;
+    public JLabel editBtnSelectorLbl;
+    public JLabel createNewButLbl;
+    public JLabel createBtnSelectorLbl;
 
     public MainFrameModel(MainFrame view)
     {
@@ -65,7 +71,7 @@ public class MainFrameModel
         settingsLbl = view.getSettingsLbl();
         escLabelLbl = view.getEscLabelLbl();
         highScrLbl = view.getHighScrLbl();
-        vsLbl = view.getVsLbl();
+        multiplayerLbl = view.getMultiplayerLbl();
         highScoreLabelLbl = view.getHighScoreLabelLbl();
         scoreLabelLbl = view.getScoreLabelLbl();
         highScoreNumLbl = view.getHighScoreNumLbl();
@@ -82,6 +88,12 @@ public class MainFrameModel
         typeSymbolsLbl = view.getTypeSymbolsLbl();
         typedSymbolsLbl = view.getTypedSymbolsLbl();
         typeHintLbl = view.getTypeHintLbl();
+        editorLbl = view.getEditorLbl();
+        howToLbl = view.getHowToLbl();
+        editExistingButLbl = view.getEditExistingButLbl();
+        editBtnSelectorLbl = view.getEditBtnSelectorLbl();
+        createNewButLbl = view.getCreateNewButLbl();
+        createBtnSelectorLbl = view.getCreateBtnSelectorLbl();
     }
 
     /**
