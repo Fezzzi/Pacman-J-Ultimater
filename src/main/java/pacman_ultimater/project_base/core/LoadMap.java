@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -168,8 +169,7 @@ public class LoadMap {
             lineNum++;
             for (int i = 1; i < column + 1; i++)
             {
-                tileMap[lineNum - 2][i - 1] = TransformToTile
-                        (
+                tileMap[lineNum - 2][i - 1] = TransformToTile(
                                 map[lineNum - 1][i], map[lineNum - 1][i - 1],
                                 map[lineNum - 1][i + 1], map[lineNum - 2][i],
                                 '\0', '\0', map[lineNum - 2][i - 1],
@@ -206,8 +206,7 @@ public class LoadMap {
      */
     private Boolean PerformReverseEvaluation(Stack<Point> hStack, Stack<Point> vStack)
     {
-        while (hStack.size() > 0)
-        {
+        while (hStack.size() > 0) {
             Point pt = hStack.pop();
             if (tileMap[pt.x][pt.y + 1].tile == Tile.nType.TWALLDOUBLE || tileMap[pt.x][pt.y + 1].tile == Tile.nType.BRCURVESINGLE)
                 tileMap[pt.x][pt.y].tile = Tile.nType.TWALLDOUBLE;
@@ -217,8 +216,7 @@ public class LoadMap {
                 return false;
         }
 
-        while (vStack.size() > 0)
-        {
+        while (vStack.size() > 0) {
             Point pt = vStack.pop();
             if (tileMap[pt.x + 1][pt.y].tile == Tile.nType.RWALLDOUBLE || tileMap[pt.x + 1][pt.y].tile == Tile.nType.BRCURVESINGLE)
                 tileMap[pt.x][pt.y].tile = Tile.nType.RWALLDOUBLE;
@@ -243,15 +241,12 @@ public class LoadMap {
         if (color.equals("RANDOM"))
             return TRANSPARENT;
 
-        if (color.length() == 6)
-        {
+        if (color.length() == 6) {
             return new Color(   Integer.decode("0x" + color.substring(0, 2)),
                                 Integer.decode("0x" + color.substring(2, 4)),
                                 Integer.decode("0x" + color.substring(4, 6))
                             );
-        }
-        else if (color.length() == 8)
-        {
+        } else if (color.length() == 8) {
             return new Color(   Integer.decode("0x" + color.substring(0, 2)),
                                 Integer.decode("0x" + color.substring(2, 4)),
                                 Integer.decode("0x" + color.substring(4, 6)),
@@ -286,12 +281,12 @@ public class LoadMap {
             connectedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
             connectedTiles[position.item1][position.item2] = true;
             stack.push(position);
-            while ((dotsFound != numOfDots || ghostHouse != GhostHouseSize) && stack.size() > 0)
+            while (stack.size() > 0)
             {
                 position = stack.pop();
-                if (map[position.item1][position.item2] != symbols[3] &&
-                        map[position.item1][position.item2] != symbols[4] && position.item2 > 0 && position.item2 < MAPWIDTHINTILES + 1)
-                {
+                if (map[position.item1][position.item2] != symbols[3]
+                && map[position.item1][position.item2] != symbols[4]
+                && position.item2 > 0 && position.item2 < MAPWIDTHINTILES + 1) {
                     // Counts number of dots accessible from starting point for further comparison.
                     if (map[position.item1][position.item2] != symbols[0])
                         dotsFound++;
@@ -302,33 +297,56 @@ public class LoadMap {
                     if (connectedTiles[position.item1 + 1] == null)
                         connectedTiles[position.item1 + 1] = new Boolean[MAPWIDTHINTILES + 2];
                     if (connectedTiles[position.item1][position.item2 - 1] == null
-                            || !connectedTiles[position.item1][position.item2 - 1])
+                    || !connectedTiles[position.item1][position.item2 - 1])
                     {
                         stack.push(new IntPair(position.item1, position.item2 - 1));
                         connectedTiles[position.item1][position.item2 - 1] = true;
                     }
                     if (connectedTiles[position.item1][position.item2 + 1] == null
-                            || !connectedTiles[position.item1][position.item2 + 1])
+                    || !connectedTiles[position.item1][position.item2 + 1])
                     {
                         stack.push(new IntPair(position.item1, position.item2 + 1));
                         connectedTiles[position.item1][position.item2 + 1] = true;
                     }
                     if (connectedTiles[position.item1 - 1][position.item2] == null
-                            || !connectedTiles[position.item1 - 1][position.item2])
+                    || !connectedTiles[position.item1 - 1][position.item2])
                     {
                         stack.push(new IntPair(position.item1 - 1, position.item2));
                         connectedTiles[position.item1 - 1][position.item2] = true;
                     }
                     if (connectedTiles[position.item1 + 1][position.item2] == null
-                            || !connectedTiles[position.item1 + 1][position.item2])
+                    || !connectedTiles[position.item1 + 1][position.item2])
                     {
                         stack.push(new IntPair(position.item1 + 1, position.item2));
                         connectedTiles[position.item1 + 1][position.item2] = true;
                     }
 
+                    // Validates horizontal teleportation and adds teleported tiles to stack
+                    if (position.item2 == 1 || position.item2 == MAPWIDTHINTILES) {
+                        if ((map[position.item1][position.item2] == symbols[3]
+                        && map[position.item1][MAPWIDTHINTILES] != symbols[3])
+                        || ((map[position.item1][position.item2] != symbols[3])
+                        && map[position.item1][MAPWIDTHINTILES] == symbols[3])) {
+                            return new Pair<>(false, null);
+                        }
+
+                        if (map[position.item1][position.item2] != symbols[3]
+                        && map[position.item1][position.item2] != symbols[4]) {
+                            if (position.item2 == 1 && (connectedTiles[position.item1][MAPWIDTHINTILES] == null
+                            || !connectedTiles[position.item1][MAPWIDTHINTILES])) {
+                                stack.push(new IntPair(position.item1, MAPWIDTHINTILES));
+                                connectedTiles[position.item1][MAPWIDTHINTILES] = true;
+                            } else if (connectedTiles[position.item1][1] == null
+                            || !connectedTiles[position.item1][1]) {
+                                stack.push(new IntPair(position.item1, 1));
+                                connectedTiles[position.item1][1] = true;
+                            }
+                        }
+                    }
+
                     if (map[position.item1 + 1][position.item2] == symbols[4] && map[position.item1 + 1][position.item2 + 1] == symbols[4])
                     {
-                        //If the algorithm has reached gate Tiles searches tiles underneath to find out if the contain ghost House
+                        //If the algorithm has reached gate Tiles searches tiles underneath to find out if they contain ghost House
                         //The algorithm knows how the ghost house should look and tests each tile if it contains what it should
                         //the algorithm increases ghostHouse for each successful comparison
                         if (map[position.item1][position.item2] == symbols[0] && map[position.item1][position.item2 + 1] == symbols[0])
@@ -361,9 +379,10 @@ public class LoadMap {
 
             // Compares number of found pellets and ghostHouse and decides whether the map is playable or not.
             // The fact that ghost house was found means it is accessible from pacman's starting position.
-            if (dotsFound == numOfDots && ghostHouse == GhostHouseSize)
+            if (dotsFound == numOfDots && ghostHouse == GhostHouseSize) {
                 return new Pair<>(true, ghostPosition);
-            else return new Pair<>(false, null);
+            }
+            return new Pair<>(false, null);
         }
         else return new Pair<>(false, null);
     }
@@ -491,5 +510,30 @@ public class LoadMap {
         else if (tile == symbols[4])
             return new Tile("X");
         else return null;
+    }
+
+    /**
+     * Returns random color by fixing one channel to max, another to min and the last one chooses randomly.
+     *
+     * @return Color
+     */
+    public static Color chooseRandomColor()
+    {
+        Random rndm = new Random();
+        switch (rndm.nextInt(6))
+        {
+            case 0:
+                return new Color(0, 255, rndm.nextInt(256));
+            case 1:
+                return new Color(0, rndm.nextInt(256), 255);
+            case 2:
+                return new Color(255, 0, rndm.nextInt(256));
+            case 3:
+                return new Color(255, rndm.nextInt(256), 0);
+            case 4:
+                return new Color(rndm.nextInt(256), 0, 255);
+            default:
+                return new Color(rndm.nextInt(256), 255, 0);
+        }
     }
 }

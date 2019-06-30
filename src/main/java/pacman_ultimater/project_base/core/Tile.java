@@ -224,8 +224,8 @@ public class Tile
     private void LWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x, location.y - 1, 2, 18);
-        g.fillRect(location.x + 6, location.y - 1, 2, 18);
+        g.fillRect(location.x + 1, location.y - 1, 2, 18);
+        g.fillRect(location.x + 7, location.y - 1, 2, 18);
     }
 
     /**
@@ -238,7 +238,7 @@ public class Tile
     private void LWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 6, location.y, 2, 16);
+        g.fillRect(location.x + 7, location.y, 2, 16);
     }
 
     /**
@@ -251,8 +251,8 @@ public class Tile
     private void RWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 14, location.y - 1, 2, 18);
-        g.fillRect(location.x + 8, location.y - 1, 2, 18);
+        g.fillRect(location.x + 13, location.y - 1, 2, 18);
+        g.fillRect(location.x + 7, location.y - 1, 2, 18);
     }
 
     /**
@@ -265,7 +265,7 @@ public class Tile
     private void RWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 8, location.y, 2, 16);
+        g.fillRect(location.x + 7, location.y, 2, 16);
     }
 
     /**
@@ -278,8 +278,8 @@ public class Tile
     private void TWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x - 1, location.y, 18, 2);
-        g.fillRect(location.x - 1, location.y + 6, 18, 2);
+        g.fillRect(location.x - 1, location.y + 1, 18, 2);
+        g.fillRect(location.x - 1, location.y + 7, 18, 2);
     }
 
     /**
@@ -292,7 +292,7 @@ public class Tile
     private void TWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x, location.y + 6, 16, 2);
+        g.fillRect(location.x, location.y + 7, 16, 2);
     }
 
     /**
@@ -305,8 +305,8 @@ public class Tile
     private void BWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x - 1, location.y + 14, 18, 2);
-        g.fillRect(location.x - 1, location.y + 8, 18, 2);
+        g.fillRect(location.x - 1, location.y + 13, 18, 2);
+        g.fillRect(location.x - 1, location.y + 7, 18, 2);
     }
 
     /**
@@ -319,7 +319,7 @@ public class Tile
     private void BWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x, location.y + 8, 16, 2);
+        g.fillRect(location.x, location.y + 7, 16, 2);
     }
 
     /**
@@ -332,8 +332,8 @@ public class Tile
     private void TLCurveDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.drawArc(location.x + 1, location.y + 1,24,24,90,90);
-        g.drawArc(location.x + 7, location.y + 7,14,14,90,90);
+        g.drawArc(location.x + 2, location.y + 2,24,24,90,90);
+        g.drawArc(location.x + 8, location.y + 8,14,14,90,90);
     }
 
     /**
@@ -346,7 +346,7 @@ public class Tile
     private void TLCurveSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.drawArc(location.x + 7, location.y + 7, 14, 14, 90, 90);
+        g.drawArc(location.x + 8, location.y + 8, 14, 14, 90, 90);
     }
 
     /**
@@ -359,8 +359,8 @@ public class Tile
     private void TRCurveDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.drawArc(location.x - 10,location.y + 1,24,24, 90 ,-90);
-        g.drawArc(location.x - 6, location.y + 6, 14, 14, 90 ,-90);
+        g.drawArc(location.x - 10,location.y + 2,24,24, 90 ,-90);
+        g.drawArc(location.x - 6, location.y + 8, 14, 14, 90 ,-90);
     }
 
     /**
@@ -373,7 +373,7 @@ public class Tile
     private void TRCurveSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.drawArc(location.x-6, location.y + 7, 14, 14, 90 , -90);
+        g.drawArc(location.x - 6, location.y + 8, 14, 14, 90 , -90);
     }
 
     /**
@@ -413,8 +413,8 @@ public class Tile
     private void BLCurveDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.drawArc(location.x + 1,location.y - 10,24,24,180,90);
-        g.drawArc(location.x + 6,location.y - 6,14,14,180,90);
+        g.drawArc(location.x + 2,location.y - 10,24,24,180,90);
+        g.drawArc(location.x + 8,location.y - 6,14,14,180,90);
     }
 
     /**
@@ -427,7 +427,7 @@ public class Tile
     private void BLCurveSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.drawArc(location.x + 7, location.y - 6, 14, 14, 180,90);
+        g.drawArc(location.x + 8, location.y - 6, 14, 14, 180,90);
     }
 
     //</editor-fold>

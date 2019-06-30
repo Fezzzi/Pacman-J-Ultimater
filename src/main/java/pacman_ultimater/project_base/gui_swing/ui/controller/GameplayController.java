@@ -101,7 +101,7 @@ class GameplayController implements IKeyDownHandler
      */
     public void handleKey(int keyCode)
     {
-        //Two booleans keyPressed[1|2] are used to distinguish which of the players has pressed the key during VS play.
+        //Two booleans keyPressed[1|2] are used to distinguish which of the players has pressed the key during Multiplayer.
         if (vars.player2) {
             if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_S)
                 vars.keyPressed1 = true;

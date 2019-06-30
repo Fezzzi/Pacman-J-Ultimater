@@ -53,7 +53,7 @@ class GameLoadController
         ready.setVisible(false);
         placeLabel(ready, "READY!", Color.yellow,
                 new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 44),
+                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
                 ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 22));
 
         loading = new JLabel();
@@ -84,12 +84,12 @@ class GameLoadController
         Image bufferImage = model.mainPanel.createImage(vars.size.width, vars.size.height);
         vars.bufferGraphics = bufferImage.getGraphics();
         Graphics2D bg2D = (Graphics2D)vars.bufferGraphics;
-        bg2D.setStroke(new BasicStroke(3));
+        bg2D.setStroke(new BasicStroke(2));
         vars.bufferGraphics.setColor(Color.BLACK);
         vars.bufferGraphics.fillRect(0,0, vars.size.width, vars.size.height);
 
         if (color == LoadMap.TRANSPARENT)
-            color = chooseRandomColor();
+            color = LoadMap.chooseRandomColor();
         if(color != Color.white)
             vars.mapColor = color;
         for (int i = 0; i < LoadMap.MAPHEIGHTINTILES; i++)
@@ -383,31 +383,6 @@ class GameLoadController
         if(nextLevel){
             vars.collectedDots = 0;
             vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
-        }
-    }
-
-    /**
-     * Returns random color by fixing one channel to max, another to min and the last one chooses randomly.
-     *
-     * @return Color
-     */
-    private static Color chooseRandomColor()
-    {
-        Random rndm = new Random();
-        switch (rndm.nextInt(6))
-        {
-            case 0:
-                return new Color(0, 255, rndm.nextInt(256));
-            case 1:
-                return new Color(0, rndm.nextInt(256), 255);
-            case 2:
-                return new Color(255, 0, rndm.nextInt(256));
-            case 3:
-                return new Color(255, rndm.nextInt(256), 0);
-            case 4:
-                return new Color(rndm.nextInt(256), 0, 255);
-            default:
-                return new Color(rndm.nextInt(256), 255, 0);
         }
     }
 

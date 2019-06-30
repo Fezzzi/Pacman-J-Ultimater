@@ -41,7 +41,7 @@ public class HighScoreClass
     /**
      * Attempts to save player's score to file.
      *
-     * @param player2 Score is not saved after vs mode.
+     * @param player2 Score is not saved after multiplayer mode.
      * @param score Player's score.
      * @throws IOException To be handled by calling procedure.
      */
