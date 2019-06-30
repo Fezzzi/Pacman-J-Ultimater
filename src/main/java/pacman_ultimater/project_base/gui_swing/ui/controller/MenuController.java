@@ -446,7 +446,9 @@ public class MenuController implements IKeyDownHandler
                 editor = new Editor(model.mainPanel, map.Map);
                 editor.show();
             } else {
+                UIManager.put("Panel.background", Color.black);
                 JOptionPane.showMessageDialog(model.mainPanel, "Not a playable map");
+                UIManager.put("Panel.background", Color.white);
             }
         }
     }
