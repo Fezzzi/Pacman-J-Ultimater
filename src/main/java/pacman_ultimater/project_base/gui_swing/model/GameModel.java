@@ -20,13 +20,15 @@ public class GameModel {
     public int score, score2, lives, highScore, soundTick, collectedDots, ghostsEaten, ghostRelease,
                 level, freeGhosts, ticks, eatEmTimer;
     public Integer keyCountdown1, keyCountdown2;
-    public Boolean gameOn;
+    public float vMult, hMult;
+    public Boolean gameOn, editor;
     public boolean player2, sound, music, extraLifeGiven, keyPressed1, keyPressed2, killed;
     public Clip musicPlayer;
     public Clip[] soundPlayers;
     public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> map;
     public Tile[][] mapFresh;
     public Point[] redrawPellets;
+    public ArrayList<JLabel> addedComponents;
     public LoadMap loadedMap;
 
     public ArrayList<Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI>> entities;
@@ -41,11 +43,15 @@ public class GameModel {
     public GameModel()
     {
         redrawPellets = new Point[LoadMap.RDPSIZE];
+        defSize = new Dimension(LoadMap.DEFAULTWIDTH, LoadMap.DEFAULTHEIGHT);
         score = 0;
         score2 = 0;
         lives = 0;
+        vMult = 1;
+        hMult = 1;
         highScore = -1;
         gameOn = false;
+        editor = false;
         player2 = false;
         sound = true;
         music = true;

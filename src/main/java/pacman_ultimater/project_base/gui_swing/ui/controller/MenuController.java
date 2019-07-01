@@ -34,7 +34,9 @@ public class MenuController implements IKeyDownHandler
     private GameModel vars;
     private GameplayController gp;
     private KeyBindings kb;
-    private Editor editor;
+
+    // Must be public to enable MainFrameController to force its redraw
+    public Editor editor;
 
     //</editor-fold>
 
@@ -433,7 +435,7 @@ public class MenuController implements IKeyDownHandler
      * Opens file selector for editor.
      */
     private void editButton_Click()
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
+        throws FileNotFoundException
     {
         if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION) {
             String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
@@ -443,7 +445,8 @@ public class MenuController implements IKeyDownHandler
                 model.createBtnSelectorLbl.setVisible(false);
                 model.editExistingButLbl.setVisible(false);
                 model.createNewButLbl.setVisible(false);
-                editor = new Editor(model.mainPanel, map.Map);
+                vars.editor = true;
+                editor = new Editor(model.mainPanel, vars, map.Map);
                 editor.show();
             } else {
                 UIManager.put("Panel.background", Color.black);
@@ -462,7 +465,8 @@ public class MenuController implements IKeyDownHandler
         model.createBtnSelectorLbl.setVisible(false);
         model.editExistingButLbl.setVisible(false);
         model.createNewButLbl.setVisible(false);
-        editor = new Editor(model.mainPanel);
+        vars.editor = true;
+        editor = new Editor(model.mainPanel,vars);
         editor.show();
     }
 
@@ -611,11 +615,12 @@ public class MenuController implements IKeyDownHandler
                         } else if (menuSelected.item1 == mn.editor) {
                             model.editBtnSelectorLbl.setVisible(false);
                             model.createBtnSelectorLbl.setVisible(false);
-                            if (editor != null && editor.opened) {
+                            if (editor != null && vars.editor) {
                                 if (!editor.close()) {
                                     return;
                                 }
 
+                                vars.editor = false;
                                 editor = null;
                                 model.mainPanel.repaint();
                             }
@@ -640,7 +645,7 @@ public class MenuController implements IKeyDownHandler
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
-                } else if (menuSelected.item1 == mn.editor && editor != null && editor.opened) {
+                } else if (menuSelected.item1 == mn.editor && editor != null && vars.editor) {
                     editor.handleKey(keyCode);
                 } else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
                     handleKeyWS(-1);
@@ -892,10 +897,10 @@ public class MenuController implements IKeyDownHandler
                     menuSelected = new Pair<>(labelToEnum(label), label);
                     break;
                 case tryAgainBtn:
-                    model.tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    model.tryAgainButLbl.setBackground(Color.yellow);
                     break;
                 case advancedLdBtn:
-                    model.advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    model.advancedLdButLbl.setBackground(Color.yellow);
                     break;
             }
         }
@@ -911,10 +916,10 @@ public class MenuController implements IKeyDownHandler
                     label.setForeground(Color.white);
                     break;
                 case tryAgainBtn:
-                    model.tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    model.tryAgainButLbl.setBackground(Color.white);
                     break;
                 case advancedLdBtn:
-                    model.advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    model.advancedLdButLbl.setBackground(Color.white);
                     break;
             }
 

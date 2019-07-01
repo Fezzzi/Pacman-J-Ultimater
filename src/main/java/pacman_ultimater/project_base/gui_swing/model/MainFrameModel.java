@@ -4,6 +4,8 @@ import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class acting as application's model.
@@ -52,6 +54,9 @@ public class MainFrameModel
     public JLabel createNewButLbl;
     public JLabel createBtnSelectorLbl;
 
+    public JLabel[] labels;
+    public Map<String, Rectangle> defPositions;
+
     public MainFrameModel(MainFrame view)
     {
         mainFrame = view;
@@ -94,10 +99,24 @@ public class MainFrameModel
         editBtnSelectorLbl = view.getEditBtnSelectorLbl();
         createNewButLbl = view.getCreateNewButLbl();
         createBtnSelectorLbl = view.getCreateBtnSelectorLbl();
+
+        labels = new JLabel[]{
+            pacmanLbl, ultimateLbl, copyrightLbl, pressEnterLbl, selectMapLbl, orgGameLbl, settingsLbl, escLabelLbl,
+            highScrLbl, multiplayerLbl, highScoreLabelLbl, scoreLabelLbl, highScoreNumLbl, scoreNumLbl,
+            musicButtonLbl, soundsButtonLbl, musicBtnSelectorLbl, soundsBtnSelectorLbl,
+            gameOverLabelLbl, errorLdMapLbl, errorInfoLbl, tryAgainButLbl,
+            advancedLdButLbl, typeSymbolsLbl, typedSymbolsLbl, typeHintLbl, editorLbl, howToLbl,
+            editExistingButLbl, editBtnSelectorLbl, createNewButLbl, createBtnSelectorLbl,
+        };
+
+        defPositions = new HashMap<>();
+        for (JLabel label : labels) {
+            defPositions.put(label.getName(), label.getBounds());
+        }
     }
 
     /**
-     * Centers main Frame on the screen
+     * Centers main Frame on the screenm
      *
      * @param size Current window size
      */
@@ -116,24 +135,15 @@ public class MainFrameModel
     }
 
     /**
-     * Returns currently set minimum size of window.
-     *
-     * @return Dimension
-     */
-    public Dimension getMainFrameMinimumSize()
-    {
-        return mainFrame.getMinimumSize();
-    }
-
-    /**
      * Changes window's size.
      *
      * @param newSize Dimension to be set
      */
     public void setMainFrameSize(Dimension newSize)
     {
-        mainFrame.setMinimumSize(newSize);
-        mainFrame.setSize(newSize);
-        mainFrame.setMaximumSize(newSize);
+        if (newSize.width >= mainFrame.getMinimumSize().width && newSize.height >= mainFrame.getMinimumSize().height) {
+            mainFrame.setSize(newSize);
+            mainFrame.setMaximumSize(newSize);
+        }
     }
 }

@@ -15,6 +15,8 @@ public class LoadMap {
 
     public static final int MAPWIDTHINTILES = 28;
     public static final int MAPHEIGHTINTILES = 31;
+    public static final int DEFAULTWIDTH = 464;
+    public static final int DEFAULTHEIGHT = 529;
     public static final int PACMANINITIALY = 23;
     public static final int PACMANINITIALX = 13;
     public static final int RDPSIZE = 12;

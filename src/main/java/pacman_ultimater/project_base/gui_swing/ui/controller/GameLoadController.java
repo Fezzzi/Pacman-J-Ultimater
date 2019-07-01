@@ -338,7 +338,6 @@ class GameLoadController
     private void varsInit()
         throws IOException, LineUnavailableException, UnsupportedAudioFileException
     {
-        vars.defSize = model.getMainFrameMinimumSize();
         vars.size = new Dimension((LoadMap.MAPWIDTHINTILES + 1) * LoadMap.TILESIZEINPXS,
                                 (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
         model.setMainFrameSize(vars.size);
