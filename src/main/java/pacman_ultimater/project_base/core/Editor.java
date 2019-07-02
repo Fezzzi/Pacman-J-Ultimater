@@ -96,11 +96,12 @@ public class Editor
      */
     private void renderTools()
     {
-        int y = 25;
+        int y = 50;
         int toolId = 0;
         for (JLabel tool: tools) {
-            vars.addedComponents.add(tool);
-            tool.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, (int)(18 * Math.min(vars.vMult, vars.hMult))));
+            tool.setFont(new Font(
+                    "Microsoft Sans Serif", Font.PLAIN,
+                    (int)(18 * Math.min(vars.vMult * 1.2f, vars.hMult))));
             tool.setForeground(Color.white);
             tool.setLocation(paddingSize + 25 + LoadMap.MAPWIDTHINTILES * tileSize, y);
             tool.setName(tool.getText() + "Tool");
@@ -117,8 +118,7 @@ public class Editor
      */
     private void renderGrid()
     {
-        vars.addedComponents = new ArrayList<JLabel>();
-        float minMult = Math.min(vars.vMult, vars.hMult);
+        float minMult = Math.min(vars.vMult * 1.2f, vars.hMult);
         tileSize = (int)(12 * minMult);
         pelletSize = (int)(2 * minMult);
         powerSize = tileSize - 2;
@@ -152,10 +152,9 @@ public class Editor
 
         editor = new JLabel();
         editor.setName("canvas");
-        editor.setLocation(paddingSize, 25);
+        editor.setLocation(paddingSize, 50);
         editor.setSize(LoadMap.MAPWIDTHINTILES * tileSize + 4,LoadMap.MAPHEIGHTINTILES * tileSize + 4);
         editor.setIcon(new ImageIcon(bufferImage));
-        vars.addedComponents.add(editor);
 
         canvasListener cl = new canvasListener();
         editor.addMouseMotionListener(cl);
@@ -198,12 +197,30 @@ public class Editor
             for (JLabel tool: tools) {
                 mainPanel.remove(tool);
             }
-            vars.addedComponents = null;
             return true;
         }
         UIManager.put("Panel.background", Color.white);
 
         return false;
+    }
+
+    /**
+     * Function readrawing editor on window resizing
+     */
+    public void resize()
+    {
+        for (JLabel tool: tools) {
+            for (MouseListener listener: tool.getMouseListeners()){
+                tool.removeMouseListener(listener);
+            }
+            mainPanel.remove(tool);
+        }
+        for (MouseListener listener: editor.getMouseListeners()){
+            editor.removeMouseListener(listener);
+        }
+        mainPanel.remove(editor);
+
+        show();
     }
 
     //<editor-fold desc="- GRAPHICS Block -">

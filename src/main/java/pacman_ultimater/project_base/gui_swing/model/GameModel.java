@@ -35,7 +35,7 @@ public class GameModel {
     public DefaultAI[] defaultAIs;
     public IntPair topGhostInTiles;
     public JLabel[] pacLives;
-    public Dimension defSize, size;
+    public Dimension defSize;
     public JLabel up1, up2, gameMap, scoreBox, highScoreBox, score2Box;
     public Color mapColor;
     public Graphics bufferGraphics;
@@ -55,6 +55,12 @@ public class GameModel {
         player2 = false;
         sound = true;
         music = true;
+
+        up1 = new JLabel();
+        up2 = new JLabel();
+        scoreBox = new JLabel();
+        score2Box = new JLabel();
+        highScoreBox = new JLabel();
     }
 
     /**

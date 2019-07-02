@@ -26,9 +26,11 @@ import static pacman_ultimater.project_base.gui_swing.model.GameConsts.*;
  */
 class GameLoadController
 {
+    private final int HEARTHSIZEINPX = 32;
+
     private MainFrameModel model;
     private GameModel vars;
-    private JLabel loading, levelLabel, ready;
+    private JLabel loading, levelLabel, ready, highScoreText;
     private int[] animLabelsIds = new int[5];
 
     GameLoadController(MainFrameModel model, GameModel vars) throws LineUnavailableException
@@ -48,29 +50,41 @@ class GameLoadController
      */
     private void initLabels()
     {
+        final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
+        final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
+
         ready = new JLabel();
-        ready.setSize(150, 30);
         ready.setVisible(false);
         placeLabel(ready, "READY!", Color.yellow,
-                new Point(((vars.topGhostInTiles.item1 - 3) * LoadMap.TILESIZEINPXS) + 6,
-                        (vars.topGhostInTiles.item2 + 6) * LoadMap.TILESIZEINPXS + 46),
-                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 22));
+                new Point((int)(((LoadMap.DEFAULTWIDTH - 150) * vars.hMult) / 2) - 8,
+                        (int)(((vars.topGhostInTiles.item2 + 6) * newTileSize) + 46 + ((32 * vars.vMult) - 30))),
+                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 22 * minMult));
+        ready.setHorizontalAlignment(SwingConstants.CENTER);
+        vars.addedComponents.add(ready);
 
         loading = new JLabel();
-        loading.setSize(350, 60);
         loading.setVisible(false);
-        placeLabel(loading, "Loading...", Color.yellow, new Point(75, 103),
-                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 48));
+        placeLabel(loading, "...Loading...", Color.yellow,
+                new Point((int)(((LoadMap.DEFAULTWIDTH - 400) * vars.hMult) / 2), (int)(60 * vars.vMult)),
+                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 48 * minMult));
+        loading.setHorizontalAlignment(SwingConstants.CENTER);
+        vars.addedComponents.add(loading);
 
         levelLabel = new JLabel();
-        levelLabel.setSize(300, 60);
         levelLabel.setVisible(false);
-        placeLabel(levelLabel, "", Color.red, new Point(118, 200),
-                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 30));
+        placeLabel(levelLabel, "", Color.red,
+                new Point((int)(((LoadMap.DEFAULTWIDTH - 300) * vars.hMult) / 2), (int)(140 * vars.vMult)),
+                ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 30 * minMult));
+        levelLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        vars.addedComponents.add(levelLabel);
 
         vars.pacLives = new JLabel[MAXLIVES];
-        for (int i = 0; i < MAXLIVES; i++)
+        for (int i = 0; i < MAXLIVES; i++) {
             vars.pacLives[i] = new JLabel();
+            vars.addedComponents.add(vars.pacLives[i]);
+        }
+
+        highScoreText = new JLabel();
     }
 
     /**
@@ -81,21 +95,36 @@ class GameLoadController
      */
     void renderMap(Tile[][] tiles, Color color)
     {
-        Image bufferImage = model.mainPanel.createImage(vars.size.width, vars.size.height);
+        if (tiles == null){
+            return;
+        }
+
+        int newWidth = (int) (vars.defSize.width * vars.hMult);
+        int newHeight = (int) (vars.defSize.height * vars.vMult);
+        int newTileSize = (int) (LoadMap.TILESIZEINPXS * Math.min(vars.vMult * 1.05, vars.hMult));
+        Tile.tileSize = newTileSize;
+        Tile.dotSize = newTileSize / 4;
+        Tile.penWidth = (int)(Tile.DEFPENWIDTH * Math.min(vars.vMult, vars.hMult));
+
+        Image bufferImage = model.mainPanel.createImage(newWidth, newHeight);
         vars.bufferGraphics = bufferImage.getGraphics();
-        Graphics2D bg2D = (Graphics2D)vars.bufferGraphics;
-        bg2D.setStroke(new BasicStroke(2));
+        Graphics2D bg2D = (Graphics2D) vars.bufferGraphics;
+        bg2D.setStroke(new BasicStroke(2 * Math.min(vars.vMult, vars.hMult)));
         vars.bufferGraphics.setColor(Color.BLACK);
-        vars.bufferGraphics.fillRect(0,0, vars.size.width, vars.size.height);
+        vars.bufferGraphics.fillRect(0, 0, newWidth, newHeight);
+        vars.gameMap.setSize(newWidth, newHeight);
 
-        if (color == LoadMap.TRANSPARENT)
+        if (color == LoadMap.TRANSPARENT) {
             color = LoadMap.chooseRandomColor();
-        if(color != Color.white)
+        }
+        if (color != Color.white) {
             vars.mapColor = color;
-        for (int i = 0; i < LoadMap.MAPHEIGHTINTILES; i++)
-            for (int j = 0; j < LoadMap.MAPWIDTHINTILES; j++)
-                tiles[i][j].DrawTile(vars.bufferGraphics, new Point(j * LoadMap.TILESIZEINPXS, (i + 3) * LoadMap.TILESIZEINPXS), color);
-
+        }
+        for (int i = 0; i < LoadMap.MAPHEIGHTINTILES; i++) {
+            for (int j = 0; j < LoadMap.MAPWIDTHINTILES; j++) {
+                tiles[i][j].DrawTile(vars.bufferGraphics, new Point(j * newTileSize, (i + 3) * newTileSize), color);
+            }
+        }
         vars.gameMap.setIcon(new ImageIcon(bufferImage));
     }
 
@@ -160,6 +189,10 @@ class GameLoadController
     private void resetEntities()
         throws IOException
     {
+        final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
+        final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
+        final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
+
         vars.entities.get(0).item1 = LoadMap.PACMANINITIALX;
         vars.entities.get(0).item2 = LoadMap.PACMANINITIALY;
         vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()));
@@ -175,8 +208,8 @@ class GameLoadController
 
         for(int i = 0; i < GameConsts.ENTITYCOUNT; ++i) {
             vars.entities.get(i).item3.setLocation(
-                    new Point(vars.entities.get(i).item1 * LoadMap.TILESIZEINPXS + 3,
-                            vars.entities.get(i).item2 * LoadMap.TILESIZEINPXS + 42));
+                    new Point(vars.entities.get(i).item1 * newTileSize + 3 + newXPadding,
+                            (int)(vars.entities.get(i).item2 * newTileSize + (42 * minMult))));
 
             if(i < 2)
                 vars.entities.get(i).item4 = Direction.directionType.LEFT;
@@ -210,6 +243,10 @@ class GameLoadController
             new DefaultAI(DefaultAI.nType.HOSTILEATTACK)
         };
 
+        final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
+        final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
+        final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
+
         vars.entities = new ArrayList<>();
         vars.entities.add(new Quintet<>(LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY,
                 new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.PLAYER1)));
@@ -230,20 +267,24 @@ class GameLoadController
         // All those magic numbers are X and Y axes correction for entities' pictures to be correctly placed.
         placePicture(vars.entities.get(0).item3,
             new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()),
-            new Point(vars.entities.get(0).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(0).item2 * LoadMap.TILESIZEINPXS + 42),
+            new Point(vars.entities.get(0).item1 * newTileSize + 3 + newXPadding - 8,
+                    vars.entities.get(0).item2 * newTileSize + (int)(42 * minMult)),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
         placePicture(vars.entities.get(1).item3,
             new ImageIcon(ClasspathFileReader.getENTITY2LEFT().readAllBytes()),
-            new Point(vars.entities.get(1).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(1).item2 * LoadMap.TILESIZEINPXS + 42),
+            new Point(vars.entities.get(1).item1 * newTileSize + 3 + newXPadding,
+                    vars.entities.get(1).item2 * newTileSize + (int)(42 * minMult)),
             new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
 
-        for (int i = 2; i < ENTITYCOUNT; i++)
+        for (int i = 2; i < ENTITYCOUNT; i++) {
             placePicture(vars.entities.get(i).item3,
                 new ImageIcon(ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i + 1),
-                                                                i % 2 == 0 ? "UP" : "DOWN").readAllBytes()),
-                new Point(vars.entities.get(i).item1 * LoadMap.TILESIZEINPXS + 3, vars.entities.get(i).item2 * LoadMap.TILESIZEINPXS + 42),
+                        i % 2 == 0 ? "UP" : "DOWN").readAllBytes()),
+                new Point(vars.entities.get(i).item1 * newTileSize + 3 + newXPadding - 8,
+                        vars.entities.get(i).item2 * newTileSize + (int)(42 * minMult)),
                 new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
+        }
     }
 
     /**
@@ -254,42 +295,47 @@ class GameLoadController
     private void loadHud()
         throws IOException
     {
-        final Font hudTextFont = new Font("Arial", Font.BOLD, 18);
-        final int HEARTHSIZEINPX = 32;
+        final float minMult = Math.min(vars.vMult, vars.hMult);
+        final Font hudTextFont = new Font("Arial", Font.BOLD, (int)(18 * minMult));
+        final int hudLabelHeight = (int)(30 * vars.vMult);
+        final int hudLabelWidth = (int)(200 * vars.hMult);
+        final int newTileSize = (int)(LoadMap.TILESIZEINPXS * Math.min(vars.vMult  * 1.05, vars.hMult));
+        final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
         int lives = 0;
-        vars.up1 = new JLabel();
-        vars.up1.setSize(50,30);
-        vars.scoreBox = new JLabel();
-        vars.scoreBox.setSize(120,30);
-        placeLabel(vars.up1, "1UP", Color.white, new Point(3 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
-        placeLabel(vars.scoreBox, vars.score > 0 ? Integer.toString(vars.score) : "00", Color.white,
-                new Point(4 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
+
+        vars.up1.setSize(hudLabelWidth, hudLabelHeight);
+        placeLabel(vars.up1, "1UP", Color.white,
+                new Point(newXPadding + 3 * newTileSize, 0), hudTextFont);
         vars.up1.setVisible(true);
+
+        vars.scoreBox.setSize(hudLabelWidth, hudLabelHeight);
+        placeLabel(vars.scoreBox, vars.score > 0 ? Integer.toString(vars.score) : "00", Color.white,
+                new Point(newXPadding + 4 * newTileSize, (int)(20 * minMult)), hudTextFont);
         vars.scoreBox.setVisible(true);
 
         //Selects labels depending on game mode
         if (!vars.player2)
         {
-            vars.highScoreBox = new JLabel();
-            vars.highScoreBox.setSize(200,30);
+            vars.highScoreBox.setSize(hudLabelWidth, hudLabelHeight);
             placeLabel(vars.highScoreBox, vars.highScore > 0 ? Integer.toString(vars.highScore) : "00", Color.white,
-                    new Point(21 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
-            JLabel highScoreText = new JLabel();
-            highScoreText.setSize(200,30);
-            placeLabel(highScoreText, "HIGH SCORE", Color.white, new Point(17 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
+                    new Point(newXPadding + 21 * newTileSize, (int)(20 * minMult)), hudTextFont);
             vars.highScoreBox.setVisible(true);
+
+            highScoreText.setSize(hudLabelWidth ,hudLabelHeight);
+            placeLabel(highScoreText, "HIGH SCORE", Color.white,
+                    new Point(newXPadding + 17 * newTileSize, 0), hudTextFont);
             highScoreText.setVisible(true);
         }
         else
         {
-            vars.up2 = new JLabel();
-            vars.up2.setSize(50,30);
-            vars.score2Box = new JLabel();
-            vars.score2Box.setSize(200,30);
-            placeLabel(vars.up2, "2UP", Color.white, new Point(21 * LoadMap.TILESIZEINPXS, 0), hudTextFont);
-            placeLabel(vars.score2Box, vars.score2 > 0 ? Integer.toString(vars.score2) : "00", Color.white,
-                    new Point(22 * LoadMap.TILESIZEINPXS, 20), hudTextFont);
+            vars.up2.setSize(hudLabelWidth, hudLabelHeight);
+            placeLabel(vars.up2, "2UP", Color.white,
+                    new Point(newXPadding + 21 * newTileSize, 0), hudTextFont);
             vars.up2.setVisible(true);
+
+            vars.score2Box.setSize(hudLabelWidth, hudLabelHeight);
+            placeLabel(vars.score2Box, vars.score2 > 0 ? Integer.toString(vars.score2) : "00", Color.white,
+                    new Point(newXPadding + 22 * newTileSize, (int)(20 * minMult)), hudTextFont);
             vars.score2Box.setVisible(true);
         }
 
@@ -298,7 +344,8 @@ class GameLoadController
         {
             item.setSize(50,50);
             placePicture(item, new ImageIcon(ClasspathFileReader.getLIFE().readAllBytes()),
-                    new Point(lives * HEARTHSIZEINPX + LoadMap.TILESIZEINPXS, ((LoadMap.MAPHEIGHTINTILES + 3) * LoadMap.TILESIZEINPXS) + 4),
+                    new Point(newXPadding + lives * HEARTHSIZEINPX + newTileSize,
+                            ((LoadMap.MAPHEIGHTINTILES + 3) * newTileSize) + 4),
                     new Dimension(HEARTHSIZEINPX, HEARTHSIZEINPX));
             lives++;
         }
@@ -338,14 +385,13 @@ class GameLoadController
     private void varsInit()
         throws IOException, LineUnavailableException, UnsupportedAudioFileException
     {
-        vars.size = new Dimension((LoadMap.MAPWIDTHINTILES + 1) * LoadMap.TILESIZEINPXS,
-                                (LoadMap.MAPHEIGHTINTILES + 8) * LoadMap.TILESIZEINPXS);
-        model.setMainFrameSize(vars.size);
-        model.mainPanel.setSize(vars.size);
-        model.recenterMainFrame(vars.size);
+        int newWidth = (int) (vars.defSize.width * vars.hMult);
+        int newHeight = (int) (vars.defSize.height * vars.vMult);
+        int newTileSize = (int) (LoadMap.TILESIZEINPXS * Math.min(vars.vMult * 1.05, vars.hMult));
 
         vars.gameMap = new JLabel();
-        vars.gameMap.setSize(vars.size);
+        vars.gameMap.setSize(newWidth, newHeight);
+        vars.gameMap.setLocation(((newWidth - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2) - 8, vars.gameMap.getY());
         vars.extraLifeGiven = false;
         vars.score = 0;
         vars.score2 = 0;
@@ -412,6 +458,30 @@ class GameLoadController
         loading.setVisible(!gameComponents);
     }
 
+    /**
+     * Resizes and repositions ready, level and loading labels
+     */
+    private void resizeLabels()
+    {
+        final float minMult = Math.min(vars.vMult, vars.hMult);
+        final int newTileSize = (int) (LoadMap.TILESIZEINPXS * Math.min(vars.vMult * 1.05, vars.hMult));
+        final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
+
+        levelLabel.setSize((int)(300 * vars.hMult), (int)(60 * vars.hMult));
+        loading.setSize((int)(400 * vars.hMult), (int)(60 * vars.vMult));
+        ready.setSize((int)(150 * vars.hMult), (int)(30 * vars.vMult));
+
+        levelLabel.setLocation((int)(((LoadMap.DEFAULTWIDTH - 300) * vars.hMult) / 2), (int)(140 * vars.vMult));
+        loading.setLocation((int)(((LoadMap.DEFAULTWIDTH - 400) * vars.hMult) / 2), (int)(60 * vars.vMult));
+        ready.setLocation(
+                (int)(((LoadMap.DEFAULTWIDTH - 150) * vars.hMult) / 2) - 8,
+                (int)(((vars.topGhostInTiles.item2 + 6) * newTileSize) + 46 + ((32 * vars.vMult) - 30)));
+
+        levelLabel.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 30 * minMult));
+        loading.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 48 * minMult));
+        ready.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 22 * minMult));
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="- PUBLIC API Block -">
@@ -432,6 +502,61 @@ class GameLoadController
     {
         RestartLevelTask rgTask = new RestartLevelTask();
         rgTask.execute();
+    }
+
+    /**
+     * Provides already loaded level rerendering
+     */
+    void resizeLevel()
+    {
+        final float minMult = Math.min(vars.vMult, vars.hMult);
+        final Font hudTextFont = new Font("Arial", Font.BOLD, (int)(18 * minMult));
+        final int hudLabelHeight = (int)(30 * vars.vMult);
+        final int hudLabelWidth = (int)(200 * vars.hMult);
+        final int newTileSize = (int)(LoadMap.TILESIZEINPXS * Math.min(vars.vMult  * 1.05f, vars.hMult));
+        final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2) - 8;
+
+        resizeLabels();
+        renderMap(vars.mapFresh, vars.map.item4);
+
+        for (JLabel label: new JLabel[]{vars.up1, vars.scoreBox, highScoreText, vars.highScoreBox, vars.up2, vars.score2Box}){
+            label.setSize(hudLabelWidth, hudLabelHeight);
+            label.setFont(hudTextFont);
+        }
+
+        vars.up1.setLocation(3 * newTileSize + newXPadding, 0);
+        vars.scoreBox.setLocation(4 * newTileSize + newXPadding, (int)(20 * minMult));
+        highScoreText.setLocation(17 * newTileSize + newXPadding, 0);
+        vars.highScoreBox.setLocation(21 * newTileSize + newXPadding, (int)(20 * minMult));
+        vars.up2.setLocation(21 * newTileSize + newXPadding, 0);
+        vars.score2Box.setLocation(22 * newTileSize + newXPadding, (int)(20 * minMult));
+
+        int i = 0;
+        for (JLabel item : vars.pacLives)
+        {
+            item.setSize((int)(50 * minMult),(int)(50 * minMult));
+            item.setLocation(
+                    newXPadding + i * HEARTHSIZEINPX + newTileSize,
+                    (LoadMap.MAPHEIGHTINTILES * newTileSize) + (3 * LoadMap.TILESIZEINPXS));
+            ++i;
+        }
+
+        if (vars.entities != null) {
+            Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity;
+            for (int j = 0; j <= vars.freeGhosts; j++) {
+                entity = vars.entities.get(j);
+                entity.item3.setLocation(entity.item1 * newTileSize - 6 + newXPadding + 8,
+                        entity.item2 * newTileSize + (int)(42 * Math.min(vars.vMult * 1.05, vars.hMult)));
+            }
+
+            for (int j = vars.freeGhosts + 1; j < ENTITYCOUNT; j++) {
+                entity = vars.entities.get(j);
+                entity.item3.setLocation(entity.item1 * newTileSize + 3 + newXPadding,
+                        (int) (entity.item2 * newTileSize + (42 * Math.min(vars.vMult * 1.05, vars.hMult))));
+            }
+        }
+
+        vars.gameMap.setLocation(newXPadding, vars.gameMap.getY());
     }
 
     /**
@@ -492,6 +617,7 @@ class GameLoadController
                             case PHASE1:
                                 varsReset(true);
                                 levelLabel.setText("- Level " + Integer.toString(vars.level) + " -");
+                                resizeLabels();
                                 toggleComponentsVisibility(false);
                                 if (vars.music)
                                     vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_INTERMISSION(),
@@ -639,8 +765,10 @@ class GameLoadController
                                 varsReset(true);
                                 initTimers(timers);
                                 levelLabel.setText("- Level " + Integer.toString(vars.level) + " -");
+                                resizeLabels();
                                 loading.setVisible(true);
                                 levelLabel.setVisible(true);
+
                                 if (vars.music)
                                     vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_INTERMISSION(),
                                             false, 0, 0);

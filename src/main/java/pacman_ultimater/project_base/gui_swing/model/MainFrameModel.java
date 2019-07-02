@@ -1,5 +1,6 @@
 package pacman_ultimater.project_base.gui_swing.model;
 
+import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.swing.*;
@@ -55,7 +56,7 @@ public class MainFrameModel
     public JLabel createBtnSelectorLbl;
 
     public JLabel[] labels;
-    public Map<String, Rectangle> defPositions;
+    public Map<String, Pair<Rectangle, Integer>> defLabelData;
 
     public MainFrameModel(MainFrame view)
     {
@@ -109,21 +110,10 @@ public class MainFrameModel
             editExistingButLbl, editBtnSelectorLbl, createNewButLbl, createBtnSelectorLbl,
         };
 
-        defPositions = new HashMap<>();
+        defLabelData = new HashMap<>();
         for (JLabel label : labels) {
-            defPositions.put(label.getName(), label.getBounds());
+            defLabelData.put(label.getName(), new Pair<>(label.getBounds(), label.getFont().getSize()));
         }
-    }
-
-    /**
-     * Centers main Frame on the screenm
-     *
-     * @param size Current window size
-     */
-    public void recenterMainFrame(Dimension size)
-    {
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        mainFrame.setLocation(dim.width/2 - size.width/2, dim.height/2 - size.height/2);
     }
 
     /**
@@ -132,18 +122,5 @@ public class MainFrameModel
     public void disposeMainFrame()
     {
         mainFrame.dispose();
-    }
-
-    /**
-     * Changes window's size.
-     *
-     * @param newSize Dimension to be set
-     */
-    public void setMainFrameSize(Dimension newSize)
-    {
-        if (newSize.width >= mainFrame.getMinimumSize().width && newSize.height >= mainFrame.getMinimumSize().height) {
-            mainFrame.setSize(newSize);
-            mainFrame.setMaximumSize(newSize);
-        }
     }
 }

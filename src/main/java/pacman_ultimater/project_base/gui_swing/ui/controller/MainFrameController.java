@@ -1,5 +1,6 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
+import pacman_ultimater.project_base.core.ClasspathFileReader;
 import pacman_ultimater.project_base.core.HighScoreClass;
 import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.custom_utils.Pair;
@@ -39,52 +40,57 @@ public class MainFrameController {
      */
     private void resize(float vMult, float hMult)
     {
-        // Reposition menu labels
+        // Resizing menu labels
         for (JLabel label : model.labels) {
             String name = label.getName();
-            Rectangle defBound = model.defPositions.get(name);
+            Pair<Rectangle, Integer> dld = model.defLabelData.get(name);
+            Rectangle defBound = dld.item1;
+            Integer defFontSize = dld.item2;
             int newX,
                 newY = (int)((defBound.y * vMult) + ((defBound.height * vMult) - defBound.height) / 2),
-                newHeight = defBound.height,
-                newWidth = defBound.width;
+                newHeight, newWidth;
 
+            // Fonts sizing
+            if (name.equals("pacman") || name.equals("jultimater")) {
+                label.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, defFontSize * Math.min(vMult, hMult)));
+            } else {
+                label.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, (int)(defFontSize * Math.min(vMult, hMult))));
+            }
+            newWidth = (int)(defBound.width * Math.min(vMult, hMult));
+            newHeight = (int)(defBound.height * Math.min(vMult, hMult));
+
+            // Positioning
             switch (name){
                 case "copyright":
-                    newX = (int)((defBound.x * hMult) + (defBound.width * hMult) - defBound.width);
+                    newX = (int)((defBound.x * hMult) + (defBound.width * hMult) - defBound.width) - (newWidth - defBound.width) / 2;
                     newY = (int)((defBound.y * vMult) + (defBound.height * vMult) - defBound.height);
                     break;
                 case "TryAgainBut":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 210);
+                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (newWidth + 40));
                     break;
                 case "AdvancedLdBut":
                     newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 30);
                     break;
                 case "SoundsButton":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 75);
+                case "MusicButton":
+                case "EditExistingBut":
+                case "CreateNewBut":
+                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - newWidth/2);
                     break;
                 case "SoundsBtnSelector":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 83);
-                    break;
-                case "MusicButton":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 70);
+                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (166 * Math.min(vMult, hMult)) / 2) - 8;
                     break;
                 case "MusicBtnSelector":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 78);
-                    break;
-                case "EditExistingBut":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 52);
+                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (156 * Math.min(vMult, hMult)) / 2) - 8;
                     break;
                 case "editBtnSelector":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 60);
-                    break;
-                case "CreateNewBut":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 84);
+                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (120 * Math.min(vMult, hMult)) / 2) - 8;
                     break;
                 case "createBtnSelector":
-                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - 92);
+                    newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (184 * Math.min(vMult, hMult)) / 2) - 8;
                     break;
                 default:
-                    newX = (int)((defBound.x * hMult) + ((defBound.width * hMult) - defBound.width) / 2);
+                    newX = (int)((defBound.x * hMult) + ((defBound.width * hMult) - defBound.width) / 2) - (newWidth - defBound.width) / 2;
             }
 
             if (name.equals("TypeHint")) {
@@ -97,17 +103,12 @@ public class MainFrameController {
 
         // Update editor layout
         if (vars.editor) {
-            for (JLabel component: vars.addedComponents) {
-                for (MouseListener listener: component.getMouseListeners()){
-                    component.removeMouseListener(listener);
-                }
-                model.mainPanel.remove(component);
-            }
-            mc.editor.show();
+            mc.resizeEditor();
         }
 
+        // Update loaded game layout
         if (vars.gameOn) {
-
+            mc.resizeGamePlay();
         }
     }
 
@@ -156,10 +157,10 @@ public class MainFrameController {
      *
      * @param content String
      */
-    private void fatalErrorMessage(String content)
+    static void fatalErrorMessage(String content)
     {
         UIManager.put("Panel.background", Color.black);
-        JOptionPane.showMessageDialog(model.mainPanel,
+        JOptionPane.showMessageDialog(null,
                 "Fatal Error, " + content,
                 "Pac-Man J-Ultimater: Error message",
                 JOptionPane.PLAIN_MESSAGE);

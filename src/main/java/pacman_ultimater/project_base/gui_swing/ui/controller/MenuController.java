@@ -34,9 +34,7 @@ public class MenuController implements IKeyDownHandler
     private GameModel vars;
     private GameplayController gp;
     private KeyBindings kb;
-
-    // Must be public to enable MainFrameController to force its redraw
-    public Editor editor;
+    private Editor editor;
 
     //</editor-fold>
 
@@ -150,7 +148,6 @@ public class MenuController implements IKeyDownHandler
         {
             model.gameOverLabelLbl.setText("GAME OVER");
             model.gameOverLabelLbl.setForeground(Color.red);
-            model.gameOverLabelLbl.setLocation(52, 33);
             model.scoreLabelLbl.setText("Your Score");
             model.scoreNumLbl.setText(Integer.toString(vars.score));
         }
@@ -340,6 +337,22 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
+     * Function forcing gameplay redraw on window resizing
+     */
+    void resizeGamePlay()
+    {
+        gp.resize();
+    }
+
+    /**
+     * Function forcing editor redraw on window resizing
+     */
+    void resizeEditor()
+    {
+        editor.resize();
+    }
+
+    /**
      * Function that provides bridge from menu to gameplay.
      * Switches key binding's handler to GamePlayController's one.
      * Initializes Map and on success calls function that makes the game load process start.
@@ -347,6 +360,7 @@ public class MenuController implements IKeyDownHandler
     private void proceedToGameplay()
     {
         model.mainPanel.requestFocus();
+        vars.addedComponents = new ArrayList<>();
         vars.level = 1;
         vars.gameOn = true;
         vars.map = vars.loadedMap.Map;
@@ -372,6 +386,7 @@ public class MenuController implements IKeyDownHandler
      */
     private void returnToMenu()
     {
+        vars.addedComponents = null;
         kb.changeHandler(this);
         gp = null;
         int componentsCount = model.mainPanel.getComponentCount();

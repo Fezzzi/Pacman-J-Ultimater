@@ -125,7 +125,7 @@ public class MainFrame extends JFrame{
         //
         pacmanLbl.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 54));
         pacmanLbl.setForeground(Color.YELLOW);
-        pacmanLbl.setBounds(prefaceLabelsX, 50,400,75);
+        pacmanLbl.setBounds(prefaceLabelsX, 59,400,75);
         pacmanLbl.setName("pacman");
         pacmanLbl.setText("PAC-MAN");
         pacmanLbl.setVisible(false);
@@ -136,7 +136,7 @@ public class MainFrame extends JFrame{
         //
         ultimateLbl.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 32));
         ultimateLbl.setForeground(Color.red);
-        ultimateLbl.setBounds(prefaceLabelsX, 115,400,50);
+        ultimateLbl.setBounds(prefaceLabelsX, 136,400,50);
         ultimateLbl.setName("jultimater");
         ultimateLbl.setText("- J-ULTIMATER -");
         ultimateLbl.setVisible(false);
@@ -146,7 +146,7 @@ public class MainFrame extends JFrame{
         // copyright
         //
         copyrightLbl.setForeground(Color.yellow);
-        copyrightLbl.setBounds(prefaceLabelsX, 440, 400,17);
+        copyrightLbl.setBounds(prefaceLabelsX, 519, 400,17);
         copyrightLbl.setName("copyright");
         copyrightLbl.setText("By Filip Horký, 2019");
         copyrightLbl.setVisible(false);
@@ -157,7 +157,7 @@ public class MainFrame extends JFrame{
         //
         pressEnterLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         pressEnterLbl.setForeground(Color.white);
-        pressEnterLbl.setBounds(prefaceLabelsX, 180,400,200);
+        pressEnterLbl.setBounds(prefaceLabelsX, 212,400,200);
         pressEnterLbl.setName("pressEnter");
         pressEnterLbl.setText("<html>&nbsp;&nbsp;INSERT COIN<br/><br/>- press any key -</html>");
         pressEnterLbl.setVisible(false);
@@ -168,7 +168,7 @@ public class MainFrame extends JFrame{
         //
         orgGameLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         orgGameLbl.setForeground(Color.white);
-        orgGameLbl.setBounds(menuLabelsX,30,300,45);
+        orgGameLbl.setBounds(menuLabelsX,35,300,45);
         orgGameLbl.setName("OrgGame");
         orgGameLbl.setText("Original Game");
         orgGameLbl.setVisible(false);
@@ -179,7 +179,7 @@ public class MainFrame extends JFrame{
         //
         selectMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         selectMapLbl.setForeground(Color.white);
-        selectMapLbl.setBounds(menuLabelsX,83,300,45);
+        selectMapLbl.setBounds(menuLabelsX,97,300,45);
         selectMapLbl.setName("SelectMap");
         selectMapLbl.setText("Select Map");
         selectMapLbl.setVisible(false);
@@ -190,7 +190,7 @@ public class MainFrame extends JFrame{
         //
         multiplayerLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         multiplayerLbl.setForeground(Color.white);
-        multiplayerLbl.setBounds(menuLabelsX,136,300,45);
+        multiplayerLbl.setBounds(menuLabelsX,160,300,45);
         multiplayerLbl.setName("Multiplayer");
         multiplayerLbl.setText("Multiplayer");
         multiplayerLbl.setVisible(false);
@@ -201,7 +201,7 @@ public class MainFrame extends JFrame{
         //
         settingsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         settingsLbl.setForeground(Color.white);
-        settingsLbl.setBounds(menuLabelsX,190,300,45);
+        settingsLbl.setBounds(menuLabelsX,224,300,45);
         settingsLbl.setName("Settings");
         settingsLbl.setText("Settings");
         settingsLbl.setVisible(false);
@@ -212,7 +212,7 @@ public class MainFrame extends JFrame{
         //
         editorLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         editorLbl.setForeground(Color.white);
-        editorLbl.setBounds(menuLabelsX,243,300,45);
+        editorLbl.setBounds(menuLabelsX,287,300,45);
         editorLbl.setName("Editor");
         editorLbl.setText("Editor");
         editorLbl.setVisible(false);
@@ -223,7 +223,7 @@ public class MainFrame extends JFrame{
         //
         howToLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         howToLbl.setForeground(Color.white);
-        howToLbl.setBounds(menuLabelsX,296,300,45);
+        howToLbl.setBounds(menuLabelsX,349,300,45);
         howToLbl.setName("HowTo");
         howToLbl.setText("How To");
         howToLbl.setVisible(false);
@@ -234,7 +234,7 @@ public class MainFrame extends JFrame{
         //
         highScrLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         highScrLbl.setForeground(Color.white);
-        highScrLbl.setBounds(menuLabelsX,350,300,45);
+        highScrLbl.setBounds(menuLabelsX,413,300,45);
         highScrLbl.setName("HighScr");
         highScrLbl.setText("Highest Score");
         highScrLbl.setVisible(false);
@@ -244,7 +244,7 @@ public class MainFrame extends JFrame{
         // EscLabel
         //
         escLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 20));
-        escLabelLbl.setBounds(menuLabelsX, 427, 300, 22);
+        escLabelLbl.setBounds(menuLabelsX, 503, 300, 22);
         escLabelLbl.setForeground(Color.yellow);
         escLabelLbl.setName("EscLabel");
         escLabelLbl.setText("Press ESC to return");
@@ -254,19 +254,22 @@ public class MainFrame extends JFrame{
         //
         // MusicButton
         //
+        musicButtonLbl.setBackground(Color.black);
         musicButtonLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         musicButtonLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         musicButtonLbl.setForeground(Color.white);
         musicButtonLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 70,120,140,44);
         musicButtonLbl.setName("MusicButton");
-        musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+        musicButtonLbl.setText("MUSIC");
         musicButtonLbl.setVisible(false);
         musicButtonLbl.setFocusable(false);
+        musicButtonLbl.setOpaque(true);
+        musicButtonLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // MusicBtnSelector
         //
         musicBtnSelectorLbl.setBackground(Color.yellow);
-        musicBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 78,120,24,44);
+        musicBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 76,120,24,44);
         musicBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         musicBtnSelectorLbl.setName("MusicBtnSelector");
         musicBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
@@ -275,19 +278,22 @@ public class MainFrame extends JFrame{
         //
         // SoundsButton
         //
+        soundsButtonLbl.setBackground(Color.black);
         soundsButtonLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         soundsButtonLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         soundsButtonLbl.setForeground(Color.white);
         soundsButtonLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 75,233,150,44);
         soundsButtonLbl.setName("SoundsButton");
-        soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+        soundsButtonLbl.setText("SOUND");
         soundsButtonLbl.setVisible(false);
         soundsButtonLbl.setFocusable(false);
+        soundsButtonLbl.setOpaque(true);
+        soundsButtonLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // SoundsBtnSelector
         //
         soundsBtnSelectorLbl.setBackground(Color.yellow);
-        soundsBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 83,233,24,44);
+        soundsBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 81,233,24,44);
         soundsBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         soundsBtnSelectorLbl.setName("SoundsBtnSelector");
         soundsBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
@@ -396,20 +402,22 @@ public class MainFrame extends JFrame{
         //
         // EditExistingBtn
         //
-        editExistingButLbl.setBackground(Color.white);
+        editExistingButLbl.setBackground(Color.black);
         editExistingButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         editExistingButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         editExistingButLbl.setForeground(Color.white);
         editExistingButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 52,120,104,44);
         editExistingButLbl.setName("EditExistingBut");
-        editExistingButLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>EDIT</div></html>");
+        editExistingButLbl.setText("EDIT");
         editExistingButLbl.setVisible(false);
         editExistingButLbl.setFocusable(false);
+        editExistingButLbl.setOpaque(true);
+        editExistingButLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // EditBtnSeletor
         //
         editBtnSelectorLbl.setBackground(Color.yellow);
-        editBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 60,120,24,44);
+        editBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 66,120,24,44);
         editBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         editBtnSelectorLbl.setName("editBtnSelector");
         editBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
@@ -418,20 +426,22 @@ public class MainFrame extends JFrame{
         //
         // CreateNewBtn
         //
-        createNewButLbl.setBackground(Color.white);
+        createNewButLbl.setBackground(Color.black);
         createNewButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         createNewButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         createNewButLbl.setForeground(Color.white);
         createNewButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 84,233,168,44);
         createNewButLbl.setName("CreateNewBut");
-        createNewButLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>CREATE</div></html>");
+        createNewButLbl.setText("CREATE");
         createNewButLbl.setVisible(false);
         createNewButLbl.setFocusable(false);
+        createNewButLbl.setOpaque(true);
+        createNewButLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // CreateBtnSeletor
         //
         createBtnSelectorLbl.setBackground(Color.yellow);
-        createBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 92,233,24,44);
+        createBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 98,233,24,44);
         createBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         createBtnSelectorLbl.setName("createBtnSelector");
         createBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
