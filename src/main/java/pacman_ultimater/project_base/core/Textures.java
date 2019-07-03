@@ -40,11 +40,11 @@ public class Textures
                     drawPacExplode(g, entitySize);
                     return entity;
                 case "CanBeEaten":
-                    drawGhostBody(g, name, entitySize, special);
+                    drawGhostBody(g, name, entitySize, minMult, special);
                     drawCanBeEatenFace(g, entitySize, special);
                     return entity;
                 default:
-                    drawGhostBody(g, name, entitySize, 0);
+                    drawGhostBody(g, name, entitySize, minMult,0);
                     break;
             }
 
@@ -260,7 +260,7 @@ public class Textures
      * @param entitySize int
      * @param blink int [0 | 1]
      */
-    private static void drawGhostBody(Graphics g, String name, int entitySize, int blink)
+    private static void drawGhostBody(Graphics g, String name, int entitySize, float minMult, int blink)
     {
         switch(name)
         {
@@ -285,18 +285,31 @@ public class Textures
                 break;
         }
 
-        g.fillOval(4,0, entitySize - 4, entitySize);
-        g.fillRect(4, entitySize/2, entitySize - 4, entitySize);
+        int xDelta = (int)(2 * minMult); //former 4
+        g.fillOval(xDelta,(int)(minMult), entitySize - xDelta, entitySize);
+        g.fillRect(xDelta, entitySize/2, entitySize - xDelta, entitySize);
         g.setColor(Color.BLACK);
-        g.fillRect(entitySize/2 - entitySize/16, entitySize - entitySize/4,entitySize/8, entitySize/4);
-        g.fillPolygon(new Polygon(
-                new int[]{5, entitySize/8 + 5, entitySize/3 + 5},
-                new int[]{entitySize, entitySize - entitySize/4, entitySize},
-                3));
-        g.fillPolygon(new Polygon(
-                new int[]{entitySize - 5, entitySize - entitySize/8 - 5, entitySize - entitySize/3 - 5},
-                new int[]{entitySize,entitySize - entitySize/4,entitySize},
-                3));
+        if (blink == 0) {
+            g.fillRect(entitySize / 2 - entitySize / 16, entitySize - entitySize / 5, entitySize / 6, entitySize / 5);
+            g.fillPolygon(new Polygon(
+                    new int[]{(int)(1.5*minMult), entitySize / 8 + xDelta, entitySize / 3 + (int)(2.5 * minMult)},
+                    new int[]{entitySize, entitySize - entitySize / 4, entitySize},
+                    3));
+            g.fillPolygon(new Polygon(
+                    new int[]{entitySize - xDelta, entitySize - entitySize / 8 - xDelta, entitySize - entitySize / 3 - xDelta},
+                    new int[]{entitySize, entitySize - entitySize / 4, entitySize},
+                    3));
+        } else {
+            g.fillPolygon(new Polygon(
+                    new int[]{xDelta, entitySize / 8 + 2*xDelta, entitySize / 3 + 3*xDelta},
+                    new int[]{entitySize, entitySize - entitySize / 4 - (int)minMult, entitySize},
+                    3));
+            g.fillPolygon(new Polygon(
+                    new int[]{entitySize - xDelta, entitySize - entitySize / 8 - 2*xDelta, entitySize - entitySize / 3 - 3*xDelta},
+                    new int[]{entitySize, entitySize - entitySize / 4 - (int)(0.5 * minMult), entitySize},
+                    3));
+        }
+        g.fillRect(0, entitySize - xDelta, entitySize, xDelta);
     }
 
     /**
