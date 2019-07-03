@@ -111,6 +111,14 @@ public class Editor
             y += 35 * vars.vMult;
             toolId++;
         }
+        tools[0].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 1)));
+        tools[1].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 2)));
+        tools[2].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 3)));
+        tools[3].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 5)));
+        tools[4].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 7)));
+        tools[5].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 9)));
+        tools[6].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 11)));
+        tools[7].setIcon(new ImageIcon(Textures.drawFruit(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), 13)));
     }
 
     /**

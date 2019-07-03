@@ -32,6 +32,7 @@ class GameLoadController
     private GameModel vars;
     private JLabel loading, levelLabel, ready, highScoreText;
     private int[] animLabelsIds = new int[5];
+    private int newEntitySize = ENTITIESSIZEINPXS;
 
     GameLoadController(MainFrameModel model, GameModel vars) throws LineUnavailableException
     {
@@ -183,11 +184,8 @@ class GameLoadController
 
     /**
      * Resets entities to their original positions and states.
-     *
-     * @throws IOException To be handled by caller.
      */
     private void resetEntities()
-        throws IOException
     {
         final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
         final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
@@ -195,10 +193,14 @@ class GameLoadController
 
         vars.entities.get(0).item1 = LoadMap.PACMANINITIALX;
         vars.entities.get(0).item2 = LoadMap.PACMANINITIALY;
-        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()));
+        vars.entities.get(0).item3.setIcon(new ImageIcon(Textures.drawEntity(
+                model.mainPanel, minMult, "Entity1", "DIRECTION", 0
+        )));
         vars.entities.get(1).item1 = vars.topGhostInTiles.item1;
         vars.entities.get(1).item2 = vars.topGhostInTiles.item2;
-        vars.entities.get(1).item3.setIcon(new ImageIcon(ClasspathFileReader.getENTITY2LEFT().readAllBytes()));
+        vars.entities.get(1).item3.setIcon(new ImageIcon(Textures.drawEntity(
+                model.mainPanel, minMult, "Entity2", "LEFT",0
+        )));
         vars.entities.get(2).item1 = vars.topGhostInTiles.item1 - 2;
         vars.entities.get(2).item2 = vars.topGhostInTiles.item2 + 3;
         vars.entities.get(3).item1 = vars.topGhostInTiles.item1;
@@ -215,20 +217,17 @@ class GameLoadController
                 vars.entities.get(i).item4 = Direction.directionType.LEFT;
             else {
                 vars.entities.get(i).item4 = Direction.directionType.DIRECTION;
-                vars.entities.get(i).item3.setIcon(new ImageIcon(
-                    ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i + 1),
-                                                        i % 2 == 0 ? "UP" : "DOWN").readAllBytes()));
+                vars.entities.get(i).item3.setIcon(new ImageIcon(Textures.drawEntity(
+                        model.mainPanel, minMult, "Entity" + Integer.toString(i + 1), i % 2 == 0 ? "UP" : "DOWN",0)
+                ));
             }
         }
     }
 
     /**
      * Function that loads all the game entities and presets all their default settings such as position, direction, etc...
-     *
-     * @throws IOException To be handled by caller.
      */
     private void loadEntities()
-        throws IOException
     {
         //Entity's Data structure consists of:
         //  - Two numbers - x and y position on the map in Tiles.
@@ -246,6 +245,7 @@ class GameLoadController
         final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
         final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
         final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
+        newEntitySize = (int)(ENTITIESSIZEINPXS * minMult);
 
         vars.entities = new ArrayList<>();
         vars.entities.add(new Quintet<>(LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY,
@@ -266,24 +266,24 @@ class GameLoadController
 
         // All those magic numbers are X and Y axes correction for entities' pictures to be correctly placed.
         placePicture(vars.entities.get(0).item3,
-            new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()),
+            new ImageIcon(Textures.drawEntity(model.mainPanel, minMult, "Entity1", "DIRECTION", 0)),
             new Point(vars.entities.get(0).item1 * newTileSize + 3 + newXPadding - 8,
                     vars.entities.get(0).item2 * newTileSize + (int)(42 * minMult)),
-            new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
+            new Dimension(newEntitySize, newEntitySize));
 
         placePicture(vars.entities.get(1).item3,
-            new ImageIcon(ClasspathFileReader.getENTITY2LEFT().readAllBytes()),
-            new Point(vars.entities.get(1).item1 * newTileSize + 3 + newXPadding,
+            new ImageIcon(Textures.drawEntity(model.mainPanel, minMult, "Entity2", "LEFT", 0)),
+            new Point(vars.entities.get(1).item1 * newTileSize + 3 + newXPadding - 8,
                     vars.entities.get(1).item2 * newTileSize + (int)(42 * minMult)),
-            new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
+            new Dimension(newEntitySize, newEntitySize));
 
         for (int i = 2; i < ENTITYCOUNT; i++) {
             placePicture(vars.entities.get(i).item3,
-                new ImageIcon(ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i + 1),
-                        i % 2 == 0 ? "UP" : "DOWN").readAllBytes()),
+                new ImageIcon(Textures.drawEntity(model.mainPanel, minMult, "Entity" + Integer.toString(i + 1),
+                        i % 2 == 0 ? "UP" : "DOWN", 0)),
                 new Point(vars.entities.get(i).item1 * newTileSize + 3 + newXPadding - 8,
                         vars.entities.get(i).item2 * newTileSize + (int)(42 * minMult)),
-                new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
+                new Dimension(newEntitySize, newEntitySize));
         }
     }
 
@@ -293,7 +293,6 @@ class GameLoadController
      * @throws IOException To be handled by caller.
      */
     private void loadHud()
-        throws IOException
     {
         final float minMult = Math.min(vars.vMult, vars.hMult);
         final Font hudTextFont = new Font("Arial", Font.BOLD, (int)(18 * minMult));
@@ -340,15 +339,29 @@ class GameLoadController
         }
 
         // Places all lives on their supposed place.
+        int newHeartSize = (int)(HEARTHSIZEINPX * minMult);
         for (JLabel item : vars.pacLives)
         {
             item.setSize(50,50);
-            placePicture(item, new ImageIcon(ClasspathFileReader.getLIFE().readAllBytes()),
+            placePicture(item, new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, minMult - 0.1f, "Entity1", "LEFT", 0)),
                     new Point(newXPadding + lives * HEARTHSIZEINPX + newTileSize,
                             ((LoadMap.MAPHEIGHTINTILES + 3) * newTileSize) + 4),
-                    new Dimension(HEARTHSIZEINPX, HEARTHSIZEINPX));
+                    new Dimension(newHeartSize, newHeartSize));
             lives++;
         }
+
+        vars.fruitLabel.setSize((int)(26 * minMult),(int)(26 * minMult));
+        vars.fruitLabel.setLocation(
+                (int)(newXPadding + (LoadMap.MAPWIDTHINTILES * newTileSize)/2 - (15 * minMult)),
+                (int)(((vars.topGhostInTiles.item2 + 6) * newTileSize) + 40 + ((34 * vars.vMult) - 30)));
+
+        vars.fruitHud.setLocation(
+                (int)(newXPadding + (newTileSize * LoadMap.MAPWIDTHINTILES) - (7 * 30 * minMult + 56)),
+                ((LoadMap.MAPHEIGHTINTILES + 3) * newTileSize) + 4);
+        vars.fruitHud.setSize((int)(7 * 28 * minMult + 56),(int)(35 * minMult));
+        vars.fruitHud.setIcon(new ImageIcon(Textures.getFruits(model.mainPanel, minMult, vars.collectedFruits)));
+        model.mainPanel.add(vars.fruitHud);
     }
 
     /**
@@ -397,6 +410,7 @@ class GameLoadController
         vars.score2 = 0;
         vars.initSoundPlayers();
         vars.lives = 3;
+        vars.collectedFruits = new ArrayList<>();
 
         if (vars.highScore == -1)
             vars.highScore = HighScoreClass.loadHighScore();
@@ -515,6 +529,7 @@ class GameLoadController
         final int hudLabelWidth = (int)(200 * vars.hMult);
         final int newTileSize = (int)(LoadMap.TILESIZEINPXS * Math.min(vars.vMult  * 1.05f, vars.hMult));
         final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2) - 8;
+        newEntitySize = (int)(ENTITIESSIZEINPXS * minMult);
 
         resizeLabels();
         renderMap(vars.mapFresh, vars.map.item4);
@@ -536,23 +551,50 @@ class GameLoadController
         {
             item.setSize((int)(50 * minMult),(int)(50 * minMult));
             item.setLocation(
-                    newXPadding + i * HEARTHSIZEINPX + newTileSize,
+                    (int)(newXPadding + i * 28 * (minMult - 0.1f) + newTileSize),
                     (LoadMap.MAPHEIGHTINTILES * newTileSize) + (3 * LoadMap.TILESIZEINPXS));
+            item.setIcon(new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, minMult - 0.1f, "Entity1", "LEFT", 0
+            )));
             ++i;
         }
+
+        vars.fruitLabel.setSize((int)(28 * minMult),(int)(28 * minMult));
+        vars.fruitLabel.setLocation(
+                (int)(newXPadding + (LoadMap.MAPWIDTHINTILES * newTileSize)/2 - (15 * minMult)),
+                (int)(((vars.topGhostInTiles.item2 + 6) * newTileSize) + 40 + ((34 * vars.vMult) - 30)));
+        if (vars.fruitLife > 0 && vars.fruitLife < GameplayController.FRUITLIFE){
+            vars.fruitLabel.setIcon(new ImageIcon(
+                    Textures.drawFruit(model.mainPanel, minMult, vars.level + 1)
+            ));
+        }
+
+        vars.fruitHud.setLocation(
+                (int)(newXPadding + (newTileSize * LoadMap.MAPWIDTHINTILES) - (7 * 30 * minMult + 56)),
+                ((LoadMap.MAPHEIGHTINTILES + 2) * newTileSize) + 20);
+        vars.fruitHud.setSize((int)(7 * 28 * minMult + 56),(int)(35 * minMult));
+        vars.fruitHud.setIcon(new ImageIcon(Textures.getFruits(model.mainPanel, minMult, vars.collectedFruits)));
 
         if (vars.entities != null) {
             Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity;
             for (int j = 0; j <= vars.freeGhosts; j++) {
                 entity = vars.entities.get(j);
-                entity.item3.setLocation(entity.item1 * newTileSize - 6 + newXPadding + 8,
+                entity.item3.setSize(newEntitySize, newEntitySize);
+                entity.item3.setLocation(entity.item1 * newTileSize - 6 + newXPadding - 8,
                         entity.item2 * newTileSize + (int)(42 * Math.min(vars.vMult * 1.05, vars.hMult)));
+                entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
+                        model.mainPanel, minMult, entity.item3.getName(), entity.item4.name(), 0
+                )));
             }
 
             for (int j = vars.freeGhosts + 1; j < ENTITYCOUNT; j++) {
                 entity = vars.entities.get(j);
-                entity.item3.setLocation(entity.item1 * newTileSize + 3 + newXPadding,
+                entity.item3.setSize(newEntitySize, newEntitySize);
+                entity.item3.setLocation(entity.item1 * newTileSize + 3 + newXPadding - 8,
                         (int) (entity.item2 * newTileSize + (42 * Math.min(vars.vMult * 1.05, vars.hMult))));
+                entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
+                        model.mainPanel, minMult, entity.item3.getName(), entity.item4.name(), 0
+                )));
             }
         }
 
@@ -610,6 +652,9 @@ class GameLoadController
         @Override
         protected void process(List<playGamePhase> phases)
         {
+            final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
+            final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
+
             try {
                 for (playGamePhase phase : phases) {
                     if (vars.gameOn) {
@@ -631,9 +676,12 @@ class GameLoadController
                                     vars.pacLives[i].setVisible(false);
 
                                 resetEntities();
+                                vars.fruitLife = 0;
+                                vars.fruitLabel.setVisible(false);
                                 vars.mapFresh = deepCopy(vars.map.item1);
-                                model.ghostUpdater.setDelay((GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) * 2);
-                                model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1));
+                                model.ghostUpdater.setDelay(vars.player2 ?
+                                        (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) : model.pacUpdater.getDelay() + 10);
+                                model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((newTileSize / 2) + 1));
 
                                 renderMap(vars.mapFresh, vars.map.item4);
                                 toggleComponentsVisibility(true);
@@ -670,7 +718,9 @@ class GameLoadController
                 if (vars.score > vars.highScore) {
                     try {
                         HighScoreClass.tryToSaveScore(vars.player2, vars.score);
-                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                    } catch (IOException ignore) {
+                        MainFrameController.fatalErrorMessage("score was not saved!");
+                    }
                 }
                 MainFrameController.handleExceptions(exception.toString(), model);
             }
@@ -783,6 +833,9 @@ class GameLoadController
                                     vars.pacLives[i].setVisible(false);
 
                                 loadEntities();
+                                model.mainPanel.add(vars.fruitLabel);
+                                vars.fruitLife = 0;
+                                vars.fruitLabel.setVisible(false);
                                 if (vars.level <= 13 && vars.level > 1)
                                     model.ghostUpdater.setDelay(model.ghostUpdater.getDelay() - 5);
 
@@ -918,7 +971,7 @@ class GameLoadController
                         ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i),"LEFT").readAllBytes()));
                 elements[i-1].setLocation(new Point(startX + (i == 0 ? 0 : (i + 4) * (2 * LoadMap.TILESIZEINPXS)),
                                                     (LoadMap.MAPHEIGHTINTILES / 2 + 6) * LoadMap.TILESIZEINPXS));
-                elements[i-1].setSize(new Dimension(ENTITIESSIZEINPXS, ENTITIESSIZEINPXS));
+                elements[i-1].setSize(new Dimension(newEntitySize, newEntitySize));
             }
             publish(new AnimationFrame(true, false, null, elements, null));
             Thread.sleep(24);
@@ -945,8 +998,8 @@ class GameLoadController
 
             // SECOND ANIMATION: From left to right -------------------------------------------------------------------
             if(vars.level % 5 == 0 && vars.gameOn){
-                elements[0].setSize(new Dimension(ENTITIESSIZEINPXS * 2, ENTITIESSIZEINPXS * 2));
-                elements[0].setLocation(new Point(elements[0].getLocation().x, elements[0].getLocation().y - ENTITIESSIZEINPXS));
+                elements[0].setSize(new Dimension(newEntitySize * 2, newEntitySize * 2));
+                elements[0].setLocation(new Point(elements[0].getLocation().x, elements[0].getLocation().y - newEntitySize));
                 elements[0].setIcon(new ImageIcon(ClasspathFileReader.getENTITY1RIGHTBIG().readAllBytes()));
                 locations[0] = elements[0].getLocation();
                 for (int i = 2; i <= elemCount; i++)

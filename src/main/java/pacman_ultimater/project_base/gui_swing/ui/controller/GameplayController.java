@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Controlls gameplay itself. Handles game loading via GameLoadController.
@@ -25,12 +26,15 @@ class GameplayController implements IKeyDownHandler
 {
     //<editor-fold desc="- VARIABLES Block -">
 
+    final static int FRUITLIFE = 10000;
+
     private int keyTicks = 5;
     private boolean killNextTick = false;
     private boolean[] teleported = new boolean[GameConsts.ENTITYCOUNT];
     private Direction.directionType newDirection1;
     private Direction.directionType newDirection2;
     private Point[] entitiesPixDeltas = new Point[GameConsts.ENTITYCOUNT];
+    private JLabel scoreLabel;
     private int newTileSize;
     private float minMult;
     private int newXPadding;
@@ -63,6 +67,13 @@ class GameplayController implements IKeyDownHandler
         timers = new TimersListeners(
                 new TimerListener(timer_types.PACMAN), new TimerListener(timer_types.GHOST),
                 new TimerListener(timer_types.PACMAN_SMOOTH), new TimerListener(timer_types.GHOST_SMOOTH));
+
+        scoreLabel = new JLabel();
+        scoreLabel.setForeground(new Color(139, 255, 255));
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, (int)(20 * minMult)));
+        scoreLabel.setVisible(false);
+        scoreLabel.setSize(150,45);
+        model.mainPanel.add(scoreLabel);
     }
 
     /**
@@ -218,20 +229,52 @@ class GameplayController implements IKeyDownHandler
 
         if (vars.player2)
             vars.score2 += GameConsts.P2SCOREFORKILL;
-        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes()));
-        model.mainPanel.repaint();
-        Thread.sleep(GameConsts.PAUSEBEFOREDEATH);
-        vars.entities.get(0).item3.setIcon(new ImageIcon(ClasspathFileReader.getPACEXPLODE().readAllBytes()));
-        model.mainPanel.repaint();
-        Thread.sleep(GameConsts.EXPLODINGTIME);
-        vars.lives--;
 
-        if (vars.lives > 0)
-            sendGameLoadRequest(loadGameType.RESTART);
-        else
-            endGame();
-        model.mainPanel.repaint();
-        model.mainPanel.revalidate();
+        SwingWorker<Void, Integer> sw = new SwingWorker<>()
+        {
+            @Override
+            protected Void doInBackground()
+            {
+                try {
+                    for (int i = 0; i < 12; ++i) {
+                        publish(i);
+
+                        Thread.sleep(100);
+                    }
+
+                    Thread.sleep(500);
+                } catch (InterruptedException ignore) {}
+                return null;
+            }
+
+            @Override
+            protected void process(List<Integer> chunks)
+            {
+                Integer last = chunks.get(chunks.size() - 1);
+                if (last < 11) {
+                    vars.entities.get(0).item3.setIcon(new ImageIcon(
+                            Textures.drawEntity(model.mainPanel, minMult, "Entity1", "LEFT", last)));
+                } else {
+                    vars.entities.get(0).item3.setIcon(new ImageIcon(
+                            Textures.drawEntity(model.mainPanel, minMult, "PacExplode", "", last)));
+                }
+                model.mainPanel.repaint();
+            }
+
+            @Override
+            protected void done()
+            {
+                vars.lives--;
+
+                if (vars.lives > 0)
+                    sendGameLoadRequest(loadGameType.RESTART);
+                else
+                    endGame();
+                model.mainPanel.repaint();
+                model.mainPanel.revalidate();
+            }
+        };
+        sw.execute();
     }
 
     /**
@@ -407,24 +450,25 @@ class GameplayController implements IKeyDownHandler
      * Loads right image depending on the game situation and direction.
      *
      * @param entity The updated entity.
-     * @throws IOException To be handled by caller.
      */
     private void updatePicture(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
-        throws IOException
     {
         // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
-        if (vars.eatEmTimer <= 0 || entity.item5.state == DefaultAI.nType.PLAYER1
-            || (entity.item5.state != DefaultAI.nType.EATEN && (vars.ticks % 3 == 0)
-            && vars.eatEmTimer < GameConsts.GHOSTFLASHINGSTART))
+        if (vars.eatEmTimer <= 0 || entity.item5.state == DefaultAI.nType.PLAYER1)
         {
-            InputStream stream = ClasspathFileReader.getEntityFile(entity.item3.getName(), entity.item4.toString());
-            entity.item3.setIcon(new ImageIcon(stream.readAllBytes()));
+            entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, minMult, entity.item3.getName(), entity.item4.toString(),0)));
         } else if (entity.item5.state == DefaultAI.nType.EATEN) {
-            InputStream stream = ClasspathFileReader.getEntityFile("Eyes", entity.item4.toString());
-            entity.item3.setIcon(new ImageIcon(stream.readAllBytes()));
+            entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, minMult, "Eyes", entity.item4.toString(),0)));
         } else {
-            InputStream stream = ClasspathFileReader.getCANBEEATEN();
-            entity.item3.setIcon(new ImageIcon(stream.readAllBytes()));
+            if (vars.ticks % 3 == 0 && vars.eatEmTimer < GameConsts.GHOSTFLASHINGSTART) {
+                entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
+                        model.mainPanel, minMult, "CanBeEaten", "", 1)));
+            } else {
+                entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
+                        model.mainPanel, minMult, "CanBeEaten", "", 0)));
+            }
         }
     }
 
@@ -518,6 +562,77 @@ class GameplayController implements IKeyDownHandler
                     (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) : model.pacUpdater.getDelay() + 10);
             model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((newTileSize / 2) + 1));
             vars.eatEmTimer = 0;
+        }
+    }
+
+    /**
+     * Proides functionality for fruits - appearing, disappearing, collecting
+     */
+    private void updateFruit()
+    {
+        if (vars.collectedDots >= vars.map.item2/2 && vars.fruitLife < FRUITLIFE)
+        {
+            if (vars.collectedDots >= vars.map.item2/2 && vars.fruitLife == 0) {
+                vars.fruitLabel.setIcon(new ImageIcon(
+                        Textures.drawFruit(model.mainPanel, minMult, vars.level)
+                ));
+                vars.fruitLabel.setVisible(true);
+            }
+
+            if (vars.entities.get(0).item1 == 14 && vars.entities.get(0).item2 == 17 && vars.fruitLife > 0){
+                vars.fruitLife = FRUITLIFE;
+                int score = vars.level > 12 ? 5000 : vars.level > 10 ? 3000 : vars.level > 8 ? 2000
+                        : vars.level > 6 ? 1000 : vars.level > 4 ? 700 : vars.level > 2 ? 500 : vars.level > 1 ? 300
+                        : 100;
+
+                vars.score += score;
+                updateHud(vars.score, vars.scoreBox);
+                scoreLabel.setText(Integer.toString(score));
+                scoreLabel.setLocation(vars.fruitLabel.getLocation());
+
+                SwingWorker<Void, Boolean> sw = new SwingWorker<>(){
+                    @Override
+                    protected void process(List<Boolean> chunks)
+                    {
+                        Boolean last = chunks.get(chunks.size() - 1);
+                        if (last) {
+                            scoreLabel.setVisible(false);
+                        } else {
+                            scoreLabel.setVisible(true);
+                        }
+
+                        model.mainPanel.repaint();
+                    }
+
+                    @Override
+                    protected void done()
+                    {
+                        vars.fruitLabel.setVisible(false);
+
+                        model.pacUpdater.start();
+                        model.ghostUpdater.start();
+                        model.ghostSmoothTimer.start();
+                        model.pacSmoothTimer.start();
+                    }
+
+                    @Override
+                    protected Void doInBackground()
+                    {
+                        publish(false);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ignore) {}
+                        publish(true);
+                        return null;
+                    }
+                };
+                sw.execute();
+
+                vars.collectedFruits.add(vars.level);
+                vars.fruitHud.setIcon(new ImageIcon(Textures.getFruits(model.mainPanel, minMult, vars.collectedFruits)));
+            }
+
+            ++vars.fruitLife;
         }
     }
 
@@ -626,7 +741,53 @@ class GameplayController implements IKeyDownHandler
                     if (vars.music) {
                         vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_EATENSIREN(), true, 0, 17800);
                     }
+
+                    model.pacUpdater.stop();
+                    model.ghostUpdater.stop();
+                    model.ghostSmoothTimer.stop();
+                    model.pacSmoothTimer.stop();
+
+                    SwingWorker<Void, Boolean> sw = new SwingWorker<>(){
+                        @Override
+                        protected void process(List<Boolean> chunks)
+                        {
+                            Boolean last = chunks.get(chunks.size() - 1);
+                            if (last) {
+                                scoreLabel.setVisible(false);
+                            } else {
+                                scoreLabel.setVisible(true);
+                            }
+
+                            model.mainPanel.repaint();
+                        }
+
+                        @Override
+                        protected void done()
+                        {
+                            model.pacUpdater.start();
+                            model.ghostUpdater.start();
+                            model.ghostSmoothTimer.start();
+                            model.pacSmoothTimer.start();
+                        }
+
+                        @Override
+                        protected Void doInBackground()
+                        {
+                            publish(false);
+                            try {
+                                Thread.sleep(1500);
+                            } catch (InterruptedException ignore) {}
+                            publish(true);
+                            return null;
+                        }
+                    };
+
                     ++vars.ghostsEaten;
+                    scoreLabel.setText(Integer.toString(GameConsts.GHOSTEATBASESCORE * vars.ghostsEaten));
+                    scoreLabel.setLocation(vars.entities.get(i).item3.getLocation());
+
+                    sw.execute();
+
                     vars.score += GameConsts.GHOSTEATBASESCORE * vars.ghostsEaten;
                     updateHud(vars.score, vars.scoreBox);
                     if (vars.ghostsEaten == 4 && vars.lives < GameConsts.MAXLIVES - 1) {
@@ -660,6 +821,7 @@ class GameplayController implements IKeyDownHandler
 
         if (isPacman) {
             updateEatEmTimer();
+            updateFruit();
             updateEatPellet();
 
             // Gives player one extra life at reaching score of BonusLifeScore.

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class GameModel {
 
     public int score, score2, lives, highScore, soundTick, collectedDots, ghostsEaten, ghostRelease,
-                level, freeGhosts, ticks, eatEmTimer;
+                level, freeGhosts, ticks, eatEmTimer, fruitLife;;
     public Integer keyCountdown1, keyCountdown2;
     public float vMult, hMult;
     public Boolean gameOn, editor;
@@ -36,7 +36,8 @@ public class GameModel {
     public IntPair topGhostInTiles;
     public JLabel[] pacLives;
     public Dimension defSize;
-    public JLabel up1, up2, gameMap, scoreBox, highScoreBox, score2Box;
+    public JLabel up1, up2, gameMap, scoreBox, highScoreBox, score2Box, fruitLabel, fruitHud;
+    public ArrayList<Integer> collectedFruits;
     public Color mapColor;
     public Graphics bufferGraphics;
 
@@ -61,6 +62,8 @@ public class GameModel {
         scoreBox = new JLabel();
         score2Box = new JLabel();
         highScoreBox = new JLabel();
+        fruitLabel = new JLabel();
+        fruitHud = new JLabel();
     }
 
     /**
