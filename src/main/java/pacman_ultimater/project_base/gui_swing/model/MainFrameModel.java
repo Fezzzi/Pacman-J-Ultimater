@@ -1,9 +1,12 @@
 package pacman_ultimater.project_base.gui_swing.model;
 
+import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.ui.view.MainFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class acting as application's model.
@@ -12,45 +15,48 @@ import java.awt.*;
  */
 public class MainFrameModel
 {
-    private MainFrame mainFrame;
-    public JPanel mainPanel;
-    public JFileChooser openFileDialog1;
+    private final MainFrame mainFrame;
+    public final JPanel mainPanel;
+    public final JFileChooser openFileDialog1;
     public Timer pacUpdater;
     public Timer ghostUpdater;
     public Timer pacSmoothTimer;
     public Timer ghostSmoothTimer;
-    public JLabel pacmanLbl;
-    public JLabel ultimateLbl;
-    public JLabel copyrightLbl;
-    public JLabel pressEnterLbl;
-    public JLabel selectMapLbl;
-    public JLabel orgGameLbl;
-    public JLabel settingsLbl;
-    public JLabel escLabelLbl;
-    public JLabel highScrLbl;
-    public JLabel multiplayerLbl;
-    public JLabel highScoreLabelLbl;
-    public JLabel scoreLabelLbl;
-    public JLabel highScoreNumLbl;
-    public JLabel scoreNumLbl;
-    public JLabel musicButtonLbl;
-    public JLabel soundsButtonLbl;
-    public JLabel musicBtnSelectorLbl;
-    public JLabel soundsBtnSelectorLbl;
-    public JLabel gameOverLabelLbl;
-    public JLabel errorLdMapLbl;
-    public JLabel errorInfoLbl;
-    public JLabel tryAgainButLbl;
-    public JLabel advancedLdButLbl;
-    public JLabel typeSymbolsLbl;
-    public JLabel typedSymbolsLbl;
-    public JLabel typeHintLbl;
-    public JLabel editorLbl;
-    public JLabel howToLbl;
-    public JLabel editExistingButLbl;
-    public JLabel editBtnSelectorLbl;
-    public JLabel createNewButLbl;
-    public JLabel createBtnSelectorLbl;
+    public final JLabel pacmanLbl;
+    public final JLabel ultimateLbl;
+    public final JLabel copyrightLbl;
+    public final JLabel pressEnterLbl;
+    public final JLabel selectMapLbl;
+    public final JLabel orgGameLbl;
+    public final JLabel settingsLbl;
+    public final JLabel escLabelLbl;
+    public final JLabel highScrLbl;
+    public final JLabel multiplayerLbl;
+    public final JLabel highScoreLabelLbl;
+    public final JLabel scoreLabelLbl;
+    public final JLabel highScoreNumLbl;
+    public final JLabel scoreNumLbl;
+    public final JLabel musicButtonLbl;
+    public final JLabel soundsButtonLbl;
+    public final JLabel musicBtnSelectorLbl;
+    public final JLabel soundsBtnSelectorLbl;
+    public final JLabel gameOverLabelLbl;
+    public final JLabel errorLdMapLbl;
+    public final JLabel errorInfoLbl;
+    public final JLabel tryAgainButLbl;
+    public final JLabel advancedLdButLbl;
+    public final JLabel typeSymbolsLbl;
+    public final JLabel typedSymbolsLbl;
+    public final JLabel typeHintLbl;
+    public final JLabel editorLbl;
+    public final JLabel howToLbl;
+    public final JLabel editExistingButLbl;
+    public final JLabel editBtnSelectorLbl;
+    public final JLabel createNewButLbl;
+    public final JLabel createBtnSelectorLbl;
+
+    public final JLabel[] labels;
+    public final Map<String, Pair<Rectangle, Integer>> defLabelData;
 
     public MainFrameModel(MainFrame view)
     {
@@ -94,17 +100,20 @@ public class MainFrameModel
         editBtnSelectorLbl = view.getEditBtnSelectorLbl();
         createNewButLbl = view.getCreateNewButLbl();
         createBtnSelectorLbl = view.getCreateBtnSelectorLbl();
-    }
 
-    /**
-     * Centers main Frame on the screen
-     *
-     * @param size Current window size
-     */
-    public void recenterMainFrame(Dimension size)
-    {
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        mainFrame.setLocation(dim.width/2 - size.width/2, dim.height/2 - size.height/2);
+        labels = new JLabel[]{
+            pacmanLbl, ultimateLbl, copyrightLbl, pressEnterLbl, selectMapLbl, orgGameLbl, settingsLbl, escLabelLbl,
+            highScrLbl, multiplayerLbl, highScoreLabelLbl, scoreLabelLbl, highScoreNumLbl, scoreNumLbl,
+            musicButtonLbl, soundsButtonLbl, musicBtnSelectorLbl, soundsBtnSelectorLbl,
+            gameOverLabelLbl, errorLdMapLbl, errorInfoLbl, tryAgainButLbl,
+            advancedLdButLbl, typeSymbolsLbl, typedSymbolsLbl, typeHintLbl, editorLbl, howToLbl,
+            editExistingButLbl, editBtnSelectorLbl, createNewButLbl, createBtnSelectorLbl,
+        };
+
+        defLabelData = new HashMap<>();
+        for (JLabel label : labels) {
+            defLabelData.put(label.getName(), new Pair<>(label.getBounds(), label.getFont().getSize()));
+        }
     }
 
     /**
@@ -113,27 +122,5 @@ public class MainFrameModel
     public void disposeMainFrame()
     {
         mainFrame.dispose();
-    }
-
-    /**
-     * Returns currently set minimum size of window.
-     *
-     * @return Dimension
-     */
-    public Dimension getMainFrameMinimumSize()
-    {
-        return mainFrame.getMinimumSize();
-    }
-
-    /**
-     * Changes window's size.
-     *
-     * @param newSize Dimension to be set
-     */
-    public void setMainFrameSize(Dimension newSize)
-    {
-        mainFrame.setMinimumSize(newSize);
-        mainFrame.setSize(newSize);
-        mainFrame.setMaximumSize(newSize);
     }
 }

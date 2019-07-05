@@ -4,7 +4,6 @@ import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
-import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
@@ -30,10 +29,10 @@ public class MenuController implements IKeyDownHandler
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private ArrayList<Character> symbols = new ArrayList<>();
-    private MainFrameModel model;
-    private GameModel vars;
+    private final MainFrameModel model;
+    private final GameModel vars;
     private GameplayController gp;
-    private KeyBindings kb;
+    private final KeyBindings kb;
     private Editor editor;
 
     //</editor-fold>
@@ -148,7 +147,6 @@ public class MenuController implements IKeyDownHandler
         {
             model.gameOverLabelLbl.setText("GAME OVER");
             model.gameOverLabelLbl.setForeground(Color.red);
-            model.gameOverLabelLbl.setLocation(52, 33);
             model.scoreLabelLbl.setText("Your Score");
             model.scoreNumLbl.setText(Integer.toString(vars.score));
         }
@@ -338,6 +336,22 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
+     * Function forcing gameplay redraw on window resizing
+     */
+    void resizeGamePlay()
+    {
+        gp.resize();
+    }
+
+    /**
+     * Function forcing editor redraw on window resizing
+     */
+    void resizeEditor()
+    {
+        editor.resize();
+    }
+
+    /**
      * Function that provides bridge from menu to gameplay.
      * Switches key binding's handler to GamePlayController's one.
      * Initializes Map and on success calls function that makes the game load process start.
@@ -345,6 +359,7 @@ public class MenuController implements IKeyDownHandler
     private void proceedToGameplay()
     {
         model.mainPanel.requestFocus();
+        vars.addedComponents = new ArrayList<>();
         vars.level = 1;
         vars.gameOn = true;
         vars.map = vars.loadedMap.Map;
@@ -370,6 +385,7 @@ public class MenuController implements IKeyDownHandler
      */
     private void returnToMenu()
     {
+        vars.addedComponents = null;
         kb.changeHandler(this);
         gp = null;
         int componentsCount = model.mainPanel.getComponentCount();
@@ -433,7 +449,7 @@ public class MenuController implements IKeyDownHandler
      * Opens file selector for editor.
      */
     private void editButton_Click()
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
+        throws FileNotFoundException
     {
         if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION) {
             String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
@@ -443,7 +459,8 @@ public class MenuController implements IKeyDownHandler
                 model.createBtnSelectorLbl.setVisible(false);
                 model.editExistingButLbl.setVisible(false);
                 model.createNewButLbl.setVisible(false);
-                editor = new Editor(model.mainPanel, map.Map);
+                vars.editor = true;
+                editor = new Editor(model.mainPanel, vars, map.Map);
                 editor.show();
             } else {
                 UIManager.put("Panel.background", Color.black);
@@ -462,7 +479,8 @@ public class MenuController implements IKeyDownHandler
         model.createBtnSelectorLbl.setVisible(false);
         model.editExistingButLbl.setVisible(false);
         model.createNewButLbl.setVisible(false);
-        editor = new Editor(model.mainPanel);
+        vars.editor = true;
+        editor = new Editor(model.mainPanel,vars);
         editor.show();
     }
 
@@ -611,11 +629,12 @@ public class MenuController implements IKeyDownHandler
                         } else if (menuSelected.item1 == mn.editor) {
                             model.editBtnSelectorLbl.setVisible(false);
                             model.createBtnSelectorLbl.setVisible(false);
-                            if (editor != null && editor.opened) {
+                            if (editor != null && vars.editor) {
                                 if (!editor.close()) {
                                     return;
                                 }
 
+                                vars.editor = false;
                                 editor = null;
                                 model.mainPanel.repaint();
                             }
@@ -640,7 +659,7 @@ public class MenuController implements IKeyDownHandler
                     final byte symbolsLimit = 5;
                     if (symbols.size() == symbolsLimit)
                         selectMap_Click();
-                } else if (menuSelected.item1 == mn.editor && editor != null && editor.opened) {
+                } else if (menuSelected.item1 == mn.editor && editor != null && vars.editor) {
                     editor.handleKey(keyCode);
                 } else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
                     handleKeyWS(-1);
@@ -814,9 +833,9 @@ public class MenuController implements IKeyDownHandler
 
     private class labelListener extends MouseAdapter
     {
-        private JLabel label;
-        private mouseAdapterType mat;
-        private MainFrameModel model;
+        private final JLabel label;
+        private final mouseAdapterType mat;
+        private final MainFrameModel model;
 
         labelListener(JLabel label, mouseAdapterType mat, MainFrameModel model)
         {
@@ -892,10 +911,10 @@ public class MenuController implements IKeyDownHandler
                     menuSelected = new Pair<>(labelToEnum(label), label);
                     break;
                 case tryAgainBtn:
-                    model.tryAgainButLbl.setText("<html><div style='background-color: yellow; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    model.tryAgainButLbl.setBackground(Color.yellow);
                     break;
                 case advancedLdBtn:
-                    model.advancedLdButLbl.setText("<html><div style='background-color: yellow; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    model.advancedLdButLbl.setBackground(Color.yellow);
                     break;
             }
         }
@@ -911,10 +930,10 @@ public class MenuController implements IKeyDownHandler
                     label.setForeground(Color.white);
                     break;
                 case tryAgainBtn:
-                    model.tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+                    model.tryAgainButLbl.setBackground(Color.white);
                     break;
                 case advancedLdBtn:
-                    model.advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+                    model.advancedLdButLbl.setBackground(Color.white);
                     break;
             }
 
@@ -923,7 +942,7 @@ public class MenuController implements IKeyDownHandler
 
     private class ErrorLblListener implements ComponentListener
     {
-        MainFrameModel model;
+        final MainFrameModel model;
 
         ErrorLblListener(MainFrameModel model)
         {

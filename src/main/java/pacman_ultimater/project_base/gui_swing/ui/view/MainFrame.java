@@ -1,6 +1,7 @@
 package pacman_ultimater.project_base.gui_swing.ui.view;
 
 import pacman_ultimater.project_base.core.ClasspathFileReader;
+import pacman_ultimater.project_base.core.LoadMap;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -69,12 +70,12 @@ public class MainFrame extends JFrame{
     {
         setLocationRelativeTo(null);
         setIconImage(new ImageIcon(ClasspathFileReader.getICON().readAllBytes()).getImage());
-        setMinimumSize(new Dimension(464, 529));
+        setMinimumSize(new Dimension(LoadMap.DEFAULTWIDTH, LoadMap.DEFAULTHEIGHT));
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width/2 - this.getSize().width/2, dim.height/2 - this.getSize().height/2);
         setName("PacManJUltimater");
         setTitle("Pac-Man J-Ultimater");
-        setResizable(false);
+
         UIManager.put("Panel.background", Color.white);
         UIManager.put("OptionPane.background", Color.black);
         UIManager.put("OptionPane.messageForeground", Color.white);
@@ -89,6 +90,11 @@ public class MainFrame extends JFrame{
     private void initComponents()
     {
         instantiateComponents();
+        //
+        // Constants
+        //
+        int menuLabelsX = (LoadMap.DEFAULTWIDTH - 300) / 2;
+        int prefaceLabelsX = (LoadMap.DEFAULTWIDTH - 400) / 2;
         //
         // Main Frame
         //
@@ -119,136 +125,151 @@ public class MainFrame extends JFrame{
         //
         pacmanLbl.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 54));
         pacmanLbl.setForeground(Color.YELLOW);
-        pacmanLbl.setBounds(55, 50,380,75);
+        pacmanLbl.setBounds(prefaceLabelsX, 59,400,75);
         pacmanLbl.setName("pacman");
         pacmanLbl.setText("PAC-MAN");
         pacmanLbl.setVisible(false);
         pacmanLbl.setFocusable(false);
+        pacmanLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // J-Ultimater
         //
         ultimateLbl.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, 32));
         ultimateLbl.setForeground(Color.red);
-        ultimateLbl.setBounds(43, 115,380,50);
+        ultimateLbl.setBounds(prefaceLabelsX, 136,400,50);
         ultimateLbl.setName("jultimater");
         ultimateLbl.setText("- J-ULTIMATER -");
         ultimateLbl.setVisible(false);
         ultimateLbl.setFocusable(false);
+        ultimateLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // copyright
         //
         copyrightLbl.setForeground(Color.yellow);
-        copyrightLbl.setBounds(250, 440, 200,17);
+        copyrightLbl.setBounds(prefaceLabelsX, 519, 400,17);
         copyrightLbl.setName("copyright");
-        copyrightLbl.setText("© Copyright Filip Horký 2019");
+        copyrightLbl.setText("By Filip Horký, 2019");
         copyrightLbl.setVisible(false);
         copyrightLbl.setFocusable(false);
+        copyrightLbl.setHorizontalAlignment(SwingConstants.RIGHT);
         //
         // PressEnter
         //
         pressEnterLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         pressEnterLbl.setForeground(Color.white);
-        pressEnterLbl.setBounds(95, 180,400,200);
+        pressEnterLbl.setBounds(prefaceLabelsX, 212,400,200);
         pressEnterLbl.setName("pressEnter");
         pressEnterLbl.setText("<html>&nbsp;&nbsp;INSERT COIN<br/><br/>- press any key -</html>");
         pressEnterLbl.setVisible(false);
         pressEnterLbl.setFocusable(false);
+        pressEnterLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // OrgGame
         //
         orgGameLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         orgGameLbl.setForeground(Color.white);
-        orgGameLbl.setBounds(110,30,300,45);
+        orgGameLbl.setBounds(menuLabelsX,35,300,45);
         orgGameLbl.setName("OrgGame");
         orgGameLbl.setText("Original Game");
         orgGameLbl.setVisible(false);
         orgGameLbl.setFocusable(false);
+        orgGameLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // selectMap
         //
         selectMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         selectMapLbl.setForeground(Color.white);
-        selectMapLbl.setBounds(138,83,250,45);
+        selectMapLbl.setBounds(menuLabelsX,97,300,45);
         selectMapLbl.setName("SelectMap");
         selectMapLbl.setText("Select Map");
         selectMapLbl.setVisible(false);
         selectMapLbl.setFocusable(false);
+        selectMapLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // Multiplayer
         //
         multiplayerLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         multiplayerLbl.setForeground(Color.white);
-        multiplayerLbl.setBounds(144,136,200,45);
+        multiplayerLbl.setBounds(menuLabelsX,160,300,45);
         multiplayerLbl.setName("Multiplayer");
         multiplayerLbl.setText("Multiplayer");
         multiplayerLbl.setVisible(false);
         multiplayerLbl.setFocusable(false);
+        multiplayerLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // Settings
         //
         settingsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         settingsLbl.setForeground(Color.white);
-        settingsLbl.setBounds(161,190,180,45);
+        settingsLbl.setBounds(menuLabelsX,224,300,45);
         settingsLbl.setName("Settings");
         settingsLbl.setText("Settings");
         settingsLbl.setVisible(false);
         settingsLbl.setFocusable(false);
+        settingsLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // Editor
         //
         editorLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         editorLbl.setForeground(Color.white);
-        editorLbl.setBounds(180,243,180,45);
+        editorLbl.setBounds(menuLabelsX,287,300,45);
         editorLbl.setName("Editor");
         editorLbl.setText("Editor");
         editorLbl.setVisible(false);
         editorLbl.setFocusable(false);
+        editorLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // How To
         //
         howToLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         howToLbl.setForeground(Color.white);
-        howToLbl.setBounds(170,296,180,45);
+        howToLbl.setBounds(menuLabelsX,349,300,45);
         howToLbl.setName("HowTo");
         howToLbl.setText("How To");
         howToLbl.setVisible(false);
         howToLbl.setFocusable(false);
+        howToLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // HighScr
         //
         highScrLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
         highScrLbl.setForeground(Color.white);
-        highScrLbl.setBounds(123,350,260,45);
+        highScrLbl.setBounds(menuLabelsX,413,300,45);
         highScrLbl.setName("HighScr");
         highScrLbl.setText("Highest Score");
         highScrLbl.setVisible(false);
         highScrLbl.setFocusable(false);
+        highScrLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // EscLabel
         //
         escLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 20));
-        escLabelLbl.setBounds(138, 427, 185, 22);
+        escLabelLbl.setBounds(menuLabelsX, 503, 300, 22);
         escLabelLbl.setForeground(Color.yellow);
         escLabelLbl.setName("EscLabel");
         escLabelLbl.setText("Press ESC to return");
         escLabelLbl.setVisible(false);
         escLabelLbl.setFocusable(false);
+        escLabelLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // MusicButton
         //
+        musicButtonLbl.setBackground(Color.black);
         musicButtonLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         musicButtonLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         musicButtonLbl.setForeground(Color.white);
-        musicButtonLbl.setBounds(158,120,140,44);
+        musicButtonLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 70,120,140,44);
         musicButtonLbl.setName("MusicButton");
-        musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+        musicButtonLbl.setText("MUSIC");
         musicButtonLbl.setVisible(false);
         musicButtonLbl.setFocusable(false);
+        musicButtonLbl.setOpaque(true);
+        musicButtonLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // MusicBtnSelector
         //
         musicBtnSelectorLbl.setBackground(Color.yellow);
-        musicBtnSelectorLbl.setBounds(150,120,24,44);
+        musicBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 76,120,24,44);
         musicBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         musicBtnSelectorLbl.setName("MusicBtnSelector");
         musicBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
@@ -257,19 +278,22 @@ public class MainFrame extends JFrame{
         //
         // SoundsButton
         //
+        soundsButtonLbl.setBackground(Color.black);
         soundsButtonLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         soundsButtonLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         soundsButtonLbl.setForeground(Color.white);
-        soundsButtonLbl.setBounds(154,233,150,44);
+        soundsButtonLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 75,233,150,44);
         soundsButtonLbl.setName("SoundsButton");
-        soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+        soundsButtonLbl.setText("SOUND");
         soundsButtonLbl.setVisible(false);
         soundsButtonLbl.setFocusable(false);
+        soundsButtonLbl.setOpaque(true);
+        soundsButtonLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // SoundsBtnSelector
         //
         soundsBtnSelectorLbl.setBackground(Color.yellow);
-        soundsBtnSelectorLbl.setBounds(146,233,24,44);
+        soundsBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 81,233,24,44);
         soundsBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         soundsBtnSelectorLbl.setName("SoundsBtnSelector");
         soundsBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
@@ -280,7 +304,7 @@ public class MainFrame extends JFrame{
         //
         highScoreLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         highScoreLabelLbl.setForeground(Color.yellow);
-        highScoreLabelLbl.setBounds(71,113,231,39);
+        highScoreLabelLbl.setBounds(71,113,300,39);
         highScoreLabelLbl.setName("HighScoreLabel");
         highScoreLabelLbl.setText("Highest Score");
         highScoreLabelLbl.setVisible(false);
@@ -290,7 +314,7 @@ public class MainFrame extends JFrame{
         //
         scoreLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 28));
         scoreLabelLbl.setForeground(Color.white);
-        scoreLabelLbl.setBounds(72,273,165,36);
+        scoreLabelLbl.setBounds(71,273,300,36);
         scoreLabelLbl.setName("ScoreLabel");
         scoreLabelLbl.setText("Your Score");
         scoreLabelLbl.setVisible(false);
@@ -300,10 +324,11 @@ public class MainFrame extends JFrame{
         //
         highScoreNumLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 38));
         highScoreNumLbl.setForeground(Color.yellow);
-        highScoreNumLbl.setBounds(178,171,200,58);
+        highScoreNumLbl.setBounds(181,171,200,58);
         highScoreNumLbl.setName("HighScoreNum");
         highScoreNumLbl.setVisible(false);
         highScoreNumLbl.setFocusable(false);
+        highScoreNumLbl.setHorizontalAlignment(SwingConstants.RIGHT);
         //
         // ScoreNum
         //
@@ -313,26 +338,29 @@ public class MainFrame extends JFrame{
         scoreNumLbl.setName("ScoreNum");
         scoreNumLbl.setVisible(false);
         scoreNumLbl.setFocusable(false);
+        scoreNumLbl.setHorizontalAlignment(SwingConstants.RIGHT);
         //
         // GameOverLabel
         //
         gameOverLabelLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 48));
         gameOverLabelLbl.setForeground(Color.red);
         gameOverLabelLbl.setName("GameOverLabel");
-        gameOverLabelLbl.setBounds(85,33,400,52);
+        gameOverLabelLbl.setBounds(prefaceLabelsX,33,400,52);
         gameOverLabelLbl.setText("GAME OVER");
         gameOverLabelLbl.setVisible(false);
         gameOverLabelLbl.setFocusable(false);
+        gameOverLabelLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // ErrorLdMap
         //
         errorLdMapLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         errorLdMapLbl.setForeground(Color.white);
-        errorLdMapLbl.setBounds(78,42,302,39);
+        errorLdMapLbl.setBounds(menuLabelsX,42,300,39);
         errorLdMapLbl.setName("ErrorLdMap");
         errorLdMapLbl.setText("Error Loading Map");
         errorLdMapLbl.setVisible(false);
         errorLdMapLbl.setFocusable(false);
+        errorLdMapLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // ErrorInfo
         //
@@ -347,43 +375,49 @@ public class MainFrame extends JFrame{
         // TryAgainBut
         //
         tryAgainButLbl.setBackground(Color.white);
+        tryAgainButLbl.setOpaque(true);
         tryAgainButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         tryAgainButLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 25));
         tryAgainButLbl.setForeground(Color.black);
-        tryAgainButLbl.setBounds(27,370,148,31);
+        tryAgainButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 210,370,170,31);
         tryAgainButLbl.setName("TryAgainBut");
-        tryAgainButLbl.setText("<html><div style='background-color: white; width: 148px; padding-left: 5px'>TRY AGAIN</div><html>");
+        tryAgainButLbl.setText("TRY AGAIN");
         tryAgainButLbl.setVisible(false);
         tryAgainButLbl.setFocusable(false);
+        tryAgainButLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // AdvancedLdBut
         //
         advancedLdButLbl.setBackground(Color.white);
+        advancedLdButLbl.setOpaque(true);
         advancedLdButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         advancedLdButLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 25));
         advancedLdButLbl.setForeground(Color.black);
-        advancedLdButLbl.setBounds(201,370,230,31);
+        advancedLdButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 30,370,230,31);
         advancedLdButLbl.setName("AdvancedLdBut");
-        advancedLdButLbl.setText("<html><div style='background-color: white; width: 230px; padding-left: 5px'>ADVANCED LOAD</div></html>");
+        advancedLdButLbl.setText("ADVANCED LOAD");
         advancedLdButLbl.setVisible(false);
         advancedLdButLbl.setFocusable(false);
+        advancedLdButLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // EditExistingBtn
         //
-        editExistingButLbl.setBackground(Color.white);
+        editExistingButLbl.setBackground(Color.black);
         editExistingButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         editExistingButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         editExistingButLbl.setForeground(Color.white);
-        editExistingButLbl.setBounds(170,120,104,44);
+        editExistingButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 52,120,104,44);
         editExistingButLbl.setName("EditExistingBut");
-        editExistingButLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>EDIT</div></html>");
+        editExistingButLbl.setText("EDIT");
         editExistingButLbl.setVisible(false);
         editExistingButLbl.setFocusable(false);
+        editExistingButLbl.setOpaque(true);
+        editExistingButLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // EditBtnSeletor
         //
         editBtnSelectorLbl.setBackground(Color.yellow);
-        editBtnSelectorLbl.setBounds(162,120,24,44);
+        editBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 66,120,24,44);
         editBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
         editBtnSelectorLbl.setName("editBtnSelector");
         editBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
@@ -392,22 +426,24 @@ public class MainFrame extends JFrame{
         //
         // CreateNewBtn
         //
-        createNewButLbl.setBackground(Color.white);
+        createNewButLbl.setBackground(Color.black);
         createNewButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         createNewButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
         createNewButLbl.setForeground(Color.white);
-        createNewButLbl.setBounds(141,233,168,44);
+        createNewButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 84,233,168,44);
         createNewButLbl.setName("CreateNewBut");
-        createNewButLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>CREATE</div></html>");
+        createNewButLbl.setText("CREATE");
         createNewButLbl.setVisible(false);
         createNewButLbl.setFocusable(false);
+        createNewButLbl.setOpaque(true);
+        createNewButLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // CreateBtnSeletor
         //
         createBtnSelectorLbl.setBackground(Color.yellow);
-        createBtnSelectorLbl.setBounds(133,233,24,44);
+        createBtnSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 98,233,24,44);
         createBtnSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
-        createBtnSelectorLbl.setName("createBtnSelectorLbl");
+        createBtnSelectorLbl.setName("createBtnSelector");
         createBtnSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
         createBtnSelectorLbl.setVisible(false);
         createBtnSelectorLbl.setFocusable(false);
@@ -416,32 +452,35 @@ public class MainFrame extends JFrame{
         //
         typeSymbolsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
         typeSymbolsLbl.setForeground(Color.white);
-        typeSymbolsLbl.setBounds(98,163,379,39);
+        typeSymbolsLbl.setBounds(menuLabelsX,163,300,39);
         typeSymbolsLbl.setName("TypeSymbols");
         typeSymbolsLbl.setText("Type 5 symbols:");
         typeSymbolsLbl.setVisible(false);
         typeSymbolsLbl.setFocusable(false);
+        typeSymbolsLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // TypedSymbols
         //
         typedSymbolsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 36));
         typedSymbolsLbl.setForeground(Color.yellow);
-        typedSymbolsLbl.setBounds(98,260,350,48);
+        typedSymbolsLbl.setBounds(menuLabelsX,260,300,48);
         typedSymbolsLbl.setName("TypedSymbols");
-        typedSymbolsLbl.setText("Q ; F ; X ; A ; W");
+        typedSymbolsLbl.setText("");
         typedSymbolsLbl.setVisible(false);
         typedSymbolsLbl.setFocusable(true);
+        typedSymbolsLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // TypeHint
         //
         typeHintLbl.setBorder(BorderFactory.createLineBorder(Color.white));
         typeHintLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 22));
         typeHintLbl.setForeground(Color.white);
-        typeHintLbl.setBounds(35,141,386,180);
+        typeHintLbl.setBounds(prefaceLabelsX,141,400,180);
         typeHintLbl.setName("TypeHint");
         typeHintLbl.setText("<html><div style='padding-left: 10px; padding-top: 10px;'>[Free ; Pellet ; P. pellet ; Wall ; Gate]</div></html>");
         typeHintLbl.setVisible(false);
         typeHintLbl.setFocusable(false);
+        typeHintLbl.setHorizontalAlignment(SwingConstants.CENTER);
     }
 
     private void instantiateComponents(){

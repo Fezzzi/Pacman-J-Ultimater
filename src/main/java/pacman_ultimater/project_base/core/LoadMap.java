@@ -15,6 +15,8 @@ public class LoadMap {
 
     public static final int MAPWIDTHINTILES = 28;
     public static final int MAPHEIGHTINTILES = 31;
+    public static final int DEFAULTWIDTH = 464;
+    public static final int DEFAULTHEIGHT = 624;
     public static final int PACMANINITIALY = 23;
     public static final int PACMANINITIALX = 13;
     public static final int RDPSIZE = 12;
@@ -22,7 +24,7 @@ public class LoadMap {
     public static final Color TRANSPARENT = new Color(255,255,255,0);
 
     private Tile[][] tileMap;
-    public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
+    public final Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
 
     /**
      * Calls loading function with default symbols.

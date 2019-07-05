@@ -10,7 +10,7 @@ import java.awt.event.KeyEvent;
  */
 public class KeyBindings {
 
-    private JPanel panel;
+    private final JPanel panel;
     private IKeyDownHandler handler;
 
     public KeyBindings(JPanel panel, IKeyDownHandler handler)
@@ -181,261 +181,261 @@ public class KeyBindings {
     }
 
     // ALPHABET SYMBOLS -------------------------------------------------------------------------------
-    private Action key_pressed_P = new AbstractAction() {
+    private final Action key_pressed_P = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_P); }
     };
-    private Action key_pressed_O = new AbstractAction() {
+    private final Action key_pressed_O = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_O); }
     };
-    private Action key_pressed_I = new AbstractAction() {
+    private final Action key_pressed_I = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_I); }
     };
-    private Action key_pressed_U = new AbstractAction() {
+    private final Action key_pressed_U = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_U); }
     };
-    private Action key_pressed_Y = new AbstractAction() {
+    private final Action key_pressed_Y = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_Y); }
     };
-    private Action key_pressed_T = new AbstractAction() {
+    private final Action key_pressed_T = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_T); }
     };
-    private Action key_pressed_R = new AbstractAction() {
+    private final Action key_pressed_R = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_R); }
     };
-    private Action key_pressed_E = new AbstractAction() {
+    private final Action key_pressed_E = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_E); }
     };
-    private Action key_pressed_W = new AbstractAction() {
+    private final Action key_pressed_W = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_W); }
     };
-    private Action key_pressed_Q = new AbstractAction() {
+    private final Action key_pressed_Q = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_Q); }
     };
-    private Action key_pressed_L = new AbstractAction() {
+    private final Action key_pressed_L = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_L); }
     };
-    private Action key_pressed_K = new AbstractAction() {
+    private final Action key_pressed_K = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_K); }
     };
-    private Action key_pressed_J = new AbstractAction() {
+    private final Action key_pressed_J = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_J); }
     };
-    private Action key_pressed_H = new AbstractAction() {
+    private final Action key_pressed_H = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_H); }
     };
-    private Action key_pressed_G = new AbstractAction() {
+    private final Action key_pressed_G = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_G); }
     };
-    private Action key_pressed_F = new AbstractAction() {
+    private final Action key_pressed_F = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_F); }
     };
-    private Action key_pressed_D = new AbstractAction() {
+    private final Action key_pressed_D = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_D); }
     };
-    private Action key_pressed_S = new AbstractAction() {
+    private final Action key_pressed_S = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_S); }
     };
-    private Action key_pressed_A = new AbstractAction() {
+    private final Action key_pressed_A = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_A); }
     };
-    private Action key_pressed_M = new AbstractAction() {
+    private final Action key_pressed_M = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_M); }
     };
-    private Action key_pressed_N = new AbstractAction() {
+    private final Action key_pressed_N = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_N); }
     };
-    private Action key_pressed_B = new AbstractAction() {
+    private final Action key_pressed_B = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_B); }
     };
-    private Action key_pressed_V = new AbstractAction() {
+    private final Action key_pressed_V = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_V); }
     };
-    private Action key_pressed_C = new AbstractAction() {
+    private final Action key_pressed_C = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_C); }
     };
-    private Action key_pressed_X = new AbstractAction() {
+    private final Action key_pressed_X = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_X); }
     };
-    private Action key_pressed_Z = new AbstractAction() {
+    private final Action key_pressed_Z = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_Z); }
     };
 
     // NUMBER SYMBOLS ----------------------------------------------------------------------------------
-    private Action key_pressed_0 = new AbstractAction() {
+    private final Action key_pressed_0 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_0); }
     };
-    private Action key_pressed_1 = new AbstractAction() {
+    private final Action key_pressed_1 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_1); }
     };
-    private Action key_pressed_2 = new AbstractAction() {
+    private final Action key_pressed_2 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_2); }
     };
-    private Action key_pressed_3 = new AbstractAction() {
+    private final Action key_pressed_3 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_3); }
     };
-    private Action key_pressed_4 = new AbstractAction() {
+    private final Action key_pressed_4 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_4); }
     };
-    private Action key_pressed_5 = new AbstractAction() {
+    private final Action key_pressed_5 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_5); }
     };
-    private Action key_pressed_6 = new AbstractAction() {
+    private final Action key_pressed_6 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_6); }
     };
-    private Action key_pressed_7 = new AbstractAction() {
+    private final Action key_pressed_7 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_7); }
     };
-    private Action key_pressed_8 = new AbstractAction() {
+    private final Action key_pressed_8 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_8); }
     };
-    private Action key_pressed_9 = new AbstractAction() {
+    private final Action key_pressed_9 = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_9); }
     };
 
     // SPECIAL SYMBOLS ---------------------------------------------------------------------------------
-    private Action key_pressed_PLUS = new AbstractAction() {
+    private final Action key_pressed_PLUS = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_PLUS); }
     };
-    private Action key_pressed_MINUS = new AbstractAction() {
+    private final Action key_pressed_MINUS = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_MINUS); }
     };
-    private Action key_pressed_EQUALS = new AbstractAction() {
+    private final Action key_pressed_EQUALS = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_EQUALS); }
     };
-    private Action key_pressed_SLASH = new AbstractAction() {
+    private final Action key_pressed_SLASH = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_SLASH); }
     };
-    private Action key_pressed_BACK_SLASH = new AbstractAction() {
+    private final Action key_pressed_BACK_SLASH = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_BACK_SLASH); }
     };
-    private Action key_pressed_ASTERISK = new AbstractAction() {
+    private final Action key_pressed_ASTERISK = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ASTERISK); }
     };
-    private Action key_pressed_LESS = new AbstractAction() {
+    private final Action key_pressed_LESS = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_LESS); }
     };
-    private Action key_pressed_GREATER = new AbstractAction() {
+    private final Action key_pressed_GREATER = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_GREATER); }
     };
-    private Action key_pressed_COMMA = new AbstractAction() {
+    private final Action key_pressed_COMMA = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_COMMA); }
     };
-    private Action key_pressed_HASH = new AbstractAction() {
+    private final Action key_pressed_HASH = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_NUMBER_SIGN); }
     };
-    private Action key_pressed_AT = new AbstractAction() {
+    private final Action key_pressed_AT = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_AT); }
     };
-    private Action key_pressed_EXCLAMATION_MARK = new AbstractAction() {
+    private final Action key_pressed_EXCLAMATION_MARK = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_EXCLAMATION_MARK); }
     };
-    private Action key_pressed_AMPERSAND = new AbstractAction() {
+    private final Action key_pressed_AMPERSAND = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_AMPERSAND); }
     };
-    private Action key_pressed_PERIOD = new AbstractAction() {
+    private final Action key_pressed_PERIOD = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_PERIOD); }
     };
-    private Action key_pressed_COLON = new AbstractAction() {
+    private final Action key_pressed_COLON = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_COLON); }
     };
-    private Action key_pressed_SEMICOLON = new AbstractAction() {
+    private final Action key_pressed_SEMICOLON = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_SEMICOLON); }
     };
-    private Action key_pressed_UNDERSCORE = new AbstractAction() {
+    private final Action key_pressed_UNDERSCORE = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_UNDERSCORE); }
     };
-    private Action key_pressed_LEFT_PARENTHESIS = new AbstractAction() {
+    private final Action key_pressed_LEFT_PARENTHESIS = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_LEFT_PARENTHESIS); }
     };
-    private Action key_pressed_RIGHT_PARENTHESIS = new AbstractAction() {
+    private final Action key_pressed_RIGHT_PARENTHESIS = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_RIGHT_PARENTHESIS); }
     };
-    private Action key_pressed_SPACE = new AbstractAction() {
+    private final Action key_pressed_SPACE = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_SPACE); }
     };
 
     // SPECIAL KEYS ------------------------------------------------------------------------------------
-    private Action key_pressed_UP = new AbstractAction() {
+    private final Action key_pressed_UP = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_UP); }
     };
-    private Action key_pressed_RIGHT = new AbstractAction() {
+    private final Action key_pressed_RIGHT = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_RIGHT); }
     };
-    private Action key_pressed_DOWN = new AbstractAction() {
+    private final Action key_pressed_DOWN = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_DOWN); }
     };
-    private Action key_pressed_LEFT = new AbstractAction() {
+    private final Action key_pressed_LEFT = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_LEFT); }
     };
-    private Action key_pressed_ENTER = new AbstractAction() {
+    private final Action key_pressed_ENTER = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ENTER); }
     };
-    private Action key_pressed_BACK = new AbstractAction() {
+    private final Action key_pressed_BACK = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_BACK_SPACE); }
     };
-    private Action key_pressed_ESC = new AbstractAction() {
+    private final Action key_pressed_ESC = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) { keyDownHandler(KeyEvent.VK_ESCAPE); }
     };
