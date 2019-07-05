@@ -3,7 +3,6 @@ package pacman_ultimater.project_base.gui_swing.model;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
-import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 public class GameModel {
 
     public int score, score2, lives, highScore, soundTick, collectedDots, ghostsEaten, ghostRelease,
-                level, freeGhosts, ticks, eatEmTimer, fruitLife;;
+                level, freeGhosts, ticks, eatEmTimer, fruitLife;
     public Integer keyCountdown1, keyCountdown2;
     public float vMult, hMult;
     public Boolean gameOn, editor;
@@ -27,7 +26,7 @@ public class GameModel {
     public Clip[] soundPlayers;
     public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> map;
     public Tile[][] mapFresh;
-    public Point[] redrawPellets;
+    public final Point[] redrawPellets;
     public ArrayList<JLabel> addedComponents;
     public LoadMap loadedMap;
 
@@ -35,8 +34,9 @@ public class GameModel {
     public DefaultAI[] defaultAIs;
     public IntPair topGhostInTiles;
     public JLabel[] pacLives;
-    public Dimension defSize;
-    public JLabel up1, up2, gameMap, scoreBox, highScoreBox, score2Box, fruitLabel, fruitHud;
+    public final Dimension defSize;
+    public final JLabel up1, up2, scoreBox, highScoreBox, score2Box, fruitLabel, fruitHud;
+    public JLabel gameMap;
     public ArrayList<Integer> collectedFruits;
     public Color mapColor;
     public Graphics bufferGraphics;
@@ -76,7 +76,7 @@ public class GameModel {
     public void initSoundPlayers()
         throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
-        soundPlayers = new Clip[GameConsts.SOUNDPLAYERSCOUNT + 2];
+        soundPlayers = new Clip[GameConsts.SOUNDPLAYERSCOUNT + 3];
 
         for (int i = 0; i < GameConsts.SOUNDPLAYERSCOUNT; i++) {
             soundPlayers[i] = AudioSystem.getClip();
@@ -98,6 +98,12 @@ public class GameModel {
         byte[] EatGhostsoundBuffer = new byte[65536];
         EatGhostSound.read(EatGhostsoundBuffer, 0, 65536);
         soundPlayers[GameConsts.EATGHOSTSOUNDPLAYERID].open(EatGhostSound.getFormat(), EatGhostsoundBuffer, 0, 65536);
+
+        soundPlayers[GameConsts.EATFRUITSOUNDPLAYERID] = AudioSystem.getClip();
+        AudioInputStream EatruitSound = AudioSystem.getAudioInputStream(ClasspathFileReader.getPACMAN_EATFRUIT());
+        byte[] EatruitSounddBuffer = new byte[65536];
+        EatGhostSound.read(EatruitSounddBuffer, 0, 32000);
+        soundPlayers[GameConsts.EATFRUITSOUNDPLAYERID].open(EatruitSound.getFormat(), EatruitSounddBuffer, 0, 32000);
     }
 
     /**

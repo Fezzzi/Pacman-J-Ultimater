@@ -8,12 +8,12 @@ import java.awt.*;
   */
 public class Tile
 {
-    public static final int DEFPENWIDTH = 2;
+    public static final int DEFPENSIZE = 2;
 
     public nType tile;
     public static int tileSize = LoadMap.TILESIZEINPXS;
     public static int dotSize = tileSize / 4;
-    public static int penWidth = DEFPENWIDTH;
+    public static int penSize = DEFPENSIZE;
 
     /**
      * Enumerable for possible tile states.
@@ -229,8 +229,8 @@ public class Tile
     private void LWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 1, location.y - 1, penWidth, tileSize + 2);
-        g.fillRect(location.x + 7, location.y - 1, penWidth, tileSize + 2);
+        g.fillRect(location.x + 1, location.y - 1, penSize, tileSize + 2);
+        g.fillRect(location.x + 7, location.y - 1, penSize, tileSize + 2);
     }
 
     /**
@@ -243,7 +243,7 @@ public class Tile
     private void LWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 7, location.y, penWidth, tileSize);
+        g.fillRect(location.x + 7, location.y, penSize, tileSize);
     }
 
     /**
@@ -256,8 +256,8 @@ public class Tile
     private void RWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 13, location.y - 1, penWidth, tileSize + 2);
-        g.fillRect(location.x + 7, location.y - 1, penWidth, tileSize + 2);
+        g.fillRect(location.x + 13, location.y - 1, penSize, tileSize + 2);
+        g.fillRect(location.x + 7, location.y - 1, penSize, tileSize + 2);
     }
 
     /**
@@ -270,7 +270,7 @@ public class Tile
     private void RWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x + 7, location.y, penWidth, tileSize);
+        g.fillRect(location.x + 7, location.y, penSize, tileSize);
     }
 
     /**
@@ -283,8 +283,8 @@ public class Tile
     private void TWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x - 1, location.y + 1, tileSize + 2, penWidth);
-        g.fillRect(location.x - 1, location.y + 7, tileSize + 2, penWidth);
+        g.fillRect(location.x - 1, location.y + 1, tileSize + 2, penSize);
+        g.fillRect(location.x - 1, location.y + 7, tileSize + 2, penSize);
     }
 
     /**
@@ -297,7 +297,7 @@ public class Tile
     private void TWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x, location.y + 7, tileSize, penWidth);
+        g.fillRect(location.x, location.y + 7, tileSize, penSize);
     }
 
     /**
@@ -310,8 +310,8 @@ public class Tile
     private void BWallDouble(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x - 1, location.y + 13, tileSize + 2, penWidth);
-        g.fillRect(location.x - 1, location.y + 7, tileSize + 2, penWidth);
+        g.fillRect(location.x - 1, location.y + 13, tileSize + 2, penSize);
+        g.fillRect(location.x - 1, location.y + 7, tileSize + 2, penSize);
     }
 
     /**
@@ -324,7 +324,7 @@ public class Tile
     private void BWallSingle(Graphics g, Point location, Color color)
     {
         g.setColor(color);
-        g.fillRect(location.x, location.y + 7, tileSize, penWidth);
+        g.fillRect(location.x, location.y + 7, tileSize, penSize);
     }
 
     /**

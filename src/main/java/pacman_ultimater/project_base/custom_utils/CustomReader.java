@@ -7,7 +7,7 @@ import java.io.*;
  */
 public class CustomReader
 {
-    private BufferedReader br;
+    private final BufferedReader br;
 
     public CustomReader(InputStream mapStream)
     {

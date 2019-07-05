@@ -4,7 +4,6 @@ import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
-import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
@@ -30,10 +29,10 @@ public class MenuController implements IKeyDownHandler
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private ArrayList<Character> symbols = new ArrayList<>();
-    private MainFrameModel model;
-    private GameModel vars;
+    private final MainFrameModel model;
+    private final GameModel vars;
     private GameplayController gp;
-    private KeyBindings kb;
+    private final KeyBindings kb;
     private Editor editor;
 
     //</editor-fold>
@@ -834,9 +833,9 @@ public class MenuController implements IKeyDownHandler
 
     private class labelListener extends MouseAdapter
     {
-        private JLabel label;
-        private mouseAdapterType mat;
-        private MainFrameModel model;
+        private final JLabel label;
+        private final mouseAdapterType mat;
+        private final MainFrameModel model;
 
         labelListener(JLabel label, mouseAdapterType mat, MainFrameModel model)
         {
@@ -943,7 +942,7 @@ public class MenuController implements IKeyDownHandler
 
     private class ErrorLblListener implements ComponentListener
     {
-        MainFrameModel model;
+        final MainFrameModel model;
 
         ErrorLblListener(MainFrameModel model)
         {

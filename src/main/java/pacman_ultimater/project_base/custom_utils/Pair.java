@@ -5,8 +5,8 @@ package pacman_ultimater.project_base.custom_utils;
  */
 public class Pair<T1, T2>
 {
-    public T1 item1;
-    public T2 item2;
+    public final T1 item1;
+    public final T2 item2;
 
     public Pair(T1 item1, T2 item2)
     {

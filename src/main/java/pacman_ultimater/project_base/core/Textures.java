@@ -21,40 +21,36 @@ public class Textures
      */
     public static Image drawEntity(JPanel mainPanel, float minMult, String name, String direction, int special)
     {
-        try {
-            int entitySize = (int) (28 * minMult);
-            Image entity = mainPanel.createImage(entitySize, entitySize);
-            Graphics g = entity.getGraphics();
-            ((Graphics2D) g).setStroke(new BasicStroke(2 * minMult));
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, entitySize, entitySize);
+        int entitySize = (int) (28 * minMult);
+        Image entity = mainPanel.createImage(entitySize, entitySize);
+        Graphics g = entity.getGraphics();
+        ((Graphics2D) g).setStroke(new BasicStroke(2 * minMult));
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, entitySize, entitySize);
 
-            // Draw Bodies
-            switch (name) {
-                case "Eyes":
-                    break;
-                case "Entity1":
-                    drawPacman(g, entitySize, direction, special);
-                    return entity;
-                case "PacExplode":
-                    drawPacExplode(g, entitySize);
-                    return entity;
-                case "CanBeEaten":
-                    drawGhostBody(g, name, entitySize, minMult, special);
-                    drawCanBeEatenFace(g, entitySize, special);
-                    return entity;
-                default:
-                    drawGhostBody(g, name, entitySize, minMult,0);
-                    break;
-            }
-
-            // Draw Eyes
-            drawEyes(g, entitySize, direction);
-
-            return entity;
-        } catch (NullPointerException e) {
-            return null;
+        // Draw Bodies
+        switch (name) {
+            case "Eyes":
+                break;
+            case "Entity1":
+                drawPacman(g, entitySize, direction, special);
+                return entity;
+            case "PacExplode":
+                drawPacExplode(g, entitySize);
+                return entity;
+            case "CanBeEaten":
+                drawGhostBody(g, name, entitySize, minMult, special);
+                drawCanBeEatenFace(g, entitySize, special);
+                return entity;
+            default:
+                drawGhostBody(g, name, entitySize, minMult,special);
+                break;
         }
+
+        // Draw Eyes
+        drawEyes(g, entitySize, direction);
+
+        return entity;
     }
 
     /**
@@ -174,7 +170,7 @@ public class Textures
      *
      * @param mainPanel JPanel
      * @param minMult int
-     * @param levels List<Integer> list of collected fruits, last 7 will be drawn
+     * @param levels List of collected fruits, last 7 will be drawn
      * @return Image
      */
     public static Image getFruits (JPanel mainPanel, float minMult, ArrayList<Integer> levels)
@@ -237,7 +233,7 @@ public class Textures
 
     private static void drawCanBeEatenFace(Graphics g, int entitySize, int blink)
     {
-        if (blink == 0) {
+        if (blink < 2) {
             g.setColor(Color.WHITE);
         } else {
             g.setColor(new Color(255,0,0));
@@ -277,7 +273,7 @@ public class Textures
                 g.setColor(new Color(81,255,255));
                 break;
             case "CanBeEaten":
-                if (blink == 0) {
+                if (blink < 2) {
                     g.setColor(new Color(29, 21, 255));
                 } else {
                     g.setColor(new Color(249, 242, 235));
@@ -285,31 +281,31 @@ public class Textures
                 break;
         }
 
-        int xDelta = (int)(2 * minMult); //former 4
-        g.fillOval(xDelta,(int)(minMult), entitySize - xDelta, entitySize);
-        g.fillRect(xDelta, entitySize/2, entitySize - xDelta, entitySize);
+        int delta = (int)(2 * minMult); //former 4
+        g.fillOval(delta,(int)(minMult), entitySize - delta, entitySize);
+        g.fillRect(delta, entitySize/2, entitySize - delta, entitySize);
         g.setColor(Color.BLACK);
-        if (blink == 0) {
+        if (blink == 0 || blink == 2) {
             g.fillRect(entitySize / 2 - entitySize / 16, entitySize - entitySize / 5, entitySize / 6, entitySize / 5);
             g.fillPolygon(new Polygon(
-                    new int[]{(int)(1.5*minMult), entitySize / 8 + xDelta, entitySize / 3 + (int)(2.5 * minMult)},
+                    new int[]{(int)(1.5*minMult), entitySize / 8 + delta, entitySize / 3 + (int)(2.5 * minMult)},
                     new int[]{entitySize, entitySize - entitySize / 4, entitySize},
                     3));
             g.fillPolygon(new Polygon(
-                    new int[]{entitySize - xDelta, entitySize - entitySize / 8 - xDelta, entitySize - entitySize / 3 - xDelta},
+                    new int[]{entitySize - delta, entitySize - entitySize / 8 - delta, entitySize - entitySize / 3 - delta},
                     new int[]{entitySize, entitySize - entitySize / 4, entitySize},
                     3));
         } else {
             g.fillPolygon(new Polygon(
-                    new int[]{xDelta, entitySize / 8 + 2*xDelta, entitySize / 3 + 3*xDelta},
+                    new int[]{delta, entitySize / 8 + 2*delta, entitySize / 3 + 3*delta},
                     new int[]{entitySize, entitySize - entitySize / 4 - (int)minMult, entitySize},
                     3));
             g.fillPolygon(new Polygon(
-                    new int[]{entitySize - xDelta, entitySize - entitySize / 8 - 2*xDelta, entitySize - entitySize / 3 - 3*xDelta},
+                    new int[]{entitySize - delta, entitySize - entitySize / 8 - 2*delta, entitySize - entitySize / 3 - 3*delta},
                     new int[]{entitySize, entitySize - entitySize / 4 - (int)(0.5 * minMult), entitySize},
                     3));
         }
-        g.fillRect(0, entitySize - xDelta, entitySize, xDelta);
+        g.fillRect(0, entitySize - delta, entitySize, delta);
     }
 
     /**

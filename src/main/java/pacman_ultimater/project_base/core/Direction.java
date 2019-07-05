@@ -11,7 +11,7 @@ public class Direction {
     /**
      * Enumerable representing possible directions.
      */
-    public enum directionType { LEFT, RIGHT, UP, DOWN, DIRECTION }
+    public enum directionType { LEFT, UP, RIGHT, DOWN, DIRECTION }
 
     /**
      * Function for converting from direction to delta tuple.

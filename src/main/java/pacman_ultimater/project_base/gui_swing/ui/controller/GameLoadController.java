@@ -7,7 +7,6 @@ import pacman_ultimater.project_base.custom_utils.TimersListeners;
 import pacman_ultimater.project_base.gui_swing.model.GameConsts;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 import pacman_ultimater.project_base.gui_swing.model.MainFrameModel;
-import pacman_ultimater.project_base.core.ClasspathFileReader;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -26,15 +25,16 @@ import static pacman_ultimater.project_base.gui_swing.model.GameConsts.*;
  */
 class GameLoadController
 {
-    private final int HEARTHSIZEINPX = 32;
+    private static final int HEARTHSIZEINPX = 32;
 
-    private MainFrameModel model;
-    private GameModel vars;
+    private final MainFrameModel model;
+    private final GameModel vars;
     private JLabel loading, levelLabel, ready, highScoreText;
-    private int[] animLabelsIds = new int[5];
+    private final int[] animLabelsIds = new int[5];
     private int newEntitySize = ENTITIESSIZEINPXS;
 
-    GameLoadController(MainFrameModel model, GameModel vars) throws LineUnavailableException
+    GameLoadController(MainFrameModel model, GameModel vars)
+            throws LineUnavailableException
     {
         this.model = model;
         this.vars = vars;
@@ -105,7 +105,7 @@ class GameLoadController
         int newTileSize = (int) (LoadMap.TILESIZEINPXS * Math.min(vars.vMult * 1.05, vars.hMult));
         Tile.tileSize = newTileSize;
         Tile.dotSize = newTileSize / 4;
-        Tile.penWidth = (int)(Tile.DEFPENWIDTH * Math.min(vars.vMult, vars.hMult));
+        Tile.penSize = (int)(Tile.DEFPENSIZE * Math.min(vars.vMult, vars.hMult));
 
         Image bufferImage = model.mainPanel.createImage(newWidth, newHeight);
         vars.bufferGraphics = bufferImage.getGraphics();
@@ -210,8 +210,8 @@ class GameLoadController
 
         for(int i = 0; i < GameConsts.ENTITYCOUNT; ++i) {
             vars.entities.get(i).item3.setLocation(
-                    new Point(vars.entities.get(i).item1 * newTileSize + 3 + newXPadding,
-                            (int)(vars.entities.get(i).item2 * newTileSize + (42 * minMult))));
+                    new Point(vars.entities.get(i).item1 * newTileSize + newXPadding - 10,
+                            vars.entities.get(i).item2 * newTileSize + (int)(40 * minMult)));
 
             if(i < 2)
                 vars.entities.get(i).item4 = Direction.directionType.LEFT;
@@ -267,13 +267,13 @@ class GameLoadController
         // All those magic numbers are X and Y axes correction for entities' pictures to be correctly placed.
         placePicture(vars.entities.get(0).item3,
             new ImageIcon(Textures.drawEntity(model.mainPanel, minMult, "Entity1", "DIRECTION", 0)),
-            new Point(vars.entities.get(0).item1 * newTileSize + 3 + newXPadding - 8,
+            new Point(vars.entities.get(0).item1 * newTileSize + newXPadding - 8,
                     vars.entities.get(0).item2 * newTileSize + (int)(42 * minMult)),
             new Dimension(newEntitySize, newEntitySize));
 
         placePicture(vars.entities.get(1).item3,
             new ImageIcon(Textures.drawEntity(model.mainPanel, minMult, "Entity2", "LEFT", 0)),
-            new Point(vars.entities.get(1).item1 * newTileSize + 3 + newXPadding - 8,
+            new Point(vars.entities.get(1).item1 * newTileSize + newXPadding - 8,
                     vars.entities.get(1).item2 * newTileSize + (int)(42 * minMult)),
             new Dimension(newEntitySize, newEntitySize));
 
@@ -289,8 +289,6 @@ class GameLoadController
 
     /**
      * Function that loads score labels and pacman lives.
-     *
-     * @throws IOException To be handled by caller.
      */
     private void loadHud()
     {
@@ -450,9 +448,9 @@ class GameLoadController
      */
     private void correctStartPositions()
     {
-        vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 9,
+        vars.entities.get(0).item3.setLocation(new Point(vars.entities.get(0).item3.getLocation().x - 6,
                 vars.entities.get(0).item3.getLocation().y));
-        vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 9,
+        vars.entities.get(1).item3.setLocation(new Point(vars.entities.get(1).item3.getLocation().x - 6,
                 vars.entities.get(1).item3.getLocation().y));
     }
 
@@ -479,7 +477,6 @@ class GameLoadController
     {
         final float minMult = Math.min(vars.vMult, vars.hMult);
         final int newTileSize = (int) (LoadMap.TILESIZEINPXS * Math.min(vars.vMult * 1.05, vars.hMult));
-        final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
 
         levelLabel.setSize((int)(300 * vars.hMult), (int)(60 * vars.hMult));
         loading.setSize((int)(400 * vars.hMult), (int)(60 * vars.vMult));
@@ -563,7 +560,7 @@ class GameLoadController
         vars.fruitLabel.setLocation(
                 (int)(newXPadding + (LoadMap.MAPWIDTHINTILES * newTileSize)/2 - (15 * minMult)),
                 (int)(((vars.topGhostInTiles.item2 + 6) * newTileSize) + 40 + ((34 * vars.vMult) - 30)));
-        if (vars.fruitLife > 0 && vars.fruitLife < GameplayController.FRUITLIFE){
+        if (vars.fruitLife > 0 && vars.fruitLife < GameConsts.FRUITLIFE){
             vars.fruitLabel.setIcon(new ImageIcon(
                     Textures.drawFruit(model.mainPanel, minMult, vars.level + 1)
             ));
@@ -580,8 +577,8 @@ class GameLoadController
             for (int j = 0; j <= vars.freeGhosts; j++) {
                 entity = vars.entities.get(j);
                 entity.item3.setSize(newEntitySize, newEntitySize);
-                entity.item3.setLocation(entity.item1 * newTileSize - 6 + newXPadding - 8,
-                        entity.item2 * newTileSize + (int)(42 * Math.min(vars.vMult * 1.05, vars.hMult)));
+                entity.item3.setLocation(entity.item1 * newTileSize + newXPadding,
+                        entity.item2 * newTileSize + (int)(40 * Math.min(vars.vMult * 1.05, vars.hMult)));
                 entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
                         model.mainPanel, minMult, entity.item3.getName(), entity.item4.name(), 0
                 )));
@@ -590,15 +587,13 @@ class GameLoadController
             for (int j = vars.freeGhosts + 1; j < ENTITYCOUNT; j++) {
                 entity = vars.entities.get(j);
                 entity.item3.setSize(newEntitySize, newEntitySize);
-                entity.item3.setLocation(entity.item1 * newTileSize + 3 + newXPadding - 8,
+                entity.item3.setLocation(entity.item1 * newTileSize + newXPadding,
                         (int) (entity.item2 * newTileSize + (42 * Math.min(vars.vMult * 1.05, vars.hMult))));
                 entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
                         model.mainPanel, minMult, entity.item3.getName(), entity.item4.name(), 0
                 )));
             }
         }
-
-        vars.gameMap.setLocation(newXPadding, vars.gameMap.getY());
     }
 
     /**
@@ -795,7 +790,7 @@ class GameLoadController
 
     class PlayGameTask extends GameLoadSwingWorker
     {
-        TimersListeners timers;
+        final TimersListeners timers;
 
         PlayGameTask(TimersListeners timers)
         {
@@ -891,7 +886,7 @@ class GameLoadController
 
     abstract class GameLoadSwingWorker extends SwingWorker<Void, playGamePhase>
     {
-        boolean withAnimation;
+        final boolean withAnimation;
 
         GameLoadSwingWorker(boolean withAnimation){
             this.withAnimation = withAnimation;
@@ -932,11 +927,11 @@ class GameLoadController
      */
     class AnimationFrame
     {
-        boolean initialisation;
-        boolean finished;
-        ImageIcon pacmanImage;
-        JLabel[] entities;
-        Point[] locations;
+        final boolean initialisation;
+        final boolean finished;
+        final ImageIcon pacmanImage;
+        final JLabel[] entities;
+        final Point[] locations;
 
         AnimationFrame(boolean initialisation, boolean finished, ImageIcon pacmanImage, JLabel[] entities, Point[] locations)
         {

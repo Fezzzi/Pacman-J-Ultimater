@@ -16,6 +16,7 @@ public class ClasspathFileReader
     private static final String PACMAN_DEATH = "sounds/pacman_death.wav";
     private static final String PACMAN_EATENSIREN = "sounds/pacman_eatensiren.wav";
     private static final String PACMAN_EATGHOST = "sounds/pacman_eatghost.wav";
+    private static final String PACMAN_EATFRUIT = "sounds/pacman_eatfruit.wav";
     private static final String PACMAN_EXTRAPAC = "sounds/pacman_extrapac.wav";
     private static final String PACMAN_POWERSIREN = "sounds/pacman_powersiren.wav";
     private static final String PACMAN_SIREN = "sounds/pacman_siren.wav";
@@ -74,6 +75,9 @@ public class ClasspathFileReader
     }
     public static InputStream getPACMAN_EATGHOST() {
         return new BufferedInputStream(readFileFromClasspath(PACMAN_EATGHOST));
+    }
+    public static InputStream getPACMAN_EATFRUIT() {
+        return new BufferedInputStream(readFileFromClasspath(PACMAN_EATFRUIT));
     }
     public static InputStream getPACMAN_EXTRAPAC() {
         return new BufferedInputStream(readFileFromClasspath(PACMAN_EXTRAPAC));

@@ -24,7 +24,7 @@ public class LoadMap {
     public static final Color TRANSPARENT = new Color(255,255,255,0);
 
     private Tile[][] tileMap;
-    public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
+    public final Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
 
     /**
      * Calls loading function with default symbols.

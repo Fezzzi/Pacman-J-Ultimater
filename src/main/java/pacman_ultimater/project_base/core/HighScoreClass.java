@@ -8,8 +8,8 @@ import java.util.Random;
  */
 public class HighScoreClass
 {
-    private static int ImportantLine = 10;
-    private static int LinesInFile = 15;
+    private static final int IPORTANTLINE = 10;
+    private static final int LINESINFILE = 15;
 
     /**
      * Function for HighScore loading.
@@ -25,7 +25,7 @@ public class HighScoreClass
 
         String scoreLine = "";
         BufferedReader br = new BufferedReader(new InputStreamReader(ClasspathFileReader.getCONFIG()));
-        for (int i = 0; i <= ImportantLine; i++)
+        for (int i = 0; i <= IPORTANTLINE; i++)
         {
             scoreLine = br.readLine();
             if (scoreLine == null) {
@@ -75,9 +75,9 @@ public class HighScoreClass
         BufferedWriter bw = new BufferedWriter(new FileWriter(user_config));
         Random rndm = new Random();
         String binaryScore = Integer.toBinaryString(newHighScore);
-        for (int i = 0; i < LinesInFile; i++)
+        for (int i = 0; i < LINESINFILE; i++)
         {
-            if (i == ImportantLine)
+            if (i == IPORTANTLINE)
                 bw.write(binaryScore);
             else
                 bw.write(Integer.toBinaryString(rndm.nextInt(64) + newHighScore - 32));

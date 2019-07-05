@@ -21,16 +21,16 @@ public class Editor
 {
     //<editor-fold desc="- VARIABLES Block -">
 
-    private enum simpleTiles {WALL, PELLET, POWERPELLET, GATE, FREE};
-    private enum toolsEnum {WALL, PELLET, POWER, GATE, COLOR, EDIT, PREVIEW, SAVE, HELP};
-    private GameModel vars;
+    private enum simpleTiles {WALL, PELLET, POWERPELLET, GATE, FREE}
+    private enum toolsEnum {WALL, PELLET, POWER, GATE, COLOR, EDIT, PREVIEW, SAVE, HELP}
+    private final GameModel vars;
 
     private Integer tileSize, pelletSize, powerSize, paddingSize;
     private Graphics g;
     private Color newColor;
-    private simpleTiles[][] newTiles;
+    private final simpleTiles[][] newTiles;
     private JLabel editor;
-    private JLabel[] tools = {
+    private final JLabel[] tools = {
         new JLabel("Wall"),
         new JLabel("Pellet"),
         new JLabel("Power"),
@@ -41,7 +41,7 @@ public class Editor
         new JLabel("Save"),
         new JLabel("Help"),
     };
-    private JPanel mainPanel;
+    private final JPanel mainPanel;
     private IntPair currentTile;
     private simpleTiles currentTool = simpleTiles.WALL;
     private boolean edit;
@@ -111,12 +111,6 @@ public class Editor
             y += 35 * vars.vMult;
             toolId++;
         }
-        tools[0].setIcon(new ImageIcon(Textures.drawEntity(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), "Entity2", "LEFT", 0)));
-        tools[1].setIcon(new ImageIcon(Textures.drawEntity(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), "Entity2", "DOWN", 0)));
-        tools[2].setIcon(new ImageIcon(Textures.drawEntity(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), "Entity2", "UP", 0)));
-        tools[3].setIcon(new ImageIcon(Textures.drawEntity(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), "Entity2", "RIGHT", 0)));
-        tools[4].setIcon(new ImageIcon(Textures.drawEntity(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), "CanBeEaten", "", 0)));
-        tools[5].setIcon(new ImageIcon(Textures.drawEntity(mainPanel, Math.min(vars.vMult * 1.2f, vars.hMult), "CanBeEaten", "", 1)));
     }
 
     /**
@@ -190,7 +184,9 @@ public class Editor
     }
 
     /**
-     * Closes map editor.
+     * Closes map editor. Returns boolean indicating whether user confirmed exit.
+     *
+     * @return boolean
      */
     public boolean close()
     {
@@ -519,7 +515,7 @@ public class Editor
             JLabel preview = new JLabel();
             preview.setSize(size.item1, size.item2);
             Image bufferImage = mainPanel.createImage(size.item1, size.item2);
-            Graphics pg = bufferImage.getGraphics();;
+            Graphics pg = bufferImage.getGraphics();
             pg.setColor(Color.BLACK);
             pg.fillRect(0,0, size.item1, size.item2);
 
@@ -664,8 +660,8 @@ public class Editor
      */
     private class toolListener extends MouseAdapter
     {
-        private toolsEnum tool;
-        private JLabel toolLbl;
+        private final toolsEnum tool;
+        private final JLabel toolLbl;
 
         toolListener(toolsEnum tool, JLabel toolLbl)
         {

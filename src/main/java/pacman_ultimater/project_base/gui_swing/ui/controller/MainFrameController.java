@@ -21,11 +21,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class MainFrameController {
 
-    private MainFrameModel model;
-    private MainFrame mainFrame;
+    private final MainFrameModel model;
+    private final MainFrame mainFrame;
     private MenuController mc;
-    private GameModel vars;
-    private resizeWorker resizer;
+    private final GameModel vars;
+    private final resizeWorker resizer;
 
     public MainFrameController(MainFrameModel model, MainFrame mainFrame)
     {
