@@ -233,7 +233,7 @@ class GameLoadController
         //  - Two numbers - x and y position on the map in Tiles.
         //  - Picture box containing entity's image and its physical location.
         //  - Direction used later for entity's movement and selecting the right image.
-        //  - Type of entity such as Player1, Player2, or all the other kinds of enemy's AI.
+        //  - Type of entity such as NoAI, or all the other kinds of enemy's AI.
         vars.defaultAIs = new DefaultAI[]
         {
             new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
@@ -249,14 +249,16 @@ class GameLoadController
 
         vars.entities = new ArrayList<>();
         vars.entities.add(new Quintet<>(LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY,
-                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.PLAYER1)));
+                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.NOAI)));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2,
-                new JLabel(), Direction.directionType.LEFT, vars.player2 ? new DefaultAI(DefaultAI.nType.PLAYER2)
+                new JLabel(), Direction.directionType.LEFT, vars.player2 ? new DefaultAI(DefaultAI.nType.NOAI)
                                                                         : vars.defaultAIs[0]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3,
-                new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[1]));
+                new JLabel(),Direction.directionType.DIRECTION, vars.player3 ? new DefaultAI(DefaultAI.nType.NOAI)
+                                                                        : vars.defaultAIs[1]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3,
-                new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[2]));
+                new JLabel(),Direction.directionType.DIRECTION, vars.player4 ? new DefaultAI(DefaultAI.nType.NOAI)
+                                                                        : vars.defaultAIs[2]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3,
                 new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[3]));
 
@@ -311,7 +313,7 @@ class GameLoadController
         vars.scoreBox.setVisible(true);
 
         //Selects labels depending on game mode
-        if (!vars.player2)
+        if (!(vars.player2 || vars.player3 || vars.player4))
         {
             vars.highScoreBox.setSize(hudLabelWidth, hudLabelHeight);
             placeLabel(vars.highScoreBox, vars.highScore > 0 ? Integer.toString(vars.highScore) : "00", Color.white,
@@ -371,16 +373,19 @@ class GameLoadController
     {
         model.pacUpdater = new Timer(PACTIMER, timers.getPacman_timer());
         model.pacUpdater.setRepeats(true);
+
         model.ghostUpdater = new Timer(
-                !vars.player2 ? (PACTIMER + 40 - (vars.level > 13 ? 65
-                        : vars.level * 5))
-                        : model.pacUpdater.getDelay() + 10,
+                !(vars.player2 || vars.player3 || vars.player4)
+                        ? (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5))
+                        : model.pacUpdater.getDelay() + (vars.player2 ? 10 : vars.player3 ? 20 : 30),
                 timers.getGhost_timer());
         model.ghostUpdater.setRepeats(true);
+
         model.pacSmoothTimer = new Timer(
                 model.pacUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
                 timers.getPacman_smooth_timer());
         model.pacSmoothTimer.setRepeats(true);
+
         model.ghostSmoothTimer = new Timer(
                 model.ghostUpdater.getDelay() / ((LoadMap.TILESIZEINPXS / 2) + 1),
                 timers.getGhost_smooth_timer());
@@ -412,34 +417,33 @@ class GameLoadController
 
         if (vars.highScore == -1)
             vars.highScore = HighScoreClass.loadHighScore();
-
-        // Yet empty fields of the array would redraw over top right corner of the map.
-        // This way it draws empty tile on pacman's initial position tile which is empty by definition.
-        for (int i = 0; i < LoadMap.RDPSIZE; i++)
-            vars.redrawPellets[i] = new Point(LoadMap.PACMANINITIALY, LoadMap.PACMANINITIALX);
     }
 
     /**
      * Procedure serving for variables resetting at the map load up.
      *
-     * @param nextLevel Reset Variables for new level load-up?
+     * @param nextLevel boolean
      */
     private void varsReset(boolean nextLevel){
         vars.soundTick = 0;
-        vars.keyPressed1 = false;
-        vars.keyPressed2 = false;
+        vars.keyPressed1 = vars.keyPressed2 = vars.keyPressed3 = vars.keyPressed4 = false;
         vars.ghostsEaten = 0;
-        vars.keyCountdown1 = 0;
-        vars.keyCountdown2 = 0;
+        vars.keyCountdown1 = vars.keyCountdown2 = vars.keyCountdown3 = vars.keyCountdown4 = 0;
         vars.killed = false;
         vars.ticks = 0;
         vars.freeGhosts = 1;
         vars.eatEmTimer = 0;
-        vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
+        vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 5)
+                : vars.player3 ? (GameConsts.BASEGHOSTRELEASETIMER / 7)
+                : vars.player4 ? (GameConsts.BASEGHOSTRELEASETIMER / 10)
+                : (GameConsts.BASEGHOSTRELEASETIMER - vars.level) / 3;
 
-        if(nextLevel){
+        if (nextLevel){
             vars.collectedDots = 0;
-            vars.ghostRelease = vars.player2 ? 130 / 3 : (260 - vars.level) / 3;
+            vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 5)
+                    : vars.player3 ? (GameConsts.BASEGHOSTRELEASETIMER / 7)
+                    : vars.player4 ? (GameConsts.BASEGHOSTRELEASETIMER / 10)
+                    : (GameConsts.BASEGHOSTRELEASETIMER - vars.level) / 3;
         }
     }
 
@@ -674,8 +678,9 @@ class GameLoadController
                                 vars.fruitLife = 0;
                                 vars.fruitLabel.setVisible(false);
                                 vars.mapFresh = deepCopy(vars.map.item1);
-                                model.ghostUpdater.setDelay(vars.player2 ?
-                                        (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) : model.pacUpdater.getDelay() + 10);
+                                model.ghostUpdater.setDelay(!(vars.player2 || vars.player3 || vars.player4) ?
+                                        (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5))
+                                        : model.pacUpdater.getDelay() + (vars.player2 ? 10 : vars.player3 ? 20 : 30));
                                 model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((newTileSize / 2) + 1));
 
                                 renderMap(vars.mapFresh, vars.map.item4);
@@ -701,7 +706,7 @@ class GameLoadController
                                 break;
                             case INTERRUPTEDEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                                    HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
@@ -712,7 +717,7 @@ class GameLoadController
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                        HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                     } catch (IOException ignore) {
                         MainFrameController.fatalErrorMessage("score was not saved!");
                     }
@@ -746,9 +751,9 @@ class GameLoadController
                                 for (int i = MAXLIVES - 1; i > vars.lives - 2 && i >= 0; i--)
                                     vars.pacLives[i].setVisible(false);
 
-                                if (vars.player2)
-                                   vars.score2Box.setText(Integer.toString(vars.score2));
-
+                                if (vars.player2 || vars.player3 || vars.player4) {
+                                    vars.score2Box.setText(Integer.toString(vars.score2));
+                                }
                                 resetEntities();
                                 ready.setVisible(true);
                                 renderMap(vars.mapFresh, vars.map.item4);
@@ -769,7 +774,7 @@ class GameLoadController
                                 break;
                             case INTERRUPTEDEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                                    HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
@@ -780,8 +785,10 @@ class GameLoadController
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
-                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                        HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
+                    } catch (IOException ignore) {
+                        MainFrameController.fatalErrorMessage("score was not saved!");
+                    }
                 }
                 MainFrameController.handleExceptions(exception.toString(), model);
             }
@@ -859,13 +866,13 @@ class GameLoadController
                                 break;
                             case EXECUTIONEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                                    HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.util.concurrent.ExecutionException", model);
                                 break;
                             case INTERRUPTEDEXCEPTION:
                                 if (vars.score > vars.highScore) {
-                                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                                    HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                                 }
                                 MainFrameController.handleExceptions("java.lang.InterruptedException", model);
                                 break;
@@ -876,8 +883,10 @@ class GameLoadController
             catch (LineUnavailableException | IOException | UnsupportedAudioFileException exception) {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
-                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                        HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
+                    } catch (IOException ignore) {
+                        MainFrameController.fatalErrorMessage("score was not saved!");
+                    }
                 }
                 MainFrameController.handleExceptions(exception.toString(), model);
             }

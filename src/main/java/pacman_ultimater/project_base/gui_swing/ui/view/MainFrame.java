@@ -2,6 +2,9 @@ package pacman_ultimater.project_base.gui_swing.ui.view;
 
 import pacman_ultimater.project_base.core.ClasspathFileReader;
 import pacman_ultimater.project_base.core.LoadMap;
+import pacman_ultimater.project_base.core.Textures;
+import pacman_ultimater.project_base.core.Tile;
+import pacman_ultimater.project_base.custom_utils.Pair;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -39,10 +42,8 @@ public class MainFrame extends JFrame{
     private JLabel scoreLabelLbl;
     private JLabel highScoreNumLbl;
     private JLabel scoreNumLbl;
-    private JLabel musicButtonLbl;
-    private JLabel soundsButtonLbl;
-    private JLabel musicBtnSelectorLbl;
-    private JLabel soundsBtnSelectorLbl;
+    private JLabel musicButtonLbl, musicBtnSelectorLbl;
+    private JLabel soundsButtonLbl, soundsBtnSelectorLbl;
     private JLabel gameOverLabelLbl;
     private JLabel errorLdMapLbl;
     private JLabel errorInfoLbl;
@@ -52,11 +53,16 @@ public class MainFrame extends JFrame{
     private JLabel typedSymbolsLbl;
     private JLabel typeHintLbl;
     private JLabel editorLbl;
-    private JLabel howToLbl;
-    private JLabel editExistingButLbl;
-    private JLabel editBtnSelectorLbl;
-    private JLabel createNewButLbl;
-    private JLabel createBtnSelectorLbl;
+    private JLabel aboutLbl;
+    private JLabel editExistingButLbl, editBtnSelectorLbl;
+    private JLabel createNewButLbl, createBtnSelectorLbl;
+    private JLabel P2ButLbl, P2ButSelectorLbl;
+    private JLabel P3ButLbl, P3ButSelectorLbl;
+    private JLabel P4ButLbl, P4ButSelectorLbl;
+    private JLabel aboutHeadlineLbl;
+    private JLabel[] aboutCharacterLbls;
+    private JLabel[] aboutPelletLbls;
+    private JLabel aboutCopyLbl;
 
     //</editor-fold>
 
@@ -221,14 +227,14 @@ public class MainFrame extends JFrame{
         //
         // How To
         //
-        howToLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
-        howToLbl.setForeground(Color.white);
-        howToLbl.setBounds(menuLabelsX,349,300,45);
-        howToLbl.setName("HowTo");
-        howToLbl.setText("How To");
-        howToLbl.setVisible(false);
-        howToLbl.setFocusable(false);
-        howToLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        aboutLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 32));
+        aboutLbl.setForeground(Color.white);
+        aboutLbl.setBounds(menuLabelsX,349,300,45);
+        aboutLbl.setName("About");
+        aboutLbl.setText("About");
+        aboutLbl.setVisible(false);
+        aboutLbl.setFocusable(false);
+        aboutLbl.setHorizontalAlignment(SwingConstants.CENTER);
         //
         // HighScr
         //
@@ -448,6 +454,134 @@ public class MainFrame extends JFrame{
         createBtnSelectorLbl.setVisible(false);
         createBtnSelectorLbl.setFocusable(false);
         //
+        // P2ButLbl
+        //
+        P2ButLbl.setBackground(Color.black);
+        P2ButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
+        P2ButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
+        P2ButLbl.setForeground(Color.white);
+        P2ButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 52,120,104,44);
+        P2ButLbl.setName("p2But");
+        P2ButLbl.setText("1 v 1");
+        P2ButLbl.setVisible(false);
+        P2ButLbl.setFocusable(false);
+        P2ButLbl.setOpaque(true);
+        P2ButLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        //
+        // P2ButSelectorLbl
+        //
+        P2ButSelectorLbl.setBackground(Color.yellow);
+        P2ButSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 66,120,24,44);
+        P2ButSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
+        P2ButSelectorLbl.setName("p2BtnSelector");
+        P2ButSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
+        P2ButSelectorLbl.setVisible(false);
+        P2ButSelectorLbl.setFocusable(false);
+        //
+        // P3ButLbl
+        //
+        P3ButLbl.setBackground(Color.black);
+        P3ButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
+        P3ButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
+        P3ButLbl.setForeground(Color.white);
+        P3ButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 52,233,104,44);
+        P3ButLbl.setName("p3But");
+        P3ButLbl.setText("1 v 2");
+        P3ButLbl.setVisible(false);
+        P3ButLbl.setFocusable(false);
+        P3ButLbl.setOpaque(true);
+        P3ButLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        //
+        // P3ButSelectorLbl
+        //
+        P3ButSelectorLbl.setBackground(Color.yellow);
+        P3ButSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 66,233,24,44);
+        P3ButSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
+        P3ButSelectorLbl.setName("p3BtnSelector");
+        P3ButSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
+        P3ButSelectorLbl.setVisible(false);
+        P3ButSelectorLbl.setFocusable(false);
+        //
+        // P4ButLbl
+        //
+        P4ButLbl.setBackground(Color.black);
+        P4ButLbl.setBorder(BorderFactory.createLineBorder(Color.white));
+        P4ButLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 34));
+        P4ButLbl.setForeground(Color.white);
+        P4ButLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 52,346,104,44);
+        P4ButLbl.setName("p4But");
+        P4ButLbl.setText("1 v 3");
+        P4ButLbl.setVisible(false);
+        P4ButLbl.setFocusable(false);
+        P4ButLbl.setOpaque(true);
+        P4ButLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        //
+        // P4ButSelectorLbl
+        //
+        P4ButSelectorLbl.setBackground(Color.yellow);
+        P4ButSelectorLbl.setBounds(LoadMap.DEFAULTWIDTH/2 - 66,346,24,44);
+        P4ButSelectorLbl.setFont(new Font("Microsoft Sans Serif", Font.BOLD, 39));
+        P4ButSelectorLbl.setName("p4BtnSelector");
+        P4ButSelectorLbl.setText("<html><div style='background-color: yellow; width: 8px;'>&nbsp;</div><html>");
+        P4ButSelectorLbl.setVisible(false);
+        P4ButSelectorLbl.setFocusable(false);
+        //
+        // AboutHeadlineLbl
+        //
+        aboutHeadlineLbl.setBackground(Color.BLACK);
+        aboutHeadlineLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 28));
+        aboutHeadlineLbl.setForeground(Color.white);
+        aboutHeadlineLbl.setSize(350,50);
+        aboutHeadlineLbl.setText("CHARACTER / NICKNAME");
+        aboutHeadlineLbl.setName("aboutHeadline");
+        aboutHeadlineLbl.setLocation((LoadMap.DEFAULTWIDTH - 350) / 2, 50);
+        aboutHeadlineLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        aboutHeadlineLbl.setVisible(false);
+        //
+        // AboutCharacterLbls
+        //
+        for (int i = 0; i < 4; ++i){
+            aboutCharacterLbls[i].setBackground(Color.BLACK);
+            aboutCharacterLbls[i].setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 28));
+            aboutCharacterLbls[i].setForeground(i == 0 ? new Color(255,0,0)
+                                            : i == 1 ? new Color(255, 170, 227)
+                                            : i == 2 ? new Color(81,255,255) : new Color(255, 180, 95));
+            aboutCharacterLbls[i].setText(i == 0 ? "  - SHADOW    \"BLINKY\""
+                    : i == 1 ? "  - SPEEDY      \"PINKY\""
+                    : i == 2 ? "  - BASHFUL    \"INKY\"" : "  - POKEY        \"CLYDE\"");
+            aboutCharacterLbls[i].setName("aboutCharater" + Integer.toString(i + 2));
+            aboutCharacterLbls[i].setSize(350, 50);
+            aboutCharacterLbls[i].setLocation((LoadMap.DEFAULTWIDTH - 350) / 2, 120 + 55 * i);
+            aboutCharacterLbls[i].setHorizontalAlignment(SwingConstants.LEFT);
+            aboutCharacterLbls[i].setVisible(false);
+        }
+        //
+        // AboutPelletLbls
+        //
+        for (int i = 0; i < 2; ++i){
+            aboutPelletLbls[i].setBackground(Color.BLACK);
+            aboutPelletLbls[i].setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 20));
+            aboutPelletLbls[i].setForeground(Color.white);
+            aboutPelletLbls[i].setText(i == 0 ? "  10 PTS" : "  50 PTS");
+            aboutPelletLbls[i].setName("aboutPeller"+ Integer.toString(i + 2));
+            aboutPelletLbls[i].setSize(100, 50);
+            aboutPelletLbls[i].setLocation((LoadMap.DEFAULTWIDTH - 100) / 2, 340 + 30*i);
+            aboutPelletLbls[i].setHorizontalAlignment(SwingConstants.CENTER);
+            aboutPelletLbls[i].setVisible(false);
+        }
+        //
+        // AboutCopyLbl
+        //
+        aboutCopyLbl.setBackground(Color.BLACK);
+        aboutCopyLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 28));
+        aboutCopyLbl.setForeground(new Color(217, 200, 217));
+        aboutCopyLbl.setText("2019 FILIP HORKY");
+        aboutCopyLbl.setName("aboutCopy");
+        aboutCopyLbl.setSize(300, 50);
+        aboutCopyLbl.setLocation(menuLabelsX, 420);
+        aboutCopyLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        aboutCopyLbl.setVisible(false);
+        //
         // TypeSymbols
         //
         typeSymbolsLbl.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 34));
@@ -488,10 +622,7 @@ public class MainFrame extends JFrame{
         openFileDialog1 = new JFileChooser();
 
         // Timers will be set up properly lately
-        pacUpdater = null;
-        pacSmoothTimer = null;
-        ghostUpdater = null;
-        ghostSmoothTimer = null;
+        pacUpdater = pacSmoothTimer = ghostUpdater = ghostSmoothTimer = null;
 
         pacmanLbl = new JLabel();
         ultimateLbl = new JLabel();
@@ -520,11 +651,21 @@ public class MainFrame extends JFrame{
         typedSymbolsLbl = new JLabel();
         typeHintLbl = new JLabel();
         editorLbl = new JLabel();
-        howToLbl = new JLabel();
+        aboutLbl = new JLabel();
         editExistingButLbl = new JLabel();
         editBtnSelectorLbl = new JLabel();
         createNewButLbl = new JLabel();
         createBtnSelectorLbl = new JLabel();
+        P2ButLbl = new JLabel();
+        P2ButSelectorLbl = new JLabel();
+        P3ButLbl = new JLabel();
+        P3ButSelectorLbl = new JLabel();
+        P4ButLbl = new JLabel();
+        P4ButSelectorLbl = new JLabel();
+        aboutHeadlineLbl = new JLabel();
+        aboutCharacterLbls = new JLabel[]{new JLabel(), new JLabel(), new JLabel(), new JLabel()};
+        aboutPelletLbls = new JLabel[]{new JLabel(), new JLabel()};
+        aboutCopyLbl = new JLabel();
     }
 
     private void addComponents()
@@ -556,12 +697,26 @@ public class MainFrame extends JFrame{
         mainPanel.add(pacmanLbl);
         mainPanel.add(errorInfoLbl);
         mainPanel.add(editorLbl);
-        mainPanel.add(howToLbl);
+        mainPanel.add(aboutLbl);
         mainPanel.add(openFileDialog1);
         mainPanel.add(editExistingButLbl);
         mainPanel.add(editBtnSelectorLbl);
         mainPanel.add(createNewButLbl);
         mainPanel.add(createBtnSelectorLbl);
+        mainPanel.add(P2ButLbl);
+        mainPanel.add(P2ButSelectorLbl);
+        mainPanel.add(P3ButLbl);
+        mainPanel.add(P3ButSelectorLbl);
+        mainPanel.add(P4ButLbl);
+        mainPanel.add(P4ButSelectorLbl);
+        mainPanel.add(aboutHeadlineLbl);
+        mainPanel.add(aboutCharacterLbls[0]);
+        mainPanel.add(aboutCharacterLbls[1]);
+        mainPanel.add(aboutCharacterLbls[2]);
+        mainPanel.add(aboutCharacterLbls[3]);
+        mainPanel.add(aboutPelletLbls[0]);
+        mainPanel.add(aboutPelletLbls[1]);
+        mainPanel.add(aboutCopyLbl);
     }
 
     //</editor-fold>>
@@ -653,9 +808,9 @@ public class MainFrame extends JFrame{
     {
         return editorLbl;
     }
-    public JLabel getHowToLbl ()
+    public JLabel getAboutLbl ()
     {
-        return howToLbl;
+        return aboutLbl;
     }
     public JLabel getEditExistingButLbl ()
     {
@@ -672,6 +827,46 @@ public class MainFrame extends JFrame{
     public JLabel getCreateBtnSelectorLbl ()
     {
         return createBtnSelectorLbl;
+    }
+    public JLabel getP2ButLbl()
+    {
+        return P2ButLbl;
+    }
+    public JLabel getP2ButSelectorLbl()
+    {
+        return P2ButSelectorLbl;
+    }
+    public JLabel getP3ButLbl()
+    {
+        return P3ButLbl;
+    }
+    public JLabel getP3ButSelectorLbl()
+    {
+        return P3ButSelectorLbl;
+    }
+    public JLabel getP4ButLbl()
+    {
+        return P4ButLbl;
+    }
+    public JLabel getP4ButSelectorLbl()
+    {
+        return P4ButSelectorLbl;
+    }
+    public JLabel getAboutHeadlineLbl()
+    {
+        return aboutHeadlineLbl;
+    }
+    public JLabel[] getAboutCharacterLbls()
+    {
+        return aboutCharacterLbls;
+    }
+    public JLabel[] getAboutPelletLbls()
+    {
+        return aboutPelletLbls;
+    }
+    public JLabel getAboutCopyLbl()
+    {
+        return aboutCopyLbl;
     }
 
     public Timer getPacUpdater() {
