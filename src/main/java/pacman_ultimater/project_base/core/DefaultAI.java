@@ -21,7 +21,7 @@ public class DefaultAI
     public nType state;
 
     /**
-     * @param state Entity's state such as Player1, Player2, Hostile....
+     * @param state Entity's state such as NoAI, Hostile....
      */
     public DefaultAI(nType state)
     {
@@ -35,11 +35,7 @@ public class DefaultAI
         /**
          * No AI, movement is computed via keyboard input.
          */
-        PLAYER1,
-        /**
-         * No AI, movement is computed via keyboard input.
-         */
-        PLAYER2,
+        NOAI,
         /**
          * AI that should actively attempt to get to pacman.
          */

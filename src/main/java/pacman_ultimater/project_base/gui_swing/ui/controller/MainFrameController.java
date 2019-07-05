@@ -51,7 +51,7 @@ public class MainFrameController {
                 newHeight, newWidth;
 
             // Fonts sizing
-            if (name.equals("pacman") || name.equals("jultimater")) {
+            if (name != null && name.equals("pacman") || name.equals("jultimater")) {
                 label.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, defFontSize * Math.min(vMult, hMult)));
             } else {
                 label.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, (int)(defFontSize * Math.min(vMult, hMult))));
@@ -75,6 +75,9 @@ public class MainFrameController {
                 case "MusicButton":
                 case "EditExistingBut":
                 case "CreateNewBut":
+                case "p2But":
+                case "p3But":
+                case "p4But":
                     newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - newWidth/2);
                     break;
                 case "SoundsBtnSelector":
@@ -84,6 +87,9 @@ public class MainFrameController {
                     newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (156 * Math.min(vMult, hMult)) / 2) - 8;
                     break;
                 case "editBtnSelector":
+                case "p2BtnSelector":
+                case "p3BtnSelector":
+                case "p4BtnSelector":
                     newX = (int)(((LoadMap.DEFAULTWIDTH * hMult) / 2) - (120 * Math.min(vMult, hMult)) / 2) - 8;
                     break;
                 case "createBtnSelector":
@@ -186,7 +192,7 @@ public class MainFrameController {
             catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException exception){
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                        HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                     } catch (IOException ignore) {
                         fatalErrorMessage("score was not saved!");
                     }
@@ -217,7 +223,7 @@ public class MainFrameController {
 
             if (vars.score > vars.highScore) {
                 try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                    HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
                 } catch (IOException ignore) {
                     fatalErrorMessage("score was not saved!");
                 }

@@ -71,6 +71,16 @@ public class KeyBindings {
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_7, 0), "7_key");
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_8, 0), "8_key");
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_9, 0), "9_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD0, 0), "0_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), "1_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), "2_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), "3_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), "4_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), "5_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), "6_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), "7_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), "8_key");
+        iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), "9_key");
 
         // SPECIAL SYMBOLS ---------------------------------------------------------------------------------
         iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "+_key");

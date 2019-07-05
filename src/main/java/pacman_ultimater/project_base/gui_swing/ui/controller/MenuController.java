@@ -25,7 +25,7 @@ public class MenuController implements IKeyDownHandler
     //<editor-fold desc="- VARIABLES Block -">
 
     private ArrayList<JLabel> activeElements = new ArrayList<>();
-    private int menuComponentsCount;
+    private int menuComponentsCount, multiplayerOption;
     private Pair<MenuController.mn, JLabel> menuSelected;
     private MenuController.mn menuLayer;
     private ArrayList<Character> symbols = new ArrayList<>();
@@ -43,6 +43,7 @@ public class MenuController implements IKeyDownHandler
     {
         this.model = model;
         this.vars = vars;
+        multiplayerOption = 0;
         menuLayer = MenuController.mn.start;
         menuSelected = new Pair<>(MenuController.mn.game, model.orgGameLbl);
 
@@ -58,7 +59,7 @@ public class MenuController implements IKeyDownHandler
     {
         JLabel[] labels = {
             model.multiplayerLbl, model.orgGameLbl, model.selectMapLbl, model.settingsLbl, model.highScrLbl,
-            model.editorLbl, model.howToLbl
+            model.editorLbl, model.aboutLbl
         };
         for(JLabel label : labels)
             label.addMouseListener(new labelListener(label, mouseAdapterType.highlight_menu, model));
@@ -70,6 +71,9 @@ public class MenuController implements IKeyDownHandler
         model.soundsButtonLbl.addMouseListener(new labelListener(model.soundsButtonLbl, mouseAdapterType.highlight_settings, model));
         model.editExistingButLbl.addMouseListener(new labelListener(model.editExistingButLbl, mouseAdapterType.highlight_editor, model));
         model.createNewButLbl.addMouseListener(new labelListener(model.createNewButLbl, mouseAdapterType.highlight_editor, model));
+        model.P2ButLbl.addMouseListener(new labelListener(model.P2ButLbl, mouseAdapterType.highlight_multiplayer, model));
+        model.P3ButLbl.addMouseListener(new labelListener(model.P3ButLbl, mouseAdapterType.highlight_multiplayer, model));
+        model.P4ButLbl.addMouseListener(new labelListener(model.P4ButLbl, mouseAdapterType.highlight_multiplayer, model));
         model.tryAgainButLbl.addMouseListener(new labelListener(model.tryAgainButLbl, mouseAdapterType.tryAgainBtn, model));
         model.advancedLdButLbl.addMouseListener(new labelListener(model.advancedLdButLbl, mouseAdapterType.advancedLdBtn, model));
     }
@@ -129,7 +133,7 @@ public class MenuController implements IKeyDownHandler
         activeElements.add(model.highScrLbl);
         activeElements.add(model.multiplayerLbl);
         activeElements.add(model.editorLbl);
-        activeElements.add(model.howToLbl);
+        activeElements.add(model.aboutLbl);
     }
 
     private void menu_SelectMap()
@@ -175,7 +179,6 @@ public class MenuController implements IKeyDownHandler
         {
             model.gameOverLabelLbl.setText("GHOSTS WIN");
             model.gameOverLabelLbl.setForeground(Color.red);
-            model.gameOverLabelLbl.setLocation(36, 33);
             model.highScoreLabelLbl.setText("2UP");
             model.highScoreLabelLbl.setForeground(Color.red);
             model.highScoreNumLbl.setText(Integer.toString(vars.score2));
@@ -187,7 +190,6 @@ public class MenuController implements IKeyDownHandler
         {
             model.gameOverLabelLbl.setText("PACMAN WINS");
             model.gameOverLabelLbl.setForeground(Color.yellow);
-            model.gameOverLabelLbl.setLocation(34, 33);
             model.highScoreLabelLbl.setText("1UP");
             model.highScoreNumLbl.setText(Integer.toString(vars.score));
             model.scoreLabelLbl.setText("2UP");
@@ -205,14 +207,14 @@ public class MenuController implements IKeyDownHandler
         activeElements.add(model.highScoreNumLbl);
         activeElements.add(model.escLabelLbl);
 
-        if (!vars.player2)
+        if (!(vars.player2 || vars.player3 || vars.player4))
             menu_HighScore1P();
         else
             menu_HighScore2P();
 
         //To be able to access default Highscore page later from menu.
         vars.score = 0;
-        vars.player2 = false;
+        vars.player2 = vars.player3 = vars.player4 = false;
     }
 
     private void menu_Editor()
@@ -223,9 +225,38 @@ public class MenuController implements IKeyDownHandler
         model.createBtnSelectorLbl.setVisible(true);
     }
 
-    private void menu_HowTo()
+    /**
+     * Displays about page, originaly displayed on game load
+     */
+    private void menu_About()
     {
+        activeElements.add(model.aboutHeadlineLbl);
+        activeElements.add(model.aboutCopyLbl);
+        for (int i = 0; i < 4; ++i) {
+            model.aboutCharacterLbls[i].setIcon(new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, 1, "Entity" + Integer.toString(i + 2), "RIGHT", 0
+            )));
+            activeElements.add(model.aboutCharacterLbls[i]);
+        }
+        for (int i = 0; i < 2; ++i) {
+            model.aboutPelletLbls[i].setIcon(new ImageIcon(Textures.drawPellet(model.mainPanel, 1, i == 0)));
+            activeElements.add(model.aboutPelletLbls[i]);
+        }
         activeElements.add(model.escLabelLbl);
+    }
+
+    /**
+     * Simulates select map click and sets number of players to 2 in case of successful map load.
+     */
+    private void menu_Multiplayer()
+    {
+        multiplayerOption = 2;
+        activeElements.add(model.P2ButLbl);
+        activeElements.add(model.P3ButLbl);
+        activeElements.add(model.P4ButLbl);
+        activeElements.add(model.escLabelLbl);
+
+        model.P3ButSelectorLbl.setVisible(true);
     }
 
     private void menu_Settings()
@@ -233,17 +264,17 @@ public class MenuController implements IKeyDownHandler
         activeElements.add(model.musicButtonLbl);
         activeElements.add(model.soundsButtonLbl);
         activeElements.add(model.escLabelLbl);
-        model.musicBtnSelectorLbl.setVisible(true);
+        model.soundsBtnSelectorLbl.setVisible(true);
 
         if (vars.music)
-            model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 140px;'>MUSIC</div></html>");
+            model.musicButtonLbl.setBackground(Color.BLACK);
         else
-            model.musicButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 140px;'>MUSIC</div></html>");
+            model.musicButtonLbl.setBackground(Color.GRAY);
 
         if (vars.sound)
-            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
+            model.soundsButtonLbl.setBackground(Color.BLACK);
         else
-            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
+            model.soundsButtonLbl.setBackground(Color.GRAY);
     }
 
     /**
@@ -275,21 +306,6 @@ public class MenuController implements IKeyDownHandler
         activeElements.add(model.typeHintLbl);
         for (JLabel label : activeElements)
             label.setVisible(true);
-    }
-
-    /**
-     * Simulates select map click and sets number of players to 2 in case of successful map load.
-     *
-     * @throws NoSuchMethodException To be handled by calling procedure.
-     * @throws IllegalAccessException To be handled by calling procedure.
-     * @throws InvocationTargetException To be handled by calling procedure.
-     * @throws FileNotFoundException To be handled by calling procedure.
-     */
-    private void multiplayer_Click()
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
-    {
-        selectMap_Click();
-        vars.player2 = vars.gameOn;
     }
 
     /**
@@ -417,13 +433,13 @@ public class MenuController implements IKeyDownHandler
         vars.sound = !vars.sound;
         if (vars.sound)
         {
-            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: black; width: 150px;'>SOUND</div></html>");
-            model.soundsButtonLbl.setForeground(Color.white);
+            model.soundsButtonLbl.setBackground(Color.BLACK);
+            model.soundsButtonLbl.setForeground(Color.WHITE);
         }
         else
         {
-            model.soundsButtonLbl.setText("<html><div style='padding-left: 8px; background-color: gray; width: 150px;'>SOUND</div></html>");
-            model.soundsButtonLbl.setForeground(Color.black);
+            model.soundsButtonLbl.setBackground(Color.GRAY);
+            model.soundsButtonLbl.setForeground(Color.BLACK);
         }
     }
 
@@ -484,25 +500,56 @@ public class MenuController implements IKeyDownHandler
         editor.show();
     }
 
-    private void settings_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    /**
+     * Stars multiplayer for selected number of players
+     *
+     * @throws NoSuchMethodException To be handled by calling procedure.
+     * @throws IllegalAccessException To be handled by calling procedure.
+     * @throws InvocationTargetException To be handled by calling procedure.
+     * @throws FileNotFoundException To be handled by calling procedure.
+     */
+    private void mplayerBtn_Click()
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
+    {
+        selectMap_Click();
+        if (multiplayerOption == 1)
+            vars.player2 = vars.gameOn;
+        else if (multiplayerOption == 2)
+            vars.player3 = vars.gameOn;
+        else
+            vars.player4 = vars.gameOn;
+    }
+
+    private void multiplayer_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        menuLayer = mn.submenu;
+        menu(this.getClass().getDeclaredMethod("menu_Multiplayer"));
+    }
+
+    private void settings_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
         menu(this.getClass().getDeclaredMethod("menu_Settings"));
     }
 
-    private void editor_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    private void editor_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
         menu(this.getClass().getDeclaredMethod("menu_Editor"));
     }
 
-    private void howTo_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    private void about_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
-        menu(this.getClass().getDeclaredMethod("menu_HowTo"));
+        menu(this.getClass().getDeclaredMethod("menu_About"));
     }
 
-    private void highScr_Click() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    private void highScr_Click()
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
         menuLayer = mn.submenu;
         menu(this.getClass().getDeclaredMethod("menu_HighScore"));
@@ -543,7 +590,7 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
-     * Changes selected element in settings.
+     * Changes selected element in settings submenu
      */
     private void moveInSettings()
     {
@@ -554,7 +601,7 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
-     * Changes selected element in editor
+     * Changes selected element in editor submenu
      */
     private void moveInEditor()
     {
@@ -563,6 +610,16 @@ public class MenuController implements IKeyDownHandler
         } else {
             editButton_MouseEnter();
         }
+    }
+
+    /**
+     * Changes selected element in multiplayer submenu
+     *
+     * @param delta int
+     */
+    private void moveInMultiplayer(int delta)
+    {
+        mplayerBtn_MouseEnter((multiplayerOption % 3) + delta);
     }
 
     /**
@@ -602,6 +659,27 @@ public class MenuController implements IKeyDownHandler
     }
 
     /**
+     * Selects multiplayer label when mouse curseor enters its domain
+     *
+     * @param option int
+     */
+    private void mplayerBtn_MouseEnter(int option)
+    {
+        boolean visible = false;
+        for (int op : new int[]{multiplayerOption, option}) {
+            if (op == 1)
+                model.P2ButSelectorLbl.setVisible(visible);
+            else if (op == 2)
+                model.P3ButSelectorLbl.setVisible(visible);
+            else
+                model.P4ButSelectorLbl.setVisible(visible);
+
+            visible = !visible;
+        }
+        multiplayerOption = option;
+    }
+
+    /**
      * Function implementing key press handler in menu.
      *
      * @param keyCode int code of pressed key.
@@ -638,6 +716,11 @@ public class MenuController implements IKeyDownHandler
                                 editor = null;
                                 model.mainPanel.repaint();
                             }
+                        } else if (menuSelected.item1 == mn.multiplayer) {
+                            model.P2ButSelectorLbl.setVisible(false);
+                            model.P3ButSelectorLbl.setVisible(false);
+                            model.P4ButSelectorLbl.setVisible(false);
+                            multiplayerOption = 0;
                         }
                         menu(this.getClass().getDeclaredMethod("menu_MainMenu"));
                         menuLayer = mn.game;
@@ -680,6 +763,8 @@ public class MenuController implements IKeyDownHandler
                             editButton_Click();
                         else
                             createButton_Click();
+                    } else if (menuSelected.item1 == mn.multiplayer) {
+                        mplayerBtn_Click();
                     }
             }
         }
@@ -687,8 +772,10 @@ public class MenuController implements IKeyDownHandler
         {
             if (vars.score > vars.highScore) {
                 try {
-                    HighScoreClass.tryToSaveScore(vars.player2, vars.score);
-                } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                    HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
+                } catch (IOException ignore) {
+                    MainFrameController.fatalErrorMessage("score was not saved!");
+                }
             }
             MainFrameController.handleExceptions(exception.toString(), model);
         }
@@ -708,6 +795,8 @@ public class MenuController implements IKeyDownHandler
                 moveInSettings();
             } else if (menuSelected.item1 == mn.editor) {
                 moveInEditor();
+            } else if (menuSelected.item1 == mn.multiplayer) {
+                moveInMultiplayer(delta);
             }
         } else if (menuLayer == mn.game)
             moveInMenu(delta);
@@ -736,7 +825,7 @@ public class MenuController implements IKeyDownHandler
     /**
      * Enumeration for identifying menu states.
      */
-    enum mn { game, selectmap, multiplayer, settings, editor, howTo, highscore, start, submenu, none }
+    enum mn { game, selectmap, multiplayer, settings, editor, about, highscore, start, submenu, none }
 
     /**
      * Function that associates selected labels to menu states.
@@ -759,8 +848,8 @@ public class MenuController implements IKeyDownHandler
                 return mn.settings;
             case "Editor":
                 return mn.editor;
-            case "HowTo":
-                return mn.howTo;
+            case "About":
+                return mn.about;
             default:
                 return mn.start;
         }
@@ -787,8 +876,8 @@ public class MenuController implements IKeyDownHandler
                 return model.settingsLbl;
             case editor:
                 return model.editorLbl;
-            case howTo:
-                return model.howToLbl;
+            case about:
+                return model.aboutLbl;
             default:
                 return model.orgGameLbl;
         }
@@ -816,8 +905,8 @@ public class MenuController implements IKeyDownHandler
                 return this.getClass().getDeclaredMethod("settings_Click");
             case editor:
                 return this.getClass().getDeclaredMethod("editor_Click");
-            case howTo:
-                return this.getClass().getDeclaredMethod("howTo_Click");
+            case about:
+                return this.getClass().getDeclaredMethod("about_Click");
             default:
                 return null;
         }
@@ -828,7 +917,8 @@ public class MenuController implements IKeyDownHandler
     //<editor-fold desc="- LISTENERS Block -">
 
     private enum mouseAdapterType {
-        highlight_menu, highlight_settings, highlight_editor, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn
+        highlight_menu, highlight_settings, highlight_editor, clickToEnter, clickToEscape, tryAgainBtn, advancedLdBtn,
+        highlight_multiplayer
     }
 
     private class labelListener extends MouseAdapter
@@ -872,8 +962,10 @@ public class MenuController implements IKeyDownHandler
             {
                 if (vars.score > vars.highScore) {
                     try {
-                        HighScoreClass.tryToSaveScore(vars.player2, vars.score);
-                    } catch (IOException ignore) { /* TODO: Notify user score weren't saved due to exception message */ }
+                        HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
+                    } catch (IOException ignore) {
+                        MainFrameController.fatalErrorMessage("score was not saved!");
+                    }
                 }
                 MainFrameController.handleExceptions(exception.getMessage(), model);
             }
@@ -899,6 +991,14 @@ public class MenuController implements IKeyDownHandler
                         editButton_MouseEnter();
                     else
                         createButton_MouseEnter();
+                    break;
+                case highlight_multiplayer:
+                    if (label.getName().equals("p2But"))
+                        mplayerBtn_MouseEnter(1);
+                    else if (label.getName().equals("p3But"))
+                        mplayerBtn_MouseEnter(2);
+                    else
+                        mplayerBtn_MouseEnter(3);
                     break;
                 case clickToEscape:
                     label.setForeground(Color.white);

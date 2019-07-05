@@ -19,7 +19,6 @@ public class LoadMap {
     public static final int DEFAULTHEIGHT = 624;
     public static final int PACMANINITIALY = 23;
     public static final int PACMANINITIALX = 13;
-    public static final int RDPSIZE = 12;
     public static final byte TILESIZEINPXS = 16;
     public static final Color TRANSPARENT = new Color(255,255,255,0);
 

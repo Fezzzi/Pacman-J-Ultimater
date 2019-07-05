@@ -49,11 +49,22 @@ public class MainFrameModel
     public final JLabel typedSymbolsLbl;
     public final JLabel typeHintLbl;
     public final JLabel editorLbl;
-    public final JLabel howToLbl;
+    public final JLabel aboutLbl;
     public final JLabel editExistingButLbl;
     public final JLabel editBtnSelectorLbl;
     public final JLabel createNewButLbl;
     public final JLabel createBtnSelectorLbl;
+    public final JLabel P2ButLbl;
+    public final JLabel P2ButSelectorLbl;
+    public final JLabel P3ButLbl;
+    public final JLabel P3ButSelectorLbl;
+    public final JLabel P4ButLbl;
+    public final JLabel P4ButSelectorLbl;
+    public final JLabel aboutHeadlineLbl;
+    public final JLabel[] aboutCharacterLbls;
+    public final JLabel[] aboutPelletLbls;
+    public final JLabel aboutCopyLbl;
+
 
     public final JLabel[] labels;
     public final Map<String, Pair<Rectangle, Integer>> defLabelData;
@@ -95,19 +106,31 @@ public class MainFrameModel
         typedSymbolsLbl = view.getTypedSymbolsLbl();
         typeHintLbl = view.getTypeHintLbl();
         editorLbl = view.getEditorLbl();
-        howToLbl = view.getHowToLbl();
+        aboutLbl = view.getAboutLbl();
         editExistingButLbl = view.getEditExistingButLbl();
         editBtnSelectorLbl = view.getEditBtnSelectorLbl();
         createNewButLbl = view.getCreateNewButLbl();
         createBtnSelectorLbl = view.getCreateBtnSelectorLbl();
+        P2ButLbl = view.getP2ButLbl();
+        P2ButSelectorLbl = view.getP2ButSelectorLbl();
+        P3ButLbl = view.getP3ButLbl();
+        P3ButSelectorLbl = view.getP3ButSelectorLbl();
+        P4ButLbl = view.getP4ButLbl();
+        P4ButSelectorLbl = view.getP4ButSelectorLbl();
+        aboutHeadlineLbl = view.getAboutHeadlineLbl();
+        aboutCharacterLbls = view.getAboutCharacterLbls();
+        aboutPelletLbls = view.getAboutPelletLbls();
+        aboutCopyLbl = view.getAboutCopyLbl();
 
         labels = new JLabel[]{
             pacmanLbl, ultimateLbl, copyrightLbl, pressEnterLbl, selectMapLbl, orgGameLbl, settingsLbl, escLabelLbl,
             highScrLbl, multiplayerLbl, highScoreLabelLbl, scoreLabelLbl, highScoreNumLbl, scoreNumLbl,
             musicButtonLbl, soundsButtonLbl, musicBtnSelectorLbl, soundsBtnSelectorLbl,
             gameOverLabelLbl, errorLdMapLbl, errorInfoLbl, tryAgainButLbl,
-            advancedLdButLbl, typeSymbolsLbl, typedSymbolsLbl, typeHintLbl, editorLbl, howToLbl,
-            editExistingButLbl, editBtnSelectorLbl, createNewButLbl, createBtnSelectorLbl,
+            advancedLdButLbl, typeSymbolsLbl, typedSymbolsLbl, typeHintLbl, editorLbl, aboutLbl,
+            editExistingButLbl, editBtnSelectorLbl, createNewButLbl, createBtnSelectorLbl, P2ButLbl, P2ButSelectorLbl,
+            P3ButLbl, P3ButSelectorLbl, P4ButLbl, P4ButSelectorLbl, aboutHeadlineLbl, aboutCopyLbl,
+            aboutCharacterLbls[0], aboutCharacterLbls[1], aboutCharacterLbls[2], aboutCharacterLbls[3], aboutPelletLbls[0], aboutPelletLbls[1]
         };
 
         defLabelData = new HashMap<>();

@@ -166,6 +166,36 @@ public class Textures
     }
 
     /**
+     * Draws either normal or power pellet
+     *
+     * @param mainPanel JPanel
+     * @param minMult float
+     * @param power boolean
+     * @return Image
+     */
+    public static Image drawPellet(JPanel mainPanel, float minMult, boolean power)
+    {
+        int entitySize = (int) (28 * minMult);
+        int pelletSize = (int)(2 * minMult);
+        int powerSize = entitySize - 2;
+
+        Image entity = mainPanel.createImage(entitySize, entitySize);
+        Graphics g = entity.getGraphics();;
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, entitySize, entitySize);
+
+        if (!power) {
+            g.setColor(new Color(246, 172, 152));
+            g.fillOval((entitySize - powerSize) / 2, (entitySize - powerSize) / 2, powerSize, powerSize);
+        } else {
+            g.setColor(new Color(246, 172, 152));
+            g.fillRect((entitySize - pelletSize) / 2, (entitySize - pelletSize) / 2, pelletSize, pelletSize);
+        }
+
+        return entity;
+    }
+
+    /**
      * Draws panel of fruits
      *
      * @param mainPanel JPanel
@@ -267,10 +297,10 @@ public class Textures
                 g.setColor(new Color(255, 170, 227));
                 break;
             case "Entity4":
-                g.setColor(new Color(255, 180, 95));
+                g.setColor(new Color(81,255,255));
                 break;
             case "Entity5":
-                g.setColor(new Color(81,255,255));
+                g.setColor(new Color(255, 180, 95));
                 break;
             case "CanBeEaten":
                 if (blink < 2) {

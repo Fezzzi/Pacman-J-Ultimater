@@ -39,16 +39,16 @@ public class HighScoreClass
     }
 
     /**
-     * Attempts to save player's score to file.
+     * Attempts to save player's score to file. Score is not saved after multiplayer mode.
      *
-     * @param player2 Score is not saved after multiplayer mode.
-     * @param score Player's score.
+     * @param multiplayer boolean
+     * @param score int
      * @throws IOException To be handled by calling procedure.
      */
-    public static void tryToSaveScore(boolean player2, int score)
+    public static void tryToSaveScore(boolean multiplayer, int score)
             throws IOException
     {
-        if(!player2 && score > 0)
+        if(!multiplayer && score > 0)
             HighScoreClass.saveHighScore(score);
     }
 

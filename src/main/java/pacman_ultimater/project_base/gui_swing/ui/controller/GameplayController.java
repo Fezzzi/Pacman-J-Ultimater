@@ -24,18 +24,16 @@ class GameplayController implements IKeyDownHandler
 {
     //<editor-fold desc="- VARIABLES Block -">
 
-    private final static int kEYTICKS = 5;
+    private final static int KEYTICKS = 5;
 
     private boolean killNextTick = false;
     private final boolean[] teleported = new boolean[GameConsts.ENTITYCOUNT];
-    private Direction.directionType newDirection1;
-    private Direction.directionType newDirection2;
+    private Direction.directionType newDirection1, newDirection2, newDirection3, newDirection4;
     private final Point[] entitiesPixDeltas = new Point[GameConsts.ENTITYCOUNT];
     private JLabel scoreLabel;
     private int newTileSize;
     private float minMult;
     private int newXPadding;
-    private byte RDPIndex = 0;
     private boolean ghostLegs, pacTick, resize;
 
     private TimersListeners timers;
@@ -59,10 +57,8 @@ class GameplayController implements IKeyDownHandler
         newTileSize = (int)(LoadMap.TILESIZEINPXS * minMult);
         newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
         resize = minMult != 1;
-        newDirection1 = Direction.directionType.DIRECTION;
-        newDirection2 = Direction.directionType.DIRECTION;
-        pacTick = false;
-        ghostLegs = false;
+        newDirection1 = newDirection2 = newDirection3 = newDirection4 = Direction.directionType.DIRECTION;
+        pacTick = ghostLegs = false;
         glc = new GameLoadController(model, vars);
         timers = new TimersListeners(
                 new TimerListener(timer_types.PACMAN), new TimerListener(timer_types.GHOST),
@@ -110,6 +106,8 @@ class GameplayController implements IKeyDownHandler
 
         newDirection1 = Direction.directionType.DIRECTION;
         newDirection2 = Direction.directionType.DIRECTION;
+        newDirection3 = Direction.directionType.DIRECTION;
+        newDirection4 = Direction.directionType.DIRECTION;
     }
 
     /**
@@ -119,19 +117,62 @@ class GameplayController implements IKeyDownHandler
      */
     public void handleKey(int keyCode)
     {
-        //Two booleans keyPressed[1|2] are used to distinguish which of the players has pressed the key during Multiplayer.
-        if (vars.player2) {
-            if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_S)
+        //Booleans keyPressedX are used to distinguish which of the players has pressed the key during Multiplayer.
+        if (vars.player2 || vars.player3 || vars.player4) {
+            if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_W
+            || keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_S) {
                 vars.keyPressed1 = true;
-            else
+            } else {
                 vars.keyPressed2 = true;
-        } else
+            }
+        }
+
+        vars.keyPressed3 = ((vars.player3 || vars.player4) && (keyCode == KeyEvent.VK_U || keyCode == KeyEvent.VK_H
+                                            || keyCode == KeyEvent.VK_J || keyCode == KeyEvent.VK_K));
+        vars.keyPressed4 = (vars.player4 && (keyCode == KeyEvent.VK_8 || keyCode == KeyEvent.VK_4
+                                            || keyCode == KeyEvent.VK_5 || keyCode == KeyEvent.VK_6));
+
+        if (!vars.keyPressed2 && !vars.keyPressed3 && !vars.keyPressed4) {
             vars.keyPressed1 = true;
+        }
 
         if (keyCode == KeyEvent.VK_ESCAPE) {
             endGame();
-        }
-        else if (vars.keyPressed2) {
+        } else if (vars.keyPressed4) {
+            switch(keyCode) {
+                case KeyEvent.VK_4:
+                    newDirection4 = Direction.directionType.LEFT;
+                    break;
+                case KeyEvent.VK_6:
+                    newDirection4 = Direction.directionType.RIGHT;
+                    break;
+                case KeyEvent.VK_8:
+                    newDirection4 = Direction.directionType.UP;
+                    break;
+                case KeyEvent.VK_5:
+                    newDirection4 = Direction.directionType.DOWN;
+                    break;
+                default:
+                    vars.keyPressed4 = false;
+            }
+        } else if (vars.keyPressed3) {
+            switch(keyCode) {
+                case KeyEvent.VK_H:
+                    newDirection3 = Direction.directionType.LEFT;
+                    break;
+                case KeyEvent.VK_K:
+                    newDirection3 = Direction.directionType.RIGHT;
+                    break;
+                case KeyEvent.VK_U:
+                    newDirection3 = Direction.directionType.UP;
+                    break;
+                case KeyEvent.VK_J:
+                    newDirection3 = Direction.directionType.DOWN;
+                    break;
+                default:
+                    vars.keyPressed3 = false;
+            }
+        } else if (vars.keyPressed2) {
             switch(keyCode){
                 case KeyEvent.VK_LEFT:
                     newDirection2 = Direction.directionType.LEFT;
@@ -148,8 +189,7 @@ class GameplayController implements IKeyDownHandler
                 default:
                     vars.keyPressed2 = false;
             }
-        }
-        else {
+        } else {
             if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)
                 newDirection1 = Direction.directionType.LEFT;
             else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)
@@ -200,7 +240,7 @@ class GameplayController implements IKeyDownHandler
         vars.mapFresh = null;
         if (vars.score >= vars.highScore) {
             try {
-                HighScoreClass.tryToSaveScore(vars.player2, vars.score);
+                HighScoreClass.tryToSaveScore(vars.player2 || vars.player3 || vars.player4, vars.score);
             }
             catch (IOException ignore){
                 MainFrameController.fatalErrorMessage("score was not saved!");
@@ -231,9 +271,9 @@ class GameplayController implements IKeyDownHandler
         if (vars.music)
             vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_DEATH(), false, 0 , 0);
 
-        if (vars.player2)
+        if (vars.player2 || vars.player3 || vars.player4) {
             vars.score2 += GameConsts.P2SCOREFORKILL;
-
+        }
         SwingWorker<Void, Integer> sw = new SwingWorker<>()
         {
             @Override
@@ -360,13 +400,6 @@ class GameplayController implements IKeyDownHandler
     {
         entity.item1 = entX;
         entity.item2 = entY;
-
-        if (entity.item5.state != DefaultAI.nType.PLAYER1 && vars.mapFresh[entity.item2][entity.item1].tile != Tile.nType.FREE) {
-            vars.redrawPellets[RDPIndex] = new Point(entity.item2, entity.item1);
-            ++RDPIndex;
-            RDPIndex %= LoadMap.RDPSIZE;
-        }
-
         entitiesPixDeltas[entNum] = new Point(dX, dY);
     }
 
@@ -466,7 +499,7 @@ class GameplayController implements IKeyDownHandler
         }
 
         // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
-        if (vars.eatEmTimer <= 0 || entity.item5.state == DefaultAI.nType.PLAYER1)
+        if (vars.eatEmTimer <= 0 || entity.item3.getName().equals("Entity1"))
         {
             if (entity.item3.getName().equals("Entity1")) {
                 entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
@@ -526,28 +559,37 @@ class GameplayController implements IKeyDownHandler
             canMove(vars.entities.get(0));
             moveIt(vars.entities.get(0), (byte)0);
         } else {
-            if (newDirection2 != Direction.directionType.DIRECTION)
+            if (newDirection2 != Direction.directionType.DIRECTION) {
                 SetToMove(newDirection2, vars.entities.get(1));
+            }
+            if (newDirection3 != Direction.directionType.DIRECTION) {
+                SetToMove(newDirection3, vars.entities.get(2));
+            }
+            if (newDirection4 != Direction.directionType.DIRECTION) {
+                SetToMove(newDirection4, vars.entities.get(3));
+            }
 
             for (byte i = 1; i <= vars.freeGhosts; i++) {
                 // Places picture to the place it should be according to it's tile indexes.
                 // Finishes one cycle of smooth move and enables start of another cycle.
-                correctPicture(vars.entities.get(i));
+                Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity = vars.entities.get(i);
+                correctPicture(entity);
 
                 // if entity is AI, creates new instance with direction selected by AI algorithm.
-                if (!vars.player2 || i > 1 && (vars.entities.get(i).item4 == Direction.directionType.DIRECTION
-                    || isAtCrossroad(vars.entities.get(i).item1, vars.entities.get(i).item2)))
+                if (((!vars.player2 || i > 1) && (!vars.player3 || i > 2) && (!vars.player4 || i > 3))
+                && (entity.item4 == Direction.directionType.DIRECTION
+                || isAtCrossroad(entity.item1, entity.item2)))
                 {
-                    vars.entities.get(i).item4 =
-                        vars.entities.get(i).item5.NextStep(
-                            new IntPair(vars.entities.get(i).item1, vars.entities.get(i).item2),
-                            vars.entities.get(i).item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
+                    entity.item4 =
+                            entity.item5.NextStep(
+                            new IntPair(entity.item1, entity.item2),
+                                    entity.item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
                                 : new IntPair(vars.entities.get(0).item1, vars.entities.get(0).item2),
-                            vars.entities.get(i).item4, vars.map.item1);
+                                    entity.item4, vars.map.item1);
                 }
 
-                canMove(vars.entities.get(i));
-                moveIt(vars.entities.get(i), i);
+                canMove(entity);
+                moveIt(entity, i);
             }
         }
     }
@@ -569,12 +611,18 @@ class GameplayController implements IKeyDownHandler
                 vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_SIREN(), true, 0, 9100);
             }
             if (vars.ghostsEaten != 0) {
-                for (int i = 1; i < 5; i++)
-                    vars.entities.get(i).item5.state = (vars.player2 && i == 1 ? DefaultAI.nType.PLAYER2 : vars.defaultAIs[i - 1].state);
+                for (int i = 1; i < 5; i++) {
+                    if ((vars.player2 && i == 1) || (vars.player3 && i == 2) || (vars.player4 && i == 3)) {
+                        vars.entities.get(i).item5.state = DefaultAI.nType.NOAI;
+                    } else {
+                        vars.entities.get(i).item5.state = vars.defaultAIs[i - 1].state;
+                    }
+                }
                 vars.ghostsEaten = 0;
             }
-            model.ghostUpdater.setDelay(vars.player2 ?
-                    (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) : model.pacUpdater.getDelay() + 10);
+            model.ghostUpdater.setDelay(!(vars.player2 || vars.player3 || vars.player4) ?
+                    (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5))
+                    : model.pacUpdater.getDelay() + (vars.player2 ? 10 : vars.player3 ? 20 : 30));
             model.ghostSmoothTimer.setDelay(model.ghostUpdater.getDelay() / ((newTileSize / 2) + 1));
             vars.eatEmTimer = 0;
         }
@@ -684,7 +732,7 @@ class GameplayController implements IKeyDownHandler
                     vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_POWERSIREN(), true, 0 , 26320);
 
                 //Pacman's excitement lasts shorter each level
-                vars.eatEmTimer = vars.player2 ? (3 * GameConsts.BASEEATEMTIMER) / 4
+                vars.eatEmTimer = (vars.player2 || vars.player3 || vars.player4) ? (3 * GameConsts.BASEEATEMTIMER) / 5
                                                : (vars.level > 12 ? 35 : (GameConsts.BASEEATEMTIMER - vars.level * 5));
                 vars.ghostsEaten = 0;
                 model.ghostUpdater.setDelay((GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5)) * 2);
@@ -707,7 +755,6 @@ class GameplayController implements IKeyDownHandler
             updateHud(vars.score, vars.scoreBox);
         }
 
-        correctPellets();
         blink();
     }
 
@@ -724,7 +771,9 @@ class GameplayController implements IKeyDownHandler
                 entity.item1 * newTileSize + newXPadding - 5,
                 entity.item2 * newTileSize + (int)(42 * minMult)));
         entity.item4 = Direction.directionType.LEFT;
-        vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 2) / 3
+        vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 5)
+                                : vars.player3 ? (GameConsts.BASEGHOSTRELEASETIMER / 7)
+                                    : vars.player4 ? (GameConsts.BASEGHOSTRELEASETIMER / 10)
                                         : (GameConsts.BASEGHOSTRELEASETIMER - vars.level) / 3;
         vars.freeGhosts++;
     }
@@ -881,11 +930,11 @@ class GameplayController implements IKeyDownHandler
     {
         if (vars.ticks % 3 == 0) {
             vars.up1.setVisible(false);
-            if (vars.player2)
+            if (vars.player2 || vars.player3 || vars.player4)
                 vars.up2.setVisible(false);
         } else {
             vars.up1.setVisible(true);
-            if (vars.player2)
+            if (vars.player2 || vars.player3 || vars.player4)
                 vars.up2.setVisible(true);
         }
 
@@ -900,18 +949,6 @@ class GameplayController implements IKeyDownHandler
                             new Point(vars.map.item5.get(i).y * newTileSize,
                                     (vars.map.item5.get(i).x + 3) * newTileSize), Color.BLACK);
             }
-    }
-
-    /**
-     * Handles necessary redrawing of pellets covered by ghosts.
-     */
-    private void correctPellets()
-    {
-        for (int i = 0; i < LoadMap.RDPSIZE; i++) {
-            vars.mapFresh[vars.redrawPellets[i].x][vars.redrawPellets[i].y].DrawTile(vars.bufferGraphics,
-                    new Point(vars.redrawPellets[i].y * newTileSize,
-                            (vars.redrawPellets[i].x + 3) * newTileSize), Color.BLACK);
-        }
     }
 
     /**
@@ -951,13 +988,18 @@ class GameplayController implements IKeyDownHandler
         // In case that one of the players have pushed a valid key, countdown, which represents
         // the number tiles remaining until the information about the pushed button is lost, is started.
         if (vars.keyPressed1) {
-            vars.keyCountdown1 = kEYTICKS;
-            vars.keyPressed1 = false;
+            vars.keyCountdown1 = KEYTICKS;
         }
         if (vars.keyPressed2) {
-            vars.keyCountdown2 = kEYTICKS;
-            vars.keyPressed2 = false;
+            vars.keyCountdown2 = KEYTICKS;
         }
+        if (vars.keyPressed3) {
+            vars.keyCountdown3 = KEYTICKS;
+        }
+        if (vars.keyPressed4) {
+            vars.keyCountdown4 = KEYTICKS;
+        }
+        vars.keyPressed1 = vars.keyPressed2 = vars.keyPressed3 = vars.keyPressed4 = false;
 
         try {
             updateGame(isPacman);
@@ -967,8 +1009,15 @@ class GameplayController implements IKeyDownHandler
         }
         if(!vars.killed) {
             keyCountAndDir(newDirection1, vars.keyCountdown1);
-            if (vars.player2)
+            if (vars.player2) {
                 keyCountAndDir(newDirection2, vars.keyCountdown2);
+            }
+            if (vars.player3) {
+                keyCountAndDir(newDirection3, vars.keyCountdown3);
+            }
+            if (vars.player4) {
+                keyCountAndDir(newDirection4, vars.keyCountdown4);
+            }
 
             // Checks if the player has already collected all the pellets.
             // In such case in relation to level and game mode, plays another level or ends the game.
@@ -999,7 +1048,7 @@ class GameplayController implements IKeyDownHandler
         }
 
         vars.level++;
-        if (vars.level < GameConsts.MAXLEVEL && !vars.player2)
+        if (vars.level < GameConsts.MAXLEVEL && !(vars.player2 || vars.player3 || vars.player4))
             sendGameLoadRequest(loadGameType.NEXT);
         else
             endGame();
