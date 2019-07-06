@@ -9,7 +9,6 @@ public class GameConsts
     public static final int SOUNDPLAYERSCOUNT = 1;
     public static final int EXTRAPACSOUNDPLAYERID = 1;
     public static final int EATGHOSTSOUNDPLAYERID = 2;
-    public static final int EATFRUITSOUNDPLAYERID = 3;
     public static final int GHOSTFLASHINGSTART = 30;
     public static final int MAXLEVEL = 256;
     public static final int PACTIMER = 100;

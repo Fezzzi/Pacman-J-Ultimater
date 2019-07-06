@@ -22,11 +22,17 @@ public class Textures
     public static Image drawEntity(JPanel mainPanel, float minMult, String name, String direction, int special)
     {
         int entitySize = (int) (28 * minMult);
-        Image entity = mainPanel.createImage(entitySize, entitySize);
+        int entityWidth = entitySize;
+        if (name.equals("Entity2_Stretch")) {
+            entityWidth += special;
+        } else if (name.equals("Entity2_Naked")) {
+            entityWidth = 3*entitySize;
+        }
+        Image entity = mainPanel.createImage(entityWidth, entitySize);
         Graphics g = entity.getGraphics();
         ((Graphics2D) g).setStroke(new BasicStroke(2 * minMult));
         g.setColor(Color.BLACK);
-        g.fillRect(0, 0, entitySize, entitySize);
+        g.fillRect(0, 0, entityWidth, entitySize);
 
         // Draw Bodies
         switch (name) {
@@ -42,13 +48,16 @@ public class Textures
                 drawGhostBody(g, name, entitySize, minMult, special);
                 drawCanBeEatenFace(g, entitySize, special);
                 return entity;
+            case "Entity2_Naked":
+                drawNakedGhost(g, entitySize, minMult, special);
+                break;
             default:
                 drawGhostBody(g, name, entitySize, minMult,special);
                 break;
         }
 
         // Draw Eyes
-        drawEyes(g, entitySize, direction);
+        drawEyes(g, entitySize, direction, name.equals("Entity2_Naked") ? 3*entitySize/2 : 0);
 
         return entity;
     }
@@ -196,6 +205,31 @@ public class Textures
     }
 
     /**
+     * Draw nails for second animation
+     *
+     * @param mainPanel JPanel
+     * @return Image
+     */
+    public static Image drawNail(JPanel mainPanel, boolean used)
+    {
+        int entitySize = 10;
+
+        Image entity = mainPanel.createImage(3*entitySize, entitySize);
+        Graphics g = entity.getGraphics();
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, 3*entitySize, entitySize);
+        if (!used) {
+            g.setColor(Color.GRAY);
+            g.fillPolygon(new int[]{0, entitySize / 2, entitySize}, new int[]{entitySize, 0, entitySize}, 3);
+        } else {
+            g.setColor(new Color(255,0,0));
+            g.fillPolygon(new int[]{0, 2*entitySize, 4}, new int[]{entitySize, entitySize, 0}, 3);
+        }
+
+        return entity;
+    }
+
+    /**
      * Draws panel of fruits
      *
      * @param mainPanel JPanel
@@ -229,7 +263,7 @@ public class Textures
      * @param entitySize int
      * @param direction String
      */
-    private static void drawEyes(Graphics g, int entitySize, String direction)
+    private static void drawEyes(Graphics g, int entitySize, String direction, int xPadding)
     {
         int yDelta = 0;
         int xDelta = 0;
@@ -249,18 +283,33 @@ public class Textures
         }
 
         g.setColor(Color.WHITE);
-        g.fillOval(entitySize/8 + xDelta/2, entitySize/3 - entitySize / 6 + yDelta/2,
-                entitySize/4 + 1,entitySize/3 + 1);
-        g.fillOval((5*entitySize)/8 + xDelta/2, entitySize/3 - entitySize / 6 + yDelta/2,
-                entitySize/4 + 1,entitySize/3 + 1);
+        g.fillOval(xPadding + entitySize/8 + xDelta/2,
+                entitySize/3 - entitySize / 6 + yDelta/2,
+                entitySize/4 + 1,
+                entitySize/3 + 1);
+        g.fillOval(xPadding + (5*entitySize)/8 + xDelta/2,
+                entitySize/3 - entitySize / 6 + yDelta/2,
+                entitySize/4 + 1,
+                entitySize/3 + 1);
 
         g.setColor(new Color(76, 57,255));
-        g.fillRect(entitySize/8 + entitySize/16 + 2 + xDelta,entitySize/3 - entitySize / 6 + entitySize/8 + yDelta,
-                entitySize/8,entitySize/6);
-        g.fillRect((5*entitySize)/8 + entitySize/16 + 2 + xDelta,entitySize/3 - entitySize / 6 + entitySize/8 + yDelta,
-                entitySize/8,entitySize/6);
+        g.fillRect(xPadding + entitySize/8 + entitySize/16 + 2 + xDelta,
+                entitySize/3 - entitySize / 6 + entitySize/8 + yDelta,
+                entitySize/8,
+                entitySize/6);
+        g.fillRect(xPadding + (5*entitySize)/8 + entitySize/16 + 2 + xDelta,
+                entitySize/3 - entitySize / 6 + entitySize/8 + yDelta,
+                entitySize/8,
+                entitySize/6);
     }
 
+    /**
+     * Draw face of vulnarable ghosts
+     *
+     * @param g Graphics
+     * @param entitySize int
+     * @param blink int
+     */
     private static void drawCanBeEatenFace(Graphics g, int entitySize, int blink)
     {
         if (blink < 2) {
@@ -279,6 +328,35 @@ public class Textures
     }
 
     /**
+     * Draw naked Binky
+     *
+     * @param g Graphics
+     * @param entitySize int
+     * @param minMult float
+     * @param blink int
+     */
+    private static void drawNakedGhost(Graphics g, int entitySize, float minMult, int blink)
+    {
+        int delta = (int)(2*minMult);
+
+        g.setColor(new Color(246, 172, 152));
+        if (blink == 0) {
+            g.fillOval(2*entitySize,entitySize - entitySize/3,entitySize/3, entitySize/3);
+            g.fillPolygon(new int[]{entitySize + entitySize/5, 2*entitySize - entitySize/4, 3*entitySize - entitySize/2,2*entitySize + entitySize/3},
+                    new int[]{entitySize - (int)(6*minMult),(int)(6*minMult),(int)(5*minMult),entitySize - delta},4);
+        } else {
+            g.fillOval(2*entitySize + entitySize/5,entitySize - entitySize/4,entitySize/4, entitySize/4);
+            g.fillPolygon(new int[]{entitySize + entitySize/4, 2*entitySize - entitySize/5, 3*entitySize - entitySize/2, 2*entitySize + entitySize/2},
+                    new int[]{entitySize - (int)(6*minMult),(int)(6*minMult),(int)(5*minMult),entitySize - delta},4);
+        }
+
+        g.setColor(new Color(255,0,0));
+        g.fillPolygon(new int[]{0, 2*entitySize - entitySize/5, 2*entitySize, 0},
+                new int[]{entitySize - (int)(3*minMult),entitySize - (int)(6*minMult),
+                        entitySize - delta, entitySize - delta}, 4);
+    }
+
+    /**
      * Draws ghost's body
      *
      * @param g Graphics
@@ -288,9 +366,11 @@ public class Textures
      */
     private static void drawGhostBody(Graphics g, String name, int entitySize, float minMult, int blink)
     {
-        switch(name)
-        {
+        switch(name) {
             case "Entity2":
+            case "Entity2_Stretch":
+            case "Entity2_Teared":
+            case "Entity2_Hurt":
                 g.setColor(new Color(255,0,0));
                 break;
             case "Entity3":
@@ -311,9 +391,29 @@ public class Textures
                 break;
         }
 
-        int delta = (int)(2 * minMult); //former 4
+        int delta = (int)(2 * minMult);
         g.fillOval(delta,(int)(minMult), entitySize - delta, entitySize);
         g.fillRect(delta, entitySize/2, entitySize - delta, entitySize);
+        switch (name){
+            case "Entity2_Stretch":
+                g.fillPolygon(new int[]{entitySize/2, entitySize + blink, entitySize + blink, entitySize/2},
+                    new int[]{entitySize - delta, entitySize - delta, 4*(entitySize/5) + blink/5, entitySize/2 - blink/5}, 4);
+                break;
+            case "Entity2_Teared":
+                g.setColor(new Color(246, 172, 152));
+                g.fillPolygon(new int[]{2*entitySize/3, entitySize, entitySize, 3*entitySize/4},
+                    new int[]{entitySize/2, entitySize/2, entitySize - delta, entitySize - delta}, 4);
+                break;
+            case "Entity2_Hurt":
+                g.setColor(new Color(246, 172, 152));
+                g.fillPolygon(new int[]{2*entitySize/3, entitySize, entitySize, 3*entitySize/4},
+                    new int[]{entitySize/2, entitySize/2, entitySize - delta, entitySize - delta}, 4);
+                g.setColor(new Color(255, 0, 0));
+                g.fillPolygon(new int[]{2*entitySize/3 + delta, entitySize - delta, entitySize, 3*entitySize/4 + delta},
+                    new int[]{entitySize/2 + delta*2, entitySize/2 + delta, entitySize - 2*delta, entitySize - delta}, 4);
+                break;
+        }
+
         g.setColor(Color.BLACK);
         if (blink == 0 || blink == 2) {
             g.fillRect(entitySize / 2 - entitySize / 16, entitySize - entitySize / 5, entitySize / 6, entitySize / 5);

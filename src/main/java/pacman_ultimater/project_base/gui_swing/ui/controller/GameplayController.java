@@ -692,7 +692,7 @@ class GameplayController implements IKeyDownHandler
                 sw.execute();
 
                 if (vars.sound) {
-                    vars.playWithSoundPlayer(GameConsts.EATFRUITSOUNDPLAYERID);
+                    vars.playWithSoundPlayer(GameConsts.EATGHOSTSOUNDPLAYERID);
                 }
 
                 vars.collectedFruits.add(vars.level);

@@ -30,7 +30,7 @@ class GameLoadController
     private final MainFrameModel model;
     private final GameModel vars;
     private JLabel loading, levelLabel, ready, highScoreText;
-    private final int[] animLabelsIds = new int[5];
+    private final int[] animLabelsIds = new int[3];
     private int newEntitySize = ENTITIESSIZEINPXS;
 
     GameLoadController(MainFrameModel model, GameModel vars)
@@ -598,6 +598,9 @@ class GameLoadController
                 )));
             }
         }
+        if (!model.pacUpdater.isRunning() && !model.ghostUpdater.isRunning()) {
+            vars.gameMap.setLocation(newXPadding, vars.gameMap.getY());
+        }
     }
 
     /**
@@ -629,9 +632,13 @@ class GameLoadController
         {
             try {
                 publish(playGamePhase.PHASE1);
-                AnimationTask animTask = new AnimationTask();
+                AnimationTask animTask = new AnimationTask(vars.level);
                 animTask.execute();
                 animTask.get();
+
+                if (vars.level != 2 && vars.level != 5 && vars.level != 9 && vars.level != 12 && vars.level != 15){
+                    Thread.sleep(1500);
+                }
                 vars.musicPlayer.stop();
 
                 publish(playGamePhase.PHASE2);
@@ -665,7 +672,7 @@ class GameLoadController
                                 toggleComponentsVisibility(false);
                                 if (vars.music)
                                     vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_INTERMISSION(),
-                                            false, 0, 0);
+                                            true, 0, 58000);
                                 break;
                             case PHASE2:
                                 if (vars.music)
@@ -823,7 +830,7 @@ class GameLoadController
 
                                 if (vars.music)
                                     vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_INTERMISSION(),
-                                            false, 0, 0);
+                                            true, 0, 58000);
                                 break;
 
                             case PHASE2:
@@ -905,11 +912,15 @@ class GameLoadController
         public Void doInBackground()
         {
             try {
-                if(withAnimation) {
+                if (withAnimation) {
                     publish(playGamePhase.PHASE1);
-                    AnimationTask animTask = new AnimationTask();
+                    AnimationTask animTask = new AnimationTask(vars.level);
                     animTask.execute();
                     animTask.get();
+
+                    if (vars.level != 2 && vars.level != 5 && vars.level != 9 && vars.level != 12 && vars.level != 15){
+                        Thread.sleep(1500);
+                    }
                 }
 
                 publish(playGamePhase.PHASE2);
@@ -939,14 +950,19 @@ class GameLoadController
         final boolean initialisation;
         final boolean finished;
         final ImageIcon pacmanImage;
+        final ImageIcon ghostImage;
         final JLabel[] entities;
         final Point[] locations;
 
-        AnimationFrame(boolean initialisation, boolean finished, ImageIcon pacmanImage, JLabel[] entities, Point[] locations)
+        AnimationFrame(
+                boolean initialisation, boolean finished,
+                ImageIcon pacmanImage, ImageIcon ghostImage,
+                JLabel[] entities, Point[] locations)
         {
             this.initialisation = initialisation;
             this.finished = finished;
             this.pacmanImage = pacmanImage;
+            this.ghostImage = ghostImage;
             this.entities = entities;
             this.locations = locations;
         }
@@ -957,81 +973,269 @@ class GameLoadController
      */
     class AnimationTask extends SwingWorker<Void, AnimationFrame>
     {
+        final int level;
+        final float minMult;
+
+        AnimationTask(int level){
+            this.level = level;
+            minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
+        }
+
         @Override
         public Void doInBackground()
-                throws InterruptedException, IOException
+                throws InterruptedException
         {
-            Random rndm = new Random();
-            int elemCount = rndm.nextInt(5) + 1;
-            int pacCount = 0;
-            JLabel[] elements = new JLabel[elemCount];
-            int startX = LoadMap.MAPWIDTHINTILES * LoadMap.TILESIZEINPXS;
-
-            // FIRST ANIMATION: From right to left --------------------------------------------------------------------
-            for (int i = 1; i <= elemCount && vars.gameOn; i++)
-            {
-                elements[i-1] = new JLabel();
-                elements[i-1].setIcon(new ImageIcon(
-                        ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i),"LEFT").readAllBytes()));
-                elements[i-1].setLocation(new Point(startX + (i == 0 ? 0 : (i + 4) * (2 * LoadMap.TILESIZEINPXS)),
-                                                    (LoadMap.MAPHEIGHTINTILES / 2 + 6) * LoadMap.TILESIZEINPXS));
-                elements[i-1].setSize(new Dimension(newEntitySize, newEntitySize));
+            if (level == 2) {
+                playFirstAnimation();
+            } else if (level == 5) {
+                playSecondAnimation();
+            } else if (level == 9 || level == 12 || level == 15) {
+                playThirdAnimation();
             }
-            publish(new AnimationFrame(true, false, null, elements, null));
+
+            return null;
+        }
+
+        /**
+         * First animation, from left to right and from right to left, LEVEL 1 -> 2
+         *
+         * @throws InterruptedException To be handled by caller
+         */
+        private void playFirstAnimation()
+                throws InterruptedException
+        {
+            int startX;
+            int delta;
+            int step = 0;
+            JLabel[] elements = new JLabel[]{new JLabel(), new JLabel()};
+            Point[] locations = new Point[2];
+            ImageIcon pacmanImage = null;
+            ImageIcon ghostImage = null;
+
+            // INITIALIZATION PART: ------------------------------------------------------------------------------
+            for (int i = 0; i <= 1 && vars.gameOn; i++) {
+                elements[i].setSize(new Dimension(newEntitySize * 4, newEntitySize * 4));
+            }
+            publish(new AnimationFrame(true, false, null, null, elements, null));
             Thread.sleep(24);
 
-            Point[] locations = new Point[elemCount];
-            ImageIcon pacmanImage = new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes());
-            for (int j = startX; j > -300 && vars.gameOn; j -= 4)
+            // FIRST PART: From right to left --------------------------------------------------------------------
+            animRightToLeft(300, false, elements, locations);
+            Thread.sleep(250);
+
+            // SECOND PART: From left to right -------------------------------------------------------------------
+            for (int j = 300; j >= 0 && vars.gameOn; --j)
             {
-                ++pacCount;
-                for (int i = 0; i < elemCount; i++)
-                {
-                    locations[i] = new Point(j + (i == 0 ? 0 : (i + 4) * (2 * LoadMap.TILESIZEINPXS)),
-                                            (LoadMap.MAPHEIGHTINTILES / 2 + 6) * LoadMap.TILESIZEINPXS);
-                    if (i == 0 && pacCount % 4 == 0)
-                        if (pacCount % 8 == 0)
-                            pacmanImage = new ImageIcon(ClasspathFileReader.getPACSTART().readAllBytes());
-                        else
-                            pacmanImage = new ImageIcon(ClasspathFileReader.getENTITY1LEFT().readAllBytes());
+                startX = (int)(LoadMap.DEFAULTWIDTH * vars.hMult + 100);
+                delta = startX/270;
+                for (int i = 0; i < 2; i++) {
+                    locations[i] = new Point(startX - (j*delta) + (int)((i-1) * j * 1.75 * minMult),
+                            (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
+                }
+                if (step < 4) {
+                    pacmanImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult * 2, "Entity1", "DIRECTION", 0));
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "CanBeEaten", "RIGHT", 1));
+                } else {
+                    pacmanImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult * 2,"Entity1","RIGHT", 0));
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "CanBeEaten", "RIGHT", 0));
                 }
 
-                publish(new AnimationFrame(false, false, pacmanImage, elements, locations));
-                Thread.sleep(12);
+                publish(new AnimationFrame(false, false, pacmanImage, ghostImage, elements, locations));
+                step = (step + 1) % 8;
+                Thread.sleep(18);
             }
 
-            // SECOND ANIMATION: From left to right -------------------------------------------------------------------
-            if(vars.level % 5 == 0 && vars.gameOn){
-                elements[0].setSize(new Dimension(newEntitySize * 2, newEntitySize * 2));
-                elements[0].setLocation(new Point(elements[0].getLocation().x, elements[0].getLocation().y - newEntitySize));
-                elements[0].setIcon(new ImageIcon(ClasspathFileReader.getENTITY1RIGHTBIG().readAllBytes()));
-                locations[0] = elements[0].getLocation();
-                for (int i = 2; i <= elemCount; i++)
-                    elements[i-1].setIcon(new ImageIcon(
-                            ClasspathFileReader.getEntityFile("Entity" + Integer.toString(i),"RIGHT").readAllBytes()));
+            publish(new AnimationFrame(false, true, pacmanImage, ghostImage, elements, locations));
+        }
 
-                Thread.sleep(250);
-                pacCount = 0;
-                for (int j = 0; j < 260 && vars.gameOn; ++j)
-                {
-                    ++pacCount;
-                    for (int i = 0; i < elemCount; i++)
-                    {
-                        locations[i] = new Point(locations[i].x + 4, locations[i].y);
-                        if (i == 0 && pacCount % 4 == 0)
-                            if (pacCount % 8 == 0)
-                                pacmanImage = new ImageIcon(ClasspathFileReader.getPACSTARTBIG().readAllBytes());
-                            else
-                                pacmanImage = new ImageIcon(ClasspathFileReader.getENTITY1RIGHTBIG().readAllBytes());
-                    }
+        /**
+         * Second animation, from left to right, Binky steps on a nail, LEVEL 4 -> 5
+         *
+         * @throws InterruptedException To be handled by caller
+         */
+        private void playSecondAnimation()
+                throws InterruptedException
+        {
+            int startX;
+            int delta;
+            int step = 0;
+            JLabel[] elements = new JLabel[]{new JLabel(), new JLabel(), new JLabel()};
+            Point[] locations = new Point[3];
+            ImageIcon pacmanImage = null;
+            ImageIcon ghostImage;
 
-                    publish(new AnimationFrame(false, false, pacmanImage, elements, locations));
-                    Thread.sleep(12);
+            // INITIALIZATION PART: ------------------------------------------------------------------------------
+            for (int i = 0; i <= 1 && vars.gameOn; i++) {
+                elements[i].setSize(new Dimension(newEntitySize * 4, newEntitySize * 4));
+            }
+            elements[2].setSize(new Dimension(30, 10));
+            elements[2].setIcon(new ImageIcon(Textures.drawNail(model.mainPanel, false)));
+
+            publish(new AnimationFrame(true, false, null, null, elements, null));
+            Thread.sleep(24);
+
+            // FIRST PART: From right to left to half ------------------------------------------------------------
+            animRightToLeft(120, false, elements, locations);
+
+            // SECOND PART: From right to left to end ------------------------------------------------------------
+            for (int j = 120; j < 300 && vars.gameOn; ++j)
+            {
+                startX = (int)(LoadMap.DEFAULTWIDTH * vars.hMult + 100);
+                delta = (startX + 270)/270;
+                for (int i = 0; i < 2; i++) {
+                    if (i == 0)
+                        locations[i] = new Point(startX - (j*delta),
+                                (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
+                    else
+                        locations[i] = new Point(startX - (120*delta) + (int)(40 + 19*minMult) - (j-120)/6,
+                                (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
                 }
+                locations[2] = new Point(startX - (120*delta) + (int)(30 + newEntitySize + 19*minMult),
+                        (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult) + 58);
+
+                if (step < 4) {
+                    pacmanImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity1", "DIRECTION", 0));
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity2_Stretch", "LEFT", (j-120)/6));
+                } else {
+                    pacmanImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult,"Entity1","LEFT", 0));
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity2_Stretch", "LEFT", (j-120)/6));
+                }
+
+                publish(new AnimationFrame(false, false, pacmanImage, ghostImage, elements, locations));
+                step = (step + 1) % 8;
+                Thread.sleep(18);
+            }
+            Thread.sleep(800);
+
+            // THIRD PART: Binky is hurt and embarassed ----------------------------------------------------------
+            startX = (int)(LoadMap.DEFAULTWIDTH * vars.hMult + 100);
+            delta = (startX + 270)/270;
+            ghostImage = new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, minMult, "Entity2_Teared", "UP", 0));
+            locations[1] = new Point(startX - (120*delta) + (int)(19*minMult),
+                    (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
+            locations[2] = new Point(startX - (120*delta) + (int)(30 + newEntitySize + 19*minMult),
+                    (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult) + 58);
+            elements[2].setIcon(new ImageIcon(Textures.drawNail(model.mainPanel, true)));
+
+            publish(new AnimationFrame(false, false, null, ghostImage, elements, locations));
+            Thread.sleep(500);
+            ghostImage = new ImageIcon(Textures.drawEntity(
+                    model.mainPanel, minMult, "Entity2_Teared", "DOWN", 0));
+            locations[1] = new Point(startX - (120*delta) + (int)(19*minMult),
+                    (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
+            locations[2] = new Point(startX - (120*delta) + (int)(30 + newEntitySize + 19*minMult),
+                    (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult) + 58);
+
+            publish(new AnimationFrame(false, false, null, ghostImage, elements, locations));
+            Thread.sleep(1500);
+
+            publish(new AnimationFrame(false, true, pacmanImage, ghostImage, elements, locations));
+        }
+
+        /**
+         * Third animation, from right to left, Binky is hurt, only naked binky back, LEVELS 8 -> 9, 11 -> 12, 14 -> 15
+         *
+         * @throws InterruptedException To be handled by caller
+         */
+        private void playThirdAnimation()
+                throws InterruptedException
+        {
+            int startX;
+            int delta;
+            int step = 0;
+            JLabel[] elements = new JLabel[]{new JLabel(), new JLabel()};
+            Point[] locations = new Point[2];
+            ImageIcon ghostImage = null;
+
+            // INITIALIZATION PART: ------------------------------------------------------------------------------
+            for (int i = 0; i <= 1 && vars.gameOn; i++) {
+                elements[i].setSize(new Dimension(newEntitySize * 4, newEntitySize * 4));
+            }
+            publish(new AnimationFrame(true, false, null, null, elements, null));
+            Thread.sleep(24);
+
+            // FIRST PART: From right to left --------------------------------------------------------------------
+            animRightToLeft(300, true, elements, locations);
+            Thread.sleep(250);
+
+            // SECOND PART: From left to right -------------------------------------------------------------------
+            for (int j = 300; j >= 0 && vars.gameOn; --j)
+            {
+                startX = (int)(LoadMap.DEFAULTWIDTH * vars.hMult + 100);
+                delta = startX/270;
+                locations[1] = new Point(startX - (j*delta),
+                            (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
+
+                if (step < 4) {
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity2_Naked", "RIGHT", 1));
+                } else {
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity2_Naked", "RIGHT", 0));
+                }
+
+                publish(new AnimationFrame(false, false, null, ghostImage, elements, locations));
+                step = (step + 1) % 8;
+                Thread.sleep(18);
             }
 
-            publish(new AnimationFrame(false, true, pacmanImage, elements, locations));
-            return null;
+            publish(new AnimationFrame(false, true, null, ghostImage, elements, locations));
+        }
+
+        /**
+         * Core animation from right yo left
+         *
+         * @param len int
+         * @param hurtGhost boolean
+         * @param elements JLabel[]
+         * @param locations Point[]
+         * @throws InterruptedException To be handled by caller
+         */
+        private void animRightToLeft(int len, boolean hurtGhost, JLabel[] elements, Point[] locations)
+                throws InterruptedException
+        {
+            int startX;
+            int delta;
+            int step = 0;
+            ImageIcon pacmanImage;
+            ImageIcon ghostImage;
+            for (int j = 1; j < len && vars.gameOn; ++j)
+            {
+                startX = (int)(LoadMap.DEFAULTWIDTH * vars.hMult + 100);
+                delta = (startX + 270)/270;
+                for (int i = 0; i < 2; i++) {
+                    locations[i] = new Point(startX - (j*delta) + (i*40) + (int)(i * (310 - j)/10 * minMult),
+                            (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult));
+                }
+                if (locations.length == 3) {
+                    locations[2] = new Point(startX - (120*delta) + (int)(30 + newEntitySize + 19*minMult),
+                            (int)((LoadMap.MAPHEIGHTINTILES / 2f + 6) * LoadMap.TILESIZEINPXS * minMult) + 58);
+                }
+                if (step < 4) {
+                    pacmanImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity1", "DIRECTION", 0));
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity2" + (hurtGhost ? "_Hurt" : ""), "LEFT", 1));
+                } else {
+                    pacmanImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity1","LEFT", 0));
+                    ghostImage = new ImageIcon(Textures.drawEntity(
+                            model.mainPanel, minMult, "Entity2" + (hurtGhost ? "_Hurt" : ""), "LEFT", 0));
+                }
+
+                publish(new AnimationFrame(false, false, pacmanImage, ghostImage, elements, locations));
+                step = (step + 1) % 8;
+                Thread.sleep(18);
+            }
         }
 
         @Override
@@ -1051,9 +1255,14 @@ class GameLoadController
                         }
                     } else {
                         for (int i = 0; i < frame.entities.length; ++i) {
-                            model.mainPanel.getComponent(animLabelsIds[i]).setLocation(frame.locations[i].x, frame.locations[i].y);
+                            frame.entities[i].setLocation(frame.locations[i].x, frame.locations[i].y);
                         }
-                        frame.entities[0].setIcon(frame.pacmanImage);
+                        if (frame.pacmanImage != null) {
+                            frame.entities[0].setIcon(frame.pacmanImage);
+                        }
+                        if (frame.ghostImage != null) {
+                            frame.entities[1].setIcon(frame.ghostImage);
+                        }
                     }
                     model.mainPanel.revalidate();
                     model.mainPanel.repaint();
