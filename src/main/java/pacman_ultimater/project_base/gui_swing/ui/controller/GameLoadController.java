@@ -1,5 +1,6 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
+import pacman_ultimater.project_base.ai.*;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
@@ -234,33 +235,42 @@ class GameLoadController
         //  - Picture box containing entity's image and its physical location.
         //  - Direction used later for entity's movement and selecting the right image.
         //  - Type of entity such as NoAI, or all the other kinds of enemy's AI.
-        vars.defaultAIs = new DefaultAI[]
+        DefaultAI[] defaultAIs = new DefaultAI[]
         {
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK),
-            new DefaultAI(DefaultAI.nType.HOSTILEATTACK)
+            new BinkyAI(DefaultAI.nType.HOSTILEATTACK, 1, vars.map.item1),
+            new PinkyAI(DefaultAI.nType.HOSTILEATTACK, 2, vars.map.item1),
+            new InkyAI(DefaultAI.nType.HOSTILEATTACK, 3, vars.map.item1),
+            new ClydeAI(DefaultAI.nType.HOSTILEATTACK, 4, vars.map.item1)
         };
 
         final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
         final int newTileSize = (int) (LoadMap.TILESIZEINPXS * minMult);
         final int newXPadding = (int)(((vars.defSize.width * vars.hMult) - (LoadMap.MAPWIDTHINTILES * newTileSize)) /2);
         newEntitySize = (int)(ENTITIESSIZEINPXS * minMult);
+        final boolean attack = vars.chaseMode > 0;
+
+        for (DefaultAI ai : defaultAIs) {
+            if (attack) {
+                ai.state = DefaultAI.nType.HOSTILEATTACK;
+            } else {
+                ai.state = DefaultAI.nType.HOSTILERETREAT;
+            }
+        }
 
         vars.entities = new ArrayList<>();
         vars.entities.add(new Quintet<>(LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY,
-                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.NOAI)));
+                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.NOAI, 1, vars.map.item1)));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2,
-                new JLabel(), Direction.directionType.LEFT, vars.player2 ? new DefaultAI(DefaultAI.nType.NOAI)
-                                                                        : vars.defaultAIs[0]));
+                new JLabel(), Direction.directionType.LEFT,
+                vars.player2 ? new DefaultAI(DefaultAI.nType.NOAI, 2, vars.map.item1) : defaultAIs[0]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3,
-                new JLabel(),Direction.directionType.DIRECTION, vars.player3 ? new DefaultAI(DefaultAI.nType.NOAI)
-                                                                        : vars.defaultAIs[1]));
+                new JLabel(),Direction.directionType.DIRECTION,
+                vars.player3 ? new DefaultAI(DefaultAI.nType.NOAI, 3, vars.map.item1) : defaultAIs[1]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3,
-                new JLabel(),Direction.directionType.DIRECTION, vars.player4 ? new DefaultAI(DefaultAI.nType.NOAI)
-                                                                        : vars.defaultAIs[2]));
+                new JLabel(),Direction.directionType.DIRECTION,
+                vars.player4 ? new DefaultAI(DefaultAI.nType.NOAI, 3, vars.map.item1) : defaultAIs[2]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3,
-                new JLabel(),Direction.directionType.DIRECTION, vars.defaultAIs[3]));
+                new JLabel(),Direction.directionType.DIRECTION, defaultAIs[3]));
 
         //Setting entities names for easy later manipulation and automatic image selection
         for (int i = 1; i <= ENTITYCOUNT; i++)
@@ -440,6 +450,9 @@ class GameLoadController
 
         if (nextLevel){
             vars.collectedDots = 0;
+            vars.modeSwitchCounter = 0;
+            vars.chaseMode = 0;
+            vars.scatterMode = 70;
             vars.ghostRelease = vars.player2 ? (GameConsts.BASEGHOSTRELEASETIMER / 5)
                     : vars.player3 ? (GameConsts.BASEGHOSTRELEASETIMER / 7)
                     : vars.player4 ? (GameConsts.BASEGHOSTRELEASETIMER / 10)

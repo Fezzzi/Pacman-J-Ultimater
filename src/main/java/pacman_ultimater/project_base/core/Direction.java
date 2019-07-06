@@ -20,7 +20,7 @@ public class Direction {
      * @param direction direction representation in form of directionType
      * @return IntPair
      */
-    public IntPair directionToIntPair(directionType direction)
+    public static IntPair directionToIntPair(directionType direction)
     {
         switch (direction)
         {
@@ -44,7 +44,7 @@ public class Direction {
      * @param intPair Input delta tuple of two integers.
      * @return directionType
      */
-    directionType intPairToDirection(IntPair intPair)
+    public static directionType intPairToDirection(IntPair intPair)
     {
         if(intPair.item1 == 0)
         {

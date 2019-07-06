@@ -1,5 +1,6 @@
 package pacman_ultimater.project_base.gui_swing.ui.controller;
 
+import pacman_ultimater.project_base.ai.DefaultAI;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
@@ -381,8 +382,10 @@ class GameplayController implements IKeyDownHandler
     {
         Direction dir = new Direction();
         IntPair delta = dir.directionToIntPair(entity.item4);
-        if (!isDirectionFree(delta.item1, delta.item2, entity))
+        if (!isDirectionFree(delta.item1, delta.item2, entity)) {
+            entity.item5.prevDirection = entity.item4;
             entity.item4 = Direction.directionType.DIRECTION;
+        }
     }
 
     /**
@@ -499,7 +502,8 @@ class GameplayController implements IKeyDownHandler
         }
 
         // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
-        if (vars.eatEmTimer <= 0 || entity.item3.getName().equals("Entity1"))
+        if ((vars.eatEmTimer <= 0 || entity.item3.getName().equals("Entity1"))
+        && entity.item5.state != DefaultAI.nType.EATEN)
         {
             if (entity.item3.getName().equals("Entity1")) {
                 entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
@@ -610,16 +614,21 @@ class GameplayController implements IKeyDownHandler
             if (vars.music) {
                 vars.playWithMusicPLayer(ClasspathFileReader.getPACMAN_SIREN(), true, 0, 9100);
             }
-            if (vars.ghostsEaten != 0) {
-                for (int i = 1; i < 5; i++) {
-                    if ((vars.player2 && i == 1) || (vars.player3 && i == 2) || (vars.player4 && i == 3)) {
-                        vars.entities.get(i).item5.state = DefaultAI.nType.NOAI;
-                    } else {
-                        vars.entities.get(i).item5.state = vars.defaultAIs[i - 1].state;
+
+            for (int i = 1; i < 5; i++) {
+                if ((vars.player2 && i == 1) || (vars.player3 && i == 2) || (vars.player4 && i == 3)) {
+                    vars.entities.get(i).item5.state = DefaultAI.nType.NOAI;
+                } else {
+                    if (vars.entities.get(i).item5.state != DefaultAI.nType.EATEN) {
+                        if (vars.chaseMode > 0) {
+                            vars.entities.get(i).item5.state = DefaultAI.nType.HOSTILEATTACK;
+                        } else if (vars.scatterMode > 0) {
+                            vars.entities.get(i).item5.state = DefaultAI.nType.HOSTILERETREAT;
+                        }
                     }
                 }
-                vars.ghostsEaten = 0;
             }
+            vars.ghostsEaten = 0;
             model.ghostUpdater.setDelay(!(vars.player2 || vars.player3 || vars.player4) ?
                     (GameConsts.PACTIMER + 40 - (vars.level > 13 ? 65 : vars.level * 5))
                     : model.pacUpdater.getDelay() + (vars.player2 ? 10 : vars.player3 ? 20 : 30));
@@ -779,6 +788,17 @@ class GameplayController implements IKeyDownHandler
     }
 
     /**
+     * Ghost forcibly revert their direction when state is changed from HOSTILE ATTACK to HOSTILE RETREAT and vice versa
+     */
+    private void revertDirection(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    {
+        if (entity.item4 != Direction.directionType.DIRECTION) {
+            entity.item4 = Direction.directionType.values()[(entity.item4.ordinal() + 2) % 4];
+            canMove(entity);
+        }
+    }
+
+    /**
      * Checks if distance in tiles between pacman and each entity is bigger than 1.
      *
      * @throws IOException Exception is to be handled by caller.
@@ -796,7 +816,7 @@ class GameplayController implements IKeyDownHandler
                     + Math.abs(entity.item2 - vars.entities.get(0).item2)) == 1
                 && entity.item4.ordinal() == (vars.entities.get(0).item4.ordinal() + 2) % 4))
             {
-                if (vars.eatEmTimer <= 0) {
+                if (entity.item5.state != DefaultAI.nType.EATEN && entity.item5.state != DefaultAI.nType.CANBEEATEN) {
                     if (killNextTick) {
                         killNextTick = false;
                         killPacman();
@@ -1124,8 +1144,42 @@ class GameplayController implements IKeyDownHandler
     private void ghostUpdater_Tick()
     {
         model.ghostSmoothTimer.stop();
+        recountBehaviourModes();
         ghostLegs = !ghostLegs;
         gameLoop(false);
+    }
+
+    /**
+     * Recounts variables used to determine ghost behaviour mode
+     */
+    private void recountBehaviourModes()
+    {
+        if (vars.scatterMode > 0 ) {
+            --vars.scatterMode;
+            if (vars.scatterMode == 0) {
+                vars.chaseMode = 20000 / model.ghostUpdater.getDelay();
+                for (Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity : vars.entities)
+                {
+                    if (entity.item5.state == DefaultAI.nType.HOSTILERETREAT) {
+                        entity.item5.state = DefaultAI.nType.HOSTILEATTACK;
+                        revertDirection(entity);
+                    }
+                }
+            }
+        } else if (vars.chaseMode > 0 && vars.modeSwitchCounter < 4) {
+            --vars.chaseMode;
+            if (vars.chaseMode == 0) {
+                ++vars.modeSwitchCounter;
+                vars.scatterMode = (vars.modeSwitchCounter < 2 ? 7000 : 5000) / model.ghostUpdater.getDelay();
+                for (Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity : vars.entities)
+                {
+                    if (entity.item5.state == DefaultAI.nType.HOSTILEATTACK) {
+                        entity.item5.state = DefaultAI.nType.HOSTILERETREAT;
+                        revertDirection(entity);
+                    }
+                }
+            }
+        }
     }
 
     /**
