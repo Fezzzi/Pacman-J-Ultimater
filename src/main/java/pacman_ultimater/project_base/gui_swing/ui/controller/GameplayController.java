@@ -336,12 +336,12 @@ class GameplayController implements IKeyDownHandler
     /**
      * Checks whether the direction the entity is aiming in is free.
      *
-     * @param y Y-axis delta.
      * @param x X-axis delta.
+     * @param y Y-axis delta.
      * @param entity The observed entity.
      * @return boolean value indicating emptiness of the observed tile.
      */
-    private boolean isDirectionFree(int y, int x, Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
+    private boolean isDirectionFree(int x, int y, Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
     {
         if (entity == null){
             return false;
@@ -365,8 +365,7 @@ class GameplayController implements IKeyDownHandler
     private void SetToMove
     (Direction.directionType newDirection, Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
     {
-        Direction dir = new Direction();
-        IntPair delta = dir.directionToIntPair(newDirection);
+        IntPair delta = Direction.directionToIntPair(newDirection);
         if (isDirectionFree(delta.item1, delta.item2, entity)) {
             entity.item4 = newDirection;
             newDirection = Direction.directionType.DIRECTION;
@@ -380,8 +379,7 @@ class GameplayController implements IKeyDownHandler
      */
     private void canMove(Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI> entity)
     {
-        Direction dir = new Direction();
-        IntPair delta = dir.directionToIntPair(entity.item4);
+        IntPair delta = Direction.directionToIntPair(entity.item4);
         if (!isDirectionFree(delta.item1, delta.item2, entity)) {
             entity.item5.prevDirection = entity.item4;
             entity.item4 = Direction.directionType.DIRECTION;
@@ -502,8 +500,8 @@ class GameplayController implements IKeyDownHandler
         }
 
         // Last Line of if statement ensures ghost flashing at the end of pacman excited mode.
-        if ((vars.eatEmTimer <= 0 || entity.item3.getName().equals("Entity1"))
-        && entity.item5.state != DefaultAI.nType.EATEN)
+        if ((vars.eatEmTimer <= 0 || entity.item5.state != DefaultAI.nType.CANBEEATEN
+        || entity.item3.getName().equals("Entity1")) && entity.item5.state != DefaultAI.nType.EATEN)
         {
             if (entity.item3.getName().equals("Entity1")) {
                 entity.item3.setIcon(new ImageIcon(Textures.drawEntity(
@@ -584,16 +582,27 @@ class GameplayController implements IKeyDownHandler
                 && (entity.item4 == Direction.directionType.DIRECTION
                 || isAtCrossroad(entity.item1, entity.item2)))
                 {
-                    entity.item4 =
-                            entity.item5.NextStep(
+                    entity.item4 = entity.item5.NextStep(
                             new IntPair(entity.item1, entity.item2),
-                                    entity.item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
+                            entity.item5.state == DefaultAI.nType.EATEN ? vars.topGhostInTiles
                                 : new IntPair(vars.entities.get(0).item1, vars.entities.get(0).item2),
-                                    entity.item4, vars.map.item1);
+                            entity.item4,
+                            vars.entities.get(0).item4 == Direction.directionType.DIRECTION
+                            ? vars.entities.get(0).item5.prevDirection : vars.entities.get(0).item4,
+                            vars.map.item1);
                 }
 
                 canMove(entity);
                 moveIt(entity, i);
+
+                if (entity.item5.state == DefaultAI.nType.EATEN && entity.item1 == vars.topGhostInTiles.item1
+                && entity.item2 == vars.topGhostInTiles.item2) {
+                    if (vars.chaseMode > 0) {
+                        entity.item5.state = DefaultAI.nType.HOSTILEATTACK;
+                    } else if (vars.scatterMode > 0) {
+                        entity.item5.state = DefaultAI.nType.HOSTILERETREAT;
+                    }
+                }
             }
         }
     }

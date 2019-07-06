@@ -5,6 +5,7 @@ import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.core.Tile;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Pair;
+import pacman_ultimater.project_base.custom_utils.Triplet;
 
 import java.util.*;
 
@@ -25,13 +26,17 @@ public class DefaultAI
     /**
      * @param state Entity's state such as NoAI, Hostile....
      * @param ghostId int ghost identifier
-     * @param map Tile[][]
+     * @param connectedTiles Boolean[][]
      */
-    public DefaultAI(nType state, int ghostId, Tile[][] map)
+    public DefaultAI(nType state, int ghostId, Boolean [][] connectedTiles)
     {
         this.state = state;
         prevDirection = Direction.directionType.DIRECTION;
-        retreatTile = findRetreatTile(ghostId, map);
+        if (state != nType.NOAI) {
+            retreatTile = findRetreatTile(ghostId, connectedTiles);
+        } else {
+            retreatTile = null;
+        }
     }
 
     /**
@@ -70,7 +75,7 @@ public class DefaultAI
      * @return Direction.nType
      */
     final public Direction.directionType NextStep(IntPair position, IntPair target,
-            Direction.directionType direction, Tile[][] map)
+            Direction.directionType direction, Direction.directionType pacmanDirection, Tile[][] map)
     {
         if (state == nType.HOSTILERETREAT)
             return HostileRetreat(position, target, direction, map);
@@ -79,7 +84,7 @@ public class DefaultAI
         else if (state == nType.CANBEEATEN)
             return CanBeEaten(position, target, direction, map);
         else
-            return HostileAttack(position, target, direction, map);
+            return HostileAttack(position, target, direction, pacmanDirection, map);
     }
 
     /**
@@ -93,7 +98,7 @@ public class DefaultAI
      * @return Direction.nType
      */
     protected Direction.directionType HostileAttack(IntPair position, IntPair target,
-            Direction.directionType direction, Tile[][] map)
+            Direction.directionType direction, Direction.directionType pacmanDirection, Tile[][] map)
     {
         return randomAI(position, direction, map);
     }
@@ -111,8 +116,7 @@ public class DefaultAI
     protected Direction.directionType HostileRetreat(IntPair position, IntPair target,
              Direction.directionType direction, Tile[][] map)
     {
-        return bfsAI(position, retreatTile, direction, map);
-        //return randomAI(position, direction, map);
+        return bfsAI(position, retreatTile, direction, map, 0.75f);
     }
 
     /**
@@ -128,7 +132,7 @@ public class DefaultAI
     protected Direction.directionType Eaten(IntPair position, IntPair target,
             Direction.directionType direction, Tile[][] map)
     {
-        return randomAI(position, direction, map);
+        return bfsAI(position, target, direction, map, 1);
     }
 
     /**
@@ -172,62 +176,65 @@ public class DefaultAI
             return Direction.directionType.DIRECTION;
     }
 
+    /**
+     * Finds fastest way from position tile to target tile and returns the first direction on this route.
+     * There is also probability for the ghost to choose random insted.
+     *
+     * @param position IntPair
+     * @param target IntPair
+     * @param direction Direction.directionType
+     * @param map Tile[][]
+     * @param randomness float
+     * @return Direction.directionType
+     */
     final Direction.directionType bfsAI (IntPair position, IntPair target,
-             Direction.directionType direction, Tile[][] map)
+             Direction.directionType direction, Tile[][] map, float randomness)
     {
-        IntPair back = Direction.directionToIntPair(direction != Direction.directionType.DIRECTION ? direction : prevDirection);
-        back = new IntPair(back.item1 * -1, back.item2 * -1);
-        ArrayList<IntPair> possibilities;
-        Set<IntPair> used = new HashSet<>();
-        LinkedList<Pair<IntPair, IntPair>> queue = new LinkedList<>(){};
-        queue.push(new Pair<>(new IntPair(position.item1 + back.item1, position.item2 + back.item2),position));
+        if ((new Random()).nextFloat() < randomness) {
+            IntPair back = Direction.directionToIntPair(direction != Direction.directionType.DIRECTION ? direction : prevDirection);
+            ArrayList<IntPair> possibilities;
+            boolean[][] used = new boolean[LoadMap.MAPHEIGHTINTILES][LoadMap.MAPWIDTHINTILES];
+            ArrayDeque<Triplet<IntPair, IntPair, Direction.directionType>> queue = new ArrayDeque<>();
 
-        while(!queue.isEmpty()) {
-            Pair<IntPair, IntPair> positions = queue.getFirst();
-            back = new IntPair(positions.item2.item1 - positions.item1.item1, positions.item2.item2 - positions.item1.item2);
-            Direction.directionType newDirection = Direction.intPairToDirection(back);
             back = new IntPair(back.item1 * -1, back.item2 * -1);
-
-            possibilities = loadPossibilities(positions.item2, direction, map, back);
-
+            possibilities = loadPossibilities(position, direction, map, back);
             for (IntPair newPosition : possibilities) {
-                if (newPosition.equals(target))
+                IntPair candidate = new IntPair(position.item1 + newPosition.item1, position.item2 + newPosition.item2);
+                Direction.directionType newDirection = Direction.intPairToDirection(newPosition);
+                if (candidate.equals(target))
                     return newDirection;
 
-                if (!used.contains(newPosition)) {
-                    used.add(newPosition);
-                    queue.push(new Pair<>(positions.item2, newPosition));
+                if (!used[candidate.item2][candidate.item1]) {
+                    used[candidate.item2][candidate.item1] = true;
+                    queue.push(new Triplet<>(position, candidate, newDirection));
+                }
+            }
+            used[position.item2][position.item1] = true;
+
+            while (!queue.isEmpty()) {
+                Triplet<IntPair, IntPair, Direction.directionType> positions = queue.pop();
+                back = new IntPair(
+                        (positions.item2.item1 - positions.item1.item1) * -1,
+                        (positions.item2.item2 - positions.item1.item2) * -1);
+                possibilities = loadPossibilities(positions.item2, direction, map, back);
+
+                for (IntPair newPosition : possibilities) {
+                    IntPair candidate = new IntPair(
+                            (positions.item2.item1 + newPosition.item1 + LoadMap.MAPWIDTHINTILES) % LoadMap.MAPWIDTHINTILES,
+                            (positions.item2.item2 + newPosition.item2 + LoadMap.MAPHEIGHTINTILES) % LoadMap.MAPHEIGHTINTILES);
+                    if (candidate.equals(target))
+                        return positions.item3;
+
+                    if (!used[candidate.item2][candidate.item1]) {
+                        used[candidate.item2][candidate.item1] = true;
+                        queue.addLast(new Triplet<>(positions.item2, candidate, positions.item3));
+                    }
                 }
             }
         }
 
-        return Direction.directionType.DIRECTION;
-        //return bfs_reccursion(position, target, new HashSet<>(), possibilities, map);
+        return randomAI(position, direction, map);
     }
-
-//    private Direction.directionType bfs_reccursion (IntPair position, IntPair target,
-//            HashSet<IntPair> used, ArrayList<IntPair> stack, Tile[][] map)
-//    {
-//        used.add(position);
-//        for (IntPair newPosition: stack)
-//        {
-//            IntPair back = new IntPair(position.item1 - newPosition.item1, position.item2 - newPosition.item2);
-//            Direction.directionType newDirection = Direction.intPairToDirection(back);
-//
-//            if (newPosition.equals(target)) {
-//                return newDirection;
-//            }
-//
-//            back = new IntPair(back.item1 * -1, back.item2 * -1);
-//            ArrayList<IntPair> possibilities = loadPossibilities(newPosition, newDirection, map, back);
-//
-//            for (IntPair possibility: possibilities) {
-//                if (!used.contains(possibility)) {
-//                    bfs_reccursion()
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Finds possible neighbour tiles to move on
@@ -238,8 +245,8 @@ public class DefaultAI
      * @param back IntPair
      * @return ArrayList
      */
-    final ArrayList<IntPair> loadPossibilities(IntPair position,
-                                               Direction.directionType direction, Tile[][] map, IntPair back)
+    private ArrayList<IntPair> loadPossibilities(IntPair position,
+            Direction.directionType direction, Tile[][] map, IntPair back)
     {
         ArrayList<IntPair> possibilities = new ArrayList<>();
 
@@ -247,19 +254,19 @@ public class DefaultAI
             for (int i = -1; i < 2; i += 2) {
                 int deltaX = (j == 0 ? i : 0);
                 int deltaY = (j == 1 ? i : 0);
-                if (position.item1 + deltaY < 0) {
+                if (position.item1 + deltaX < 0) {
                     if (direction == Direction.directionType.LEFT)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.item1 + deltaY >= LoadMap.MAPWIDTHINTILES) {
+                } else if (position.item1 + deltaX >= LoadMap.MAPWIDTHINTILES) {
                     if (direction == Direction.directionType.RIGHT)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.item2 + deltaX < 0) {
+                } else if (position.item2 + deltaY < 0) {
                     if (direction == Direction.directionType.UP)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (position.item2 + deltaX >= LoadMap.MAPHEIGHTINTILES) {
+                } else if (position.item2 + deltaY >= LoadMap.MAPHEIGHTINTILES) {
                     if (direction == Direction.directionType.DOWN)
                         possibilities.add(new IntPair(deltaX, deltaY));
-                } else if (canAdd(map[position.item2 + deltaX][position.item1 + deltaY])
+                } else if (canAdd(map[position.item2 + deltaY][position.item1 + deltaX])
                         && (deltaX != back.item1 || deltaY != back.item2))
                     possibilities.add(new IntPair(deltaX, deltaY));
             }
@@ -275,7 +282,7 @@ public class DefaultAI
      * @param tile The examined tile.
      * @return boolean
      */
-    boolean canAdd(Tile tile)
+    private boolean canAdd(Tile tile)
     {
         return (tile.tile == Tile.nType.DOT || tile.tile == Tile.nType.POWERDOT || tile.tile == Tile.nType.FREE);
     }
@@ -286,17 +293,53 @@ public class DefaultAI
      * @param idGhost int
      * @return IntPair
      */
-    private IntPair findRetreatTile(int idGhost, Tile[][] map)
+    private IntPair findRetreatTile(int idGhost, Boolean[][] connectedTiles)
     {
-        switch (idGhost) {
-            case 1:
-                return new IntPair(LoadMap.MAPWIDTHINTILES - 1, 0);
-            case 2:
-                return new IntPair(0, 0);
-            case 3:
-                return new IntPair(0, LoadMap.MAPHEIGHTINTILES - 1);
-            default:
-                return new IntPair(LoadMap.MAPWIDTHINTILES - 1, LoadMap.MAPWIDTHINTILES - 1);
+        int deltaX, deltaY, startX, startY;
+        if (idGhost < 3) {
+            startY = 0;
+            deltaY = 1;
+        } else {
+            startY = LoadMap.MAPHEIGHTINTILES - 1;
+            deltaY = -1;
+        }
+
+        if (idGhost == 1 || idGhost == 4) {
+            startX = LoadMap.MAPWIDTHINTILES - 1;
+            deltaX = -1;
+        } else {
+            startX = 0;
+            deltaX = 1;
+        }
+
+        int iterationX = 0, iterationY = 0;
+        boolean iterateX = true, iterateY = true;
+        //We will always find some free tiles asmap wil be invalid otherwise
+        while (true) {
+            if (connectedTiles[startY + deltaY*iterationY][startX + deltaX*iterationX] != null)
+                return new IntPair(startX + deltaX*iterationX, startY + deltaY*iterationY);
+
+            for (int i = startX; iterateX && (i - startX) != iterationX*deltaX; i += deltaX) {
+                if (connectedTiles[startY + deltaY*iterationY][i] != null)
+                    return new IntPair(i, startY + deltaY*iterationY);
+            }
+
+            for (int i = startY; iterateY && (i - startY) != iterationY*deltaY; i += deltaY) {
+                if (connectedTiles[i][startX + deltaX*iterationX] != null)
+                    return new IntPair(startX + deltaX*iterationX, i);
+            }
+
+            if (iterateX
+            && (iterationX + 1)*deltaX + startX >= 0 && (iterationX + 1)*deltaX + startX < LoadMap.MAPWIDTHINTILES)
+                ++iterationX;
+            else
+                iterateX = false;
+
+            if (iterateY
+            && (iterationY + 1)*deltaY + startY >= 0 && (iterationY + 1)*deltaY + startY < LoadMap.MAPHEIGHTINTILES)
+                ++iterationY;
+            else
+                iterateY = false;
         }
     }
 }

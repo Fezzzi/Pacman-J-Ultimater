@@ -237,10 +237,10 @@ class GameLoadController
         //  - Type of entity such as NoAI, or all the other kinds of enemy's AI.
         DefaultAI[] defaultAIs = new DefaultAI[]
         {
-            new BinkyAI(DefaultAI.nType.HOSTILEATTACK, 1, vars.map.item1),
-            new PinkyAI(DefaultAI.nType.HOSTILEATTACK, 2, vars.map.item1),
-            new InkyAI(DefaultAI.nType.HOSTILEATTACK, 3, vars.map.item1),
-            new ClydeAI(DefaultAI.nType.HOSTILEATTACK, 4, vars.map.item1)
+            new BinkyAI(DefaultAI.nType.HOSTILEATTACK, 1, vars.map.item6),
+            new PinkyAI(DefaultAI.nType.HOSTILEATTACK, 2, vars.map.item6),
+            new InkyAI(DefaultAI.nType.HOSTILEATTACK, 3, vars.map.item6),
+            new ClydeAI(DefaultAI.nType.HOSTILEATTACK, 4, vars.map.item6)
         };
 
         final float minMult = Math.min(vars.vMult * 1.05f, vars.hMult);
@@ -259,16 +259,16 @@ class GameLoadController
 
         vars.entities = new ArrayList<>();
         vars.entities.add(new Quintet<>(LoadMap.PACMANINITIALX, LoadMap.PACMANINITIALY,
-                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.NOAI, 1, vars.map.item1)));
+                new JLabel(), Direction.directionType.LEFT, new DefaultAI(DefaultAI.nType.NOAI, 1, null)));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2,
                 new JLabel(), Direction.directionType.LEFT,
-                vars.player2 ? new DefaultAI(DefaultAI.nType.NOAI, 2, vars.map.item1) : defaultAIs[0]));
+                vars.player2 ? new DefaultAI(DefaultAI.nType.NOAI, 2, null) : defaultAIs[0]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 - 2, vars.topGhostInTiles.item2 + 3,
                 new JLabel(),Direction.directionType.DIRECTION,
-                vars.player3 ? new DefaultAI(DefaultAI.nType.NOAI, 3, vars.map.item1) : defaultAIs[1]));
+                vars.player3 ? new DefaultAI(DefaultAI.nType.NOAI, 3, null) : defaultAIs[1]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1, vars.topGhostInTiles.item2 + 3,
                 new JLabel(),Direction.directionType.DIRECTION,
-                vars.player4 ? new DefaultAI(DefaultAI.nType.NOAI, 3, vars.map.item1) : defaultAIs[2]));
+                vars.player4 ? new DefaultAI(DefaultAI.nType.NOAI, 3, null) : defaultAIs[2]));
         vars.entities.add(new Quintet<>(vars.topGhostInTiles.item1 + 2, vars.topGhostInTiles.item2 + 3,
                 new JLabel(),Direction.directionType.DIRECTION, defaultAIs[3]));
 

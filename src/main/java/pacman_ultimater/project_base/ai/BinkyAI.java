@@ -9,11 +9,11 @@ public class BinkyAI extends DefaultAI
     /**
      * @param state Entity's state such as NoAI, Hostile....
      * @param ghostId int ghost identifier
-     * @param map Tile[][]
+     * @param connectedTiles Boolean [][]
      */
-    public BinkyAI(nType state, int ghostId, Tile[][] map)
+    public BinkyAI(nType state, int ghostId, Boolean [][] connectedTiles)
     {
-        super(state, ghostId, map);
+        super(state, ghostId, connectedTiles);
     }
 
     /**
@@ -21,20 +21,8 @@ public class BinkyAI extends DefaultAI
      */
     @Override
     protected final Direction.directionType HostileAttack(IntPair position, IntPair target,
-                                                          Direction.directionType direction, Tile[][] map)
+          Direction.directionType direction, Direction.directionType pacmanDirection, Tile[][] map)
     {
-        System.out.println("BINKY HOSTILE");
-        return super.HostileAttack(position, target, direction, map);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final Direction.directionType CanBeEaten(IntPair position, IntPair target,
-           Direction.directionType direction, Tile[][] map)
-    {
-        System.out.println("BINKY CANBEEATEN");
-        return super.CanBeEaten(position, target, direction, map);
+        return super.bfsAI(position, target, direction, map, 0.95f);
     }
 }

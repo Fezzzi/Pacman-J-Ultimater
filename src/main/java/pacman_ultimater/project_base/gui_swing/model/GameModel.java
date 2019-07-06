@@ -4,6 +4,7 @@ import pacman_ultimater.project_base.ai.DefaultAI;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
+import pacman_ultimater.project_base.custom_utils.Sextet;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -26,7 +27,7 @@ public class GameModel {
             keyPressed4, killed;
     public Clip musicPlayer;
     public Clip[] soundPlayers;
-    public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> map;
+    public Sextet<Tile[][], Integer, IntPair, Color, ArrayList<Point>, Boolean[][]> map;
     public Tile[][] mapFresh;
     public ArrayList<JLabel> addedComponents;
     public LoadMap loadedMap;

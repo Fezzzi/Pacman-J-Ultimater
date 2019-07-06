@@ -9,11 +9,11 @@ public class ClydeAI extends DefaultAI
     /**
      * @param state Entity's state such as NoAI, Hostile....
      * @param ghostId int ghost identifier
-     * @param map Tile[][]
+     * @param connectedTiles Boolean [][]
      */
-    public ClydeAI(nType state, int ghostId, Tile[][] map)
+    public ClydeAI(nType state, int ghostId, Boolean [][] connectedTiles)
     {
-        super(state, ghostId, map);
+        super(state, ghostId, connectedTiles);
     }
 
     /**
@@ -21,20 +21,12 @@ public class ClydeAI extends DefaultAI
      */
     @Override
     protected final Direction.directionType HostileAttack(IntPair position, IntPair target,
-                                                          Direction.directionType direction, Tile[][] map)
+          Direction.directionType direction, Direction.directionType pacmanDirection, Tile[][] map)
     {
-        System.out.println("CLYDE HOSTILE");
-        return super.HostileAttack(position, target, direction, map);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final Direction.directionType CanBeEaten(IntPair position, IntPair target,
-           Direction.directionType direction, Tile[][] map)
-    {
-        System.out.println("CLYDE CANBEEATEN");
-        return super.CanBeEaten(position, target, direction, map);
+        if ((position.item1 - target.item1) + (position.item2 - target.item2) > 10) {
+            return bfsAI(position, target, direction, map, 0.5f);
+        } else {
+            return CanBeEaten(position, target, direction, map);
+        }
     }
 }

@@ -25,13 +25,13 @@ public class Direction {
         switch (direction)
         {
             case DOWN:
-                return new IntPair(1, 0);
-            case UP:
-                return new IntPair(-1, 0);
-            case LEFT:
-                return new IntPair(0, -1);
-            case RIGHT:
                 return new IntPair(0, 1);
+            case UP:
+                return new IntPair(0, -1);
+            case LEFT:
+                return new IntPair(-1, 0);
+            case RIGHT:
+                return new IntPair(1, 0);
             default:
                 return new IntPair(0, 0);
         }
@@ -46,19 +46,19 @@ public class Direction {
      */
     public static directionType intPairToDirection(IntPair intPair)
     {
-        if(intPair.item1 == 0)
+        if(intPair.item2 == 0)
         {
-            if (intPair.item2 == 1)
+            if (intPair.item1 == 1)
                 return directionType.RIGHT;
-            else if (intPair.item2 == -1)
+            else if (intPair.item1 == -1)
                 return directionType.LEFT;
             else return directionType.DIRECTION;
         }
         else
         {
-            if (intPair.item1 == 1)
+            if (intPair.item2 == 1)
                 return directionType.DOWN;
-            else if (intPair.item1 == -1)
+            else if (intPair.item2 == -1)
                 return directionType.UP;
             else return directionType.DIRECTION;
         }

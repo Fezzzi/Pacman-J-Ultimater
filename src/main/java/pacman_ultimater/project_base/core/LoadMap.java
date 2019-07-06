@@ -23,7 +23,7 @@ public class LoadMap {
     public static final Color TRANSPARENT = new Color(255,255,255,0);
 
     private Tile[][] tileMap;
-    public final Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> Map;
+    public final Sextet<Tile[][], Integer, IntPair, Color, ArrayList<Point>, Boolean[][]> Map;
 
     /**
      * Calls loading function with default symbols.
@@ -53,7 +53,8 @@ public class LoadMap {
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @return Return array of loaded tiles, translated to game's language (null in case of failure).
      */
-    private Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> LdMap(InputStream mapStream, Character[] symbols)
+    private Sextet<Tile[][], Integer, IntPair, Color, ArrayList<Point>, Boolean[][]> LdMap(
+            InputStream mapStream, Character[] symbols)
     {
         try
         {
@@ -61,9 +62,9 @@ public class LoadMap {
             if (map != null)
             {
                 // if LoadIt ended successfully preforms test of map's playability.
-                Pair<Boolean, IntPair> playable = IsPlayable(map.item1, symbols, map.item2);
+                Triplet<Boolean, IntPair, Boolean[][]> playable = IsPlayable(map.item1, symbols, map.item2);
                 if (playable.item1)
-                    return new Quintet<>(tileMap, map.item2, playable.item2, map.item3, map.item4);
+                    return new Sextet<>(tileMap, map.item2, playable.item2, map.item3, map.item4, playable.item3);
             }
         }
         catch (IndexOutOfBoundsException | IOException ignore) {}
@@ -264,62 +265,72 @@ public class LoadMap {
      * @param map Loaded tile map.
      * @param symbols Set of 5 symbols representing tile types in to be loaded file.
      * @param numOfDots Number of pellets found on the loaded map.
-     * @return Tuple indicating playability of the map and position of the ghost house on the map.
+     * @return Tuple indicating playability of the map,position of the ghost house on the map and connected tiles map.
      */
-    private Pair<Boolean, IntPair> IsPlayable(char[][] map, Character[] symbols, int numOfDots)
+    private Triplet<Boolean, IntPair, Boolean[][]> IsPlayable(char[][] map, Character[] symbols, int numOfDots)
     {
         final int GhostHouseSize = 38;
 
         int ghostHouse = 0, dotsFound = 0;
         IntPair ghostPosition = null;
         IntPair position = new IntPair(PACMANINITIALY + 1, PACMANINITIALX + 1);
-        Boolean[][] connectedTiles = new Boolean[MAPHEIGHTINTILES + 2][];
+        Boolean[][] probedTiles = new Boolean[MAPHEIGHTINTILES + 2][];
+        Boolean[][] connectedTiles = new Boolean[MAPHEIGHTINTILES][MAPWIDTHINTILES];
         Stack<IntPair> stack = new Stack<>();
 
         if (map[position.item1][position.item2] == symbols[0] && map[position.item1][position.item2 + 1] == symbols[0])
         {
             // Performs classical BFS from pacman's initial position.
-            connectedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
-            connectedTiles[position.item1][position.item2] = true;
+            probedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
+            probedTiles[position.item1][position.item2] = true;
             stack.push(position);
             while (stack.size() > 0)
             {
                 position = stack.pop();
+                if (position.item1 != 0 && position.item1 != MAPHEIGHTINTILES + 1
+                && position.item2 != 0 && position.item2 != MAPWIDTHINTILES + 1) {
+                    if (map[position.item1][position.item2] != symbols[3]
+                    && map[position.item1][position.item2] != symbols[4]) {
+                        connectedTiles[position.item1 - 1][position.item2 - 1] = true;
+                    }
+                }
+
+
                 if (map[position.item1][position.item2] != symbols[3]
                 && map[position.item1][position.item2] != symbols[4]
                 && position.item2 > 0 && position.item2 < MAPWIDTHINTILES + 1) {
                     // Counts number of dots accessible from starting point for further comparison.
                     if (map[position.item1][position.item2] != symbols[0])
                         dotsFound++;
-                    if (connectedTiles[position.item1] == null)
-                        connectedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
-                    if (connectedTiles[position.item1 - 1] == null)
-                        connectedTiles[position.item1 - 1] = new Boolean[MAPWIDTHINTILES + 2];
-                    if (connectedTiles[position.item1 + 1] == null)
-                        connectedTiles[position.item1 + 1] = new Boolean[MAPWIDTHINTILES + 2];
-                    if (connectedTiles[position.item1][position.item2 - 1] == null
-                    || !connectedTiles[position.item1][position.item2 - 1])
+                    if (probedTiles[position.item1] == null)
+                        probedTiles[position.item1] = new Boolean[MAPWIDTHINTILES + 2];
+                    if (probedTiles[position.item1 - 1] == null)
+                        probedTiles[position.item1 - 1] = new Boolean[MAPWIDTHINTILES + 2];
+                    if (probedTiles[position.item1 + 1] == null)
+                        probedTiles[position.item1 + 1] = new Boolean[MAPWIDTHINTILES + 2];
+                    if (probedTiles[position.item1][position.item2 - 1] == null
+                    || !probedTiles[position.item1][position.item2 - 1])
                     {
                         stack.push(new IntPair(position.item1, position.item2 - 1));
-                        connectedTiles[position.item1][position.item2 - 1] = true;
+                        probedTiles[position.item1][position.item2 - 1] = true;
                     }
-                    if (connectedTiles[position.item1][position.item2 + 1] == null
-                    || !connectedTiles[position.item1][position.item2 + 1])
+                    if (probedTiles[position.item1][position.item2 + 1] == null
+                    || !probedTiles[position.item1][position.item2 + 1])
                     {
                         stack.push(new IntPair(position.item1, position.item2 + 1));
-                        connectedTiles[position.item1][position.item2 + 1] = true;
+                        probedTiles[position.item1][position.item2 + 1] = true;
                     }
-                    if (connectedTiles[position.item1 - 1][position.item2] == null
-                    || !connectedTiles[position.item1 - 1][position.item2])
+                    if (probedTiles[position.item1 - 1][position.item2] == null
+                    || !probedTiles[position.item1 - 1][position.item2])
                     {
                         stack.push(new IntPair(position.item1 - 1, position.item2));
-                        connectedTiles[position.item1 - 1][position.item2] = true;
+                        probedTiles[position.item1 - 1][position.item2] = true;
                     }
-                    if (connectedTiles[position.item1 + 1][position.item2] == null
-                    || !connectedTiles[position.item1 + 1][position.item2])
+                    if (probedTiles[position.item1 + 1][position.item2] == null
+                    || !probedTiles[position.item1 + 1][position.item2])
                     {
                         stack.push(new IntPair(position.item1 + 1, position.item2));
-                        connectedTiles[position.item1 + 1][position.item2] = true;
+                        probedTiles[position.item1 + 1][position.item2] = true;
                     }
 
                     // Validates horizontal teleportation and adds teleported tiles to stack
@@ -328,19 +339,19 @@ public class LoadMap {
                         && map[position.item1][MAPWIDTHINTILES] != symbols[3])
                         || ((map[position.item1][position.item2] != symbols[3])
                         && map[position.item1][MAPWIDTHINTILES] == symbols[3])) {
-                            return new Pair<>(false, null);
+                            return new Triplet<>(false, null, null);
                         }
 
                         if (map[position.item1][position.item2] != symbols[3]
                         && map[position.item1][position.item2] != symbols[4]) {
-                            if (position.item2 == 1 && (connectedTiles[position.item1][MAPWIDTHINTILES] == null
-                            || !connectedTiles[position.item1][MAPWIDTHINTILES])) {
+                            if (position.item2 == 1 && (probedTiles[position.item1][MAPWIDTHINTILES] == null
+                            || !probedTiles[position.item1][MAPWIDTHINTILES])) {
                                 stack.push(new IntPair(position.item1, MAPWIDTHINTILES));
-                                connectedTiles[position.item1][MAPWIDTHINTILES] = true;
-                            } else if (connectedTiles[position.item1][1] == null
-                            || !connectedTiles[position.item1][1]) {
+                                probedTiles[position.item1][MAPWIDTHINTILES] = true;
+                            } else if (probedTiles[position.item1][1] == null
+                            || !probedTiles[position.item1][1]) {
                                 stack.push(new IntPair(position.item1, 1));
-                                connectedTiles[position.item1][1] = true;
+                                probedTiles[position.item1][1] = true;
                             }
                         }
                     }
@@ -381,11 +392,11 @@ public class LoadMap {
             // Compares number of found pellets and ghostHouse and decides whether the map is playable or not.
             // The fact that ghost house was found means it is accessible from pacman's starting position.
             if (dotsFound == numOfDots && ghostHouse == GhostHouseSize) {
-                return new Pair<>(true, ghostPosition);
+                return new Triplet<>(true, ghostPosition, connectedTiles);
             }
-            return new Pair<>(false, null);
+            return new Triplet<>(false, null, null);
         }
-        else return new Pair<>(false, null);
+        else return new Triplet<>(false, null, null);
     }
 
     /**

@@ -6,14 +6,17 @@ import pacman_ultimater.project_base.custom_utils.IntPair;
 
 public class PinkyAI extends DefaultAI
 {
+    private AIHelper helper;
+
     /**
      * @param state Entity's state such as NoAI, Hostile....
      * @param ghostId int ghost identifier
-     * @param map Tile[][]
+     * @param connectedTiles Boolean [][]
      */
-    public PinkyAI(nType state, int ghostId, Tile[][] map)
+    public PinkyAI(nType state, int ghostId, Boolean [][] connectedTiles)
     {
-        super(state, ghostId, map);
+        super(state, ghostId, connectedTiles);
+        helper = new AIHelper(connectedTiles);
     }
 
     /**
@@ -21,20 +24,9 @@ public class PinkyAI extends DefaultAI
      */
     @Override
     protected final Direction.directionType HostileAttack(IntPair position, IntPair target,
-                                                          Direction.directionType direction, Tile[][] map)
+          Direction.directionType direction, Direction.directionType pacmanDirection, Tile[][] map)
     {
-        System.out.println("PINKY HOSTILE");
-        return super.HostileAttack(position, target, direction, map);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final Direction.directionType CanBeEaten(IntPair position, IntPair target,
-           Direction.directionType direction, Tile[][] map)
-    {
-        System.out.println("PINKY CANBEEATEN");
-        return super.CanBeEaten(position, target, direction, map);
+        IntPair newTarget = helper.findPacmansCrossRoad(target, pacmanDirection);
+        return super.bfsAI(position, newTarget, direction, map, 0.95f);
     }
 }
