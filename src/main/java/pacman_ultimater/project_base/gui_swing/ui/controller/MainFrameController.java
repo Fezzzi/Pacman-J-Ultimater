@@ -218,8 +218,10 @@ public class MainFrameController {
                 vars.musicPlayer.close();
 
             if(vars.soundPlayers != null)
-                for (Clip soundplayer: vars.soundPlayers)
-                    soundplayer.close();
+                for (Clip soundplayer: vars.soundPlayers) {
+                    if (soundplayer != null)
+                        soundplayer.close();
+                }
 
             if (vars.score > vars.highScore) {
                 try {

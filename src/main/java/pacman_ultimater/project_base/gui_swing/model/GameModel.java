@@ -97,12 +97,6 @@ public class GameModel {
         byte[] EatGhostsoundBuffer = new byte[65536];
         EatGhostSound.read(EatGhostsoundBuffer, 0, 65536);
         soundPlayers[GameConsts.EATGHOSTSOUNDPLAYERID].open(EatGhostSound.getFormat(), EatGhostsoundBuffer, 0, 65536);
-
-        soundPlayers[GameConsts.EATFRUITSOUNDPLAYERID] = AudioSystem.getClip();
-        AudioInputStream EatruitSound = AudioSystem.getAudioInputStream(ClasspathFileReader.getPACMAN_EATFRUIT());
-        byte[] EatruitSounddBuffer = new byte[65536];
-        EatGhostSound.read(EatruitSounddBuffer, 0, 32000);
-        soundPlayers[GameConsts.EATFRUITSOUNDPLAYERID].open(EatruitSound.getFormat(), EatruitSounddBuffer, 0, 32000);
     }
 
     /**
