@@ -51,7 +51,7 @@ public class MainFrameController {
                 newHeight, newWidth;
 
             // Fonts sizing
-            if (name != null && name.equals("pacman") || name.equals("jultimater")) {
+            if (name != null && (name.equals("pacman") || name.equals("jultimater"))) {
                 label.setFont(ClasspathFileReader.getFONT().deriveFont(Font.BOLD, defFontSize * Math.min(vMult, hMult)));
             } else {
                 label.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, (int)(defFontSize * Math.min(vMult, hMult))));

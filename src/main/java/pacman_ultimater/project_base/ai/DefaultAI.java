@@ -4,7 +4,6 @@ import pacman_ultimater.project_base.core.Direction;
 import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.core.Tile;
 import pacman_ultimater.project_base.custom_utils.IntPair;
-import pacman_ultimater.project_base.custom_utils.Pair;
 import pacman_ultimater.project_base.custom_utils.Triplet;
 
 import java.util.*;
@@ -68,10 +67,11 @@ public class DefaultAI
      * Function that chooses entity's next position based on set AI algorithms and entity's current state.
      * Returns chosen direction for the entity.
      *
-     * @param position  The entity's position.
-     * @param target    Target tile.
-     * @param direction The entity's current direction.
-     * @param map       Game map in tiles.
+     * @param position IntPair
+     * @param target IntPair
+     * @param direction Direction.directionType
+     * @param pacmanDirection Direction.directionType
+     * @param map Tile[][]
      * @return Direction.nType
      */
     final public Direction.directionType NextStep(IntPair position, IntPair target,
@@ -91,10 +91,11 @@ public class DefaultAI
      * AI Algorithm choosing next position for hostile entities during their attack phase.
      * Returns chosen direction for the entity.
      *
-     * @param position  The entity's position.
-     * @param target    Target tile (Usually pacman's location).
-     * @param direction The entity's current direction.
-     * @param map       Game map in tiles.
+     * @param position IntPair
+     * @param target IntPair
+     * @param direction Direction.directionType
+     * @param pacmanDirection Direction.directionType
+     * @param map Tile[][]
      * @return Direction.nType
      */
     protected Direction.directionType HostileAttack(IntPair position, IntPair target,
@@ -107,10 +108,10 @@ public class DefaultAI
      * AI Algorithm choosing next position for hostile entities during their retreat phase.
      * Returns chosen direction for the entity.
      *
-     * @param position  The entity's position.
-     * @param target    Target tile (Usually some corner tile).
-     * @param direction The entity's current direction.
-     * @param map       Game map in tiles.
+     * @param position IntPair
+     * @param target IntPair
+     * @param direction Direction.directionType
+     * @param map Tile[][]
      * @return Direction.nType
      */
     protected Direction.directionType HostileRetreat(IntPair position, IntPair target,
@@ -123,10 +124,10 @@ public class DefaultAI
      * AI Algorithm choosing next position for eaten entities.
      * Returns chosen direction for the entity.
      *
-     * @param position  The entity's position.
-     * @param target    Target tile (Usually ghost house entrance tile).
-     * @param direction The entity's current direction.
-     * @param map       Game map in tiles.
+     * @param position IntPair
+     * @param target IntPair
+     * @param direction Direction.directionType
+     * @param map Tile[][]
      * @return Direction.nType
      */
     protected Direction.directionType Eaten(IntPair position, IntPair target,
@@ -139,10 +140,10 @@ public class DefaultAI
      * AI Algorithm choosing next position for vulnerable entities.
      * Returns chosen direction for the entity.
      *
-     * @param position  The entity's position.
-     * @param target    Target tile.
-     * @param direction The entity's current direction.
-     * @param map       Game map in tiles.
+     * @param position IntPair
+     * @param target IntPair
+     * @param direction Direction.directionType
+     * @param map Tile[][]
      * @return Direction.nType
      */
     protected Direction.directionType CanBeEaten(IntPair position, IntPair target,

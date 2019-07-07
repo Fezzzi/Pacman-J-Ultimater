@@ -250,7 +250,7 @@ public class MenuController implements IKeyDownHandler
      */
     private void menu_Multiplayer()
     {
-        multiplayerOption = 2;
+        multiplayerOption = 1;
         activeElements.add(model.P2ButLbl);
         activeElements.add(model.P3ButLbl);
         activeElements.add(model.P4ButLbl);
@@ -512,9 +512,9 @@ public class MenuController implements IKeyDownHandler
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
     {
         selectMap_Click();
-        if (multiplayerOption == 1)
+        if (multiplayerOption == 0)
             vars.player2 = vars.gameOn;
-        else if (multiplayerOption == 2)
+        else if (multiplayerOption == 1)
             vars.player3 = vars.gameOn;
         else
             vars.player4 = vars.gameOn;
@@ -619,7 +619,7 @@ public class MenuController implements IKeyDownHandler
      */
     private void moveInMultiplayer(int delta)
     {
-        mplayerBtn_MouseEnter((multiplayerOption % 3) + delta);
+        mplayerBtn_MouseEnter((multiplayerOption + delta + 3) % 3);
     }
 
     /**
@@ -667,9 +667,9 @@ public class MenuController implements IKeyDownHandler
     {
         boolean visible = false;
         for (int op : new int[]{multiplayerOption, option}) {
-            if (op == 1)
+            if (op == 0)
                 model.P2ButSelectorLbl.setVisible(visible);
-            else if (op == 2)
+            else if (op == 1)
                 model.P3ButSelectorLbl.setVisible(visible);
             else
                 model.P4ButSelectorLbl.setVisible(visible);
@@ -994,11 +994,11 @@ public class MenuController implements IKeyDownHandler
                     break;
                 case highlight_multiplayer:
                     if (label.getName().equals("p2But"))
-                        mplayerBtn_MouseEnter(1);
+                        mplayerBtn_MouseEnter(0);
                     else if (label.getName().equals("p3But"))
-                        mplayerBtn_MouseEnter(2);
+                        mplayerBtn_MouseEnter(1);
                     else
-                        mplayerBtn_MouseEnter(3);
+                        mplayerBtn_MouseEnter(2);
                     break;
                 case clickToEscape:
                     label.setForeground(Color.white);

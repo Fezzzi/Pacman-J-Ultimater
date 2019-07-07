@@ -4,9 +4,12 @@ import pacman_ultimater.project_base.core.Direction;
 import pacman_ultimater.project_base.core.Tile;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 
+/**
+ * The Pink ghost AI
+ */
 public class PinkyAI extends DefaultAI
 {
-    private AIHelper helper;
+    private final AIHelper helper;
 
     /**
      * @param state Entity's state such as NoAI, Hostile....

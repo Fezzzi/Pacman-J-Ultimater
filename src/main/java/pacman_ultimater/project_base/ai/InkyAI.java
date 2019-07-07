@@ -6,9 +6,12 @@ import pacman_ultimater.project_base.custom_utils.IntPair;
 
 import java.util.Random;
 
+/**
+ * The cyan ghost AI
+ */
 public class InkyAI extends DefaultAI
 {
-    private AIHelper helper;
+    private final AIHelper helper;
 
     /**
      * @param state Entity's state such as NoAI, Hostile....
@@ -36,7 +39,7 @@ public class InkyAI extends DefaultAI
             return super.bfsAI(position, newTarget, direction, map, 0.90f);
         } else {
             if ((position.item1 - target.item1) + (position.item2 - target.item2) > 10) {
-                return bfsAI(position, target, direction, map, 0.5f);
+                return bfsAI(position, target, direction, map, 0.8f);
             } else {
                 return CanBeEaten(position, target, direction, map);
             }

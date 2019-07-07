@@ -4,6 +4,9 @@ import pacman_ultimater.project_base.core.Direction;
 import pacman_ultimater.project_base.core.Tile;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 
+/**
+ * The orange ghost AI
+ */
 public class ClydeAI extends DefaultAI
 {
     /**
@@ -24,7 +27,7 @@ public class ClydeAI extends DefaultAI
           Direction.directionType direction, Direction.directionType pacmanDirection, Tile[][] map)
     {
         if ((position.item1 - target.item1) + (position.item2 - target.item2) > 10) {
-            return bfsAI(position, target, direction, map, 0.5f);
+            return bfsAI(position, target, direction, map, 0.8f);
         } else {
             return CanBeEaten(position, target, direction, map);
         }

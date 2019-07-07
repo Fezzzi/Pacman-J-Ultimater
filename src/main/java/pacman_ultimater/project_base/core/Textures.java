@@ -189,7 +189,7 @@ public class Textures
         int powerSize = entitySize - 2;
 
         Image entity = mainPanel.createImage(entitySize, entitySize);
-        Graphics g = entity.getGraphics();;
+        Graphics g = entity.getGraphics();
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, entitySize, entitySize);
 
@@ -205,9 +205,10 @@ public class Textures
     }
 
     /**
-     * Draw nails for second animation
+     * Draw used (after Binky is hurt) / unused (before) nail for second animation
      *
      * @param mainPanel JPanel
+     * @param used boolean
      * @return Image
      */
     public static Image drawNail(JPanel mainPanel, boolean used)
