@@ -4,6 +4,9 @@ import pacman_ultimater.project_base.core.Direction;
 import pacman_ultimater.project_base.core.Tile;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 
+/**
+ * The red ghost AI
+ */
 public class BinkyAI extends DefaultAI
 {
     /**

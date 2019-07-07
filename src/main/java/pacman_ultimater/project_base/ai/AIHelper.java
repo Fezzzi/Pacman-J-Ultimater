@@ -4,9 +4,12 @@ import pacman_ultimater.project_base.core.Direction;
 import pacman_ultimater.project_base.core.LoadMap;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 
+/**
+ * Helper class for AIs, providing tools for target tiles recomputing
+ */
 class AIHelper
 {
-    private Boolean[][] connectedTiles;
+    private final Boolean[][] connectedTiles;
 
     AIHelper(Boolean[][] connectedTiles)
     {
@@ -64,6 +67,7 @@ class AIHelper
      */
     IntPair findSafety(IntPair position, IntPair pacman)
     {
+        // TODO: Implement function
         return null;
     }
 

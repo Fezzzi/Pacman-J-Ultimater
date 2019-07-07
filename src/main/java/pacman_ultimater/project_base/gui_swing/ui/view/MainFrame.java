@@ -2,9 +2,6 @@ package pacman_ultimater.project_base.gui_swing.ui.view;
 
 import pacman_ultimater.project_base.core.ClasspathFileReader;
 import pacman_ultimater.project_base.core.LoadMap;
-import pacman_ultimater.project_base.core.Textures;
-import pacman_ultimater.project_base.core.Tile;
-import pacman_ultimater.project_base.custom_utils.Pair;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
