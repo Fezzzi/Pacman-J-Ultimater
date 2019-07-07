@@ -1,7 +1,7 @@
 package pacman_ultimater.project_base.core;
 
 import pacman_ultimater.project_base.custom_utils.IntPair;
-import pacman_ultimater.project_base.custom_utils.Quintet;
+import pacman_ultimater.project_base.custom_utils.Sextet;
 import pacman_ultimater.project_base.gui_swing.model.GameModel;
 
 import javax.swing.*;
@@ -61,7 +61,7 @@ public class Editor
         fromFile = false;
     }
 
-    public Editor(JPanel mainPanel, GameModel vars, Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> map)
+    public Editor(JPanel mainPanel, GameModel vars, Sextet<Tile[][], Integer, IntPair, Color, ArrayList<Point>, Boolean[][]> map)
     {
         this.mainPanel = mainPanel;
         this.vars = vars;

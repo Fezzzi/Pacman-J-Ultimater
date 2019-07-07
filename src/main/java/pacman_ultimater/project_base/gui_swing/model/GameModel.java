@@ -1,8 +1,10 @@
 package pacman_ultimater.project_base.gui_swing.model;
 
+import pacman_ultimater.project_base.ai.DefaultAI;
 import pacman_ultimater.project_base.core.*;
 import pacman_ultimater.project_base.custom_utils.IntPair;
 import pacman_ultimater.project_base.custom_utils.Quintet;
+import pacman_ultimater.project_base.custom_utils.Sextet;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
 public class GameModel {
 
     public int score, score2, lives, highScore, soundTick, collectedDots, ghostsEaten, ghostRelease,
-            level, freeGhosts, ticks, eatEmTimer, fruitLife;
+            level, freeGhosts, ticks, eatEmTimer, fruitLife, scatterMode, chaseMode, modeSwitchCounter;
     public Integer keyCountdown1, keyCountdown2, keyCountdown3, keyCountdown4;
     public float vMult, hMult;
     public Boolean gameOn, editor;
@@ -25,13 +27,12 @@ public class GameModel {
             keyPressed4, killed;
     public Clip musicPlayer;
     public Clip[] soundPlayers;
-    public Quintet<Tile[][], Integer, IntPair, Color, ArrayList<Point>> map;
+    public Sextet<Tile[][], Integer, IntPair, Color, ArrayList<Point>, Boolean[][]> map;
     public Tile[][] mapFresh;
     public ArrayList<JLabel> addedComponents;
     public LoadMap loadedMap;
 
     public ArrayList<Quintet<Integer, Integer, JLabel, Direction.directionType, DefaultAI>> entities;
-    public DefaultAI[] defaultAIs;
     public IntPair topGhostInTiles;
     public JLabel[] pacLives;
     public final Dimension defSize;
