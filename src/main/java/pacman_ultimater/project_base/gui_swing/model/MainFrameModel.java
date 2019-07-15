@@ -17,7 +17,6 @@ public class MainFrameModel
 {
     private final MainFrame mainFrame;
     public final JPanel mainPanel;
-    public final JFileChooser openFileDialog1;
     public Timer pacUpdater;
     public Timer ghostUpdater;
     public Timer pacSmoothTimer;
@@ -73,7 +72,6 @@ public class MainFrameModel
     {
         mainFrame = view;
         mainPanel = view.getMainPanel();
-        openFileDialog1 = view.getOpenFileDialog1();
         ghostUpdater = view.getGhostUpdater();
         ghostSmoothTimer = view.getGhostSmoothTimer();
         pacUpdater = view.getPacUpdater();

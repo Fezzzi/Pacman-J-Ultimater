@@ -9,9 +9,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import javax.swing.filechooser.FileFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ public class MenuController implements IKeyDownHandler
     private GameplayController gp;
     private final KeyBindings kb;
     private Editor editor;
+    private final FileFilter fileFilter;
 
     //</editor-fold>
 
@@ -46,6 +46,16 @@ public class MenuController implements IKeyDownHandler
         multiplayerOption = 0;
         menuLayer = MenuController.mn.start;
         menuSelected = new Pair<>(MenuController.mn.game, model.orgGameLbl);
+        fileFilter = new javax.swing.filechooser.FileFilter() {
+            public boolean accept(File dir) {
+                if(dir.isFile())
+                    return dir.getName().toLowerCase().endsWith(".txt");
+                return true;
+            }
+            public String getDescription(){
+                return "";
+            }
+        };
 
         initListeners();
         kb = new KeyBindings(model.mainPanel, this);
@@ -321,11 +331,14 @@ public class MenuController implements IKeyDownHandler
     private void selectMap_Click()
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, FileNotFoundException
     {
-        if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION)
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(fileFilter);
+        fileChooser.setDialogTitle("Choose Map File");
+        if (fileChooser.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION)
         {
             menuLayer = mn.submenu;
             menu(this.getClass().getDeclaredMethod("menu_SelectMap"));
-            String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
             if (symbols.size() == 0)
                 vars.loadedMap = new LoadMap(new FileInputStream(path));
             else
@@ -467,8 +480,11 @@ public class MenuController implements IKeyDownHandler
     private void editButton_Click()
         throws FileNotFoundException
     {
-        if (model.openFileDialog1.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION) {
-            String path = model.openFileDialog1.getSelectedFile().getAbsolutePath();
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(fileFilter);
+        fileChooser.setDialogTitle("Choose Map File");
+        if (fileChooser.showOpenDialog(model.mainPanel) == JFileChooser.APPROVE_OPTION) {
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
             LoadMap map = new LoadMap(new FileInputStream(path));
             if (map.Map != null) {
                 model.editBtnSelectorLbl.setVisible(false);

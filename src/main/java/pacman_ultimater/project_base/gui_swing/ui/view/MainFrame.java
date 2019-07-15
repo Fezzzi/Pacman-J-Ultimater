@@ -4,9 +4,7 @@ import pacman_ultimater.project_base.core.ClasspathFileReader;
 import pacman_ultimater.project_base.core.LoadMap;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -18,7 +16,6 @@ public class MainFrame extends JFrame{
     //<editor-fold desc="- FRAME COMPONENTS Block -">
 
     private JPanel mainPanel;
-    private JFileChooser openFileDialog1;
 
     private Timer pacUpdater;
     private Timer ghostUpdater;
@@ -108,21 +105,6 @@ public class MainFrame extends JFrame{
         mainPanel.setLayout(null);
         mainPanel.setBackground(SystemColor.BLACK);
         mainPanel.setFocusable(true);
-        //
-        // Open File Dialog
-        //
-        openFileDialog1.setDialogTitle("Choose Map File");
-        openFileDialog1.setFileFilter(new FileFilter() {
-            public boolean accept(File dir) {
-                if(dir.isFile())
-                    return dir.getName().toLowerCase().endsWith(".txt");
-                return true;
-            }
-            public String getDescription(){
-                return "";
-            }
-        });
-        openFileDialog1.setFocusable(false);
         //
         // Pacman
         //
@@ -616,7 +598,6 @@ public class MainFrame extends JFrame{
 
     private void instantiateComponents(){
         mainPanel = new JPanel();
-        openFileDialog1 = new JFileChooser();
 
         // Timers will be set up properly lately
         pacUpdater = pacSmoothTimer = ghostUpdater = ghostSmoothTimer = null;
@@ -695,7 +676,6 @@ public class MainFrame extends JFrame{
         mainPanel.add(errorInfoLbl);
         mainPanel.add(editorLbl);
         mainPanel.add(aboutLbl);
-        mainPanel.add(openFileDialog1);
         mainPanel.add(editExistingButLbl);
         mainPanel.add(editBtnSelectorLbl);
         mainPanel.add(createNewButLbl);
@@ -877,10 +857,6 @@ public class MainFrame extends JFrame{
     }
     public Timer getGhostSmoothTimer() {
         return ghostSmoothTimer;
-    }
-
-    public JFileChooser getOpenFileDialog1() {
-        return openFileDialog1;
     }
 
     //</editor-fold>
